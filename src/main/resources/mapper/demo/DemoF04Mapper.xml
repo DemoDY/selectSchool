@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  描述:[demo][人员]查询方法的sql文件
+ @version: 0_1
+ @author: AutoGenerate
+ @date: 2017-10-11 16:07:48
+ -->
+<mapper namespace="com.hyp.demo.restful.blogic">
+    <!-- <cache type="org.mybatis.caches.hazelcast.HazelcastCache"/> -->
+    <!-- 通过demoId查询 -->
+    <select id="DemoSQL01" parameterType="com.hyp.demo.blogic.sqlDto.DemoSQL01IM" 
+        resultType="com.hyp.demo.blogic.sqlDto.DemoSQL01OM">
+        select 
+			id,
+			name,
+			age 
+		from 
+			demo 
+		where 
+		    1 = 1
+		<if test="id != null and id != ''">
+			AND id = #{id,jdbcType=VARCHAR}
+		</if>
+    </select>
+</mapper>
