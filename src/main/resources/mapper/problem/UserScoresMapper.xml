@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.select.school.dao.mapper.UserScoresMapper">
+    <resultMap type="com.select.school.model.entity.UserScores" id="userScores">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="open_id" property="openId" jdbcType="VARCHAR"/>
+        <result column="scores" property="scores"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="o_tl" property="tl" jdbcType="VARCHAR"/>
+        <result column="act_sat" property="actSat" jdbcType="VARCHAR"/>
+        <result column="ap_ib" property="apIb" jdbcType="VARCHAR"/>
+    </resultMap>
+    <insert id="insertList" parameterType="com.select.school.model.entity.UserScores">
+        insert into d_user_scores (id, username, open_id, scores, createTime, o_tl, act_sat, ap_ib )
+        values ( #{id}, #{username}, #{openId}, #{scores},  #{createTime}, #{tl}, #{actSat}, #{apIb} )
+    </insert>
+
+    <select id="selectUsername" resultMap="userScores">
+        select id, username,
+        open_id,
+        scores,
+        createTime,
+        o_tl,
+        act_sat,
+        ap_ib from d_user_scores
+        where username = #{username}
+    </select>
+</mapper>

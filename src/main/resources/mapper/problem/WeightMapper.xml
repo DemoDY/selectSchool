@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.select.school.dao.mapper.WeightMapper">
+
+    <select id="selectWeightList" resultType="com.select.school.model.entity.Weight">
+        select id,scores_id,ap_sat_weight,ap_act_weight,ib_sat_weight,ib_act_weight,school_id
+        from d_weight
+    </select>
+
+
+    <select id="selectIbActWeightDream" resultType="com.select.school.model.entity.Weight" resultMap="class java.lang.Integer">
+        select id,scores_id,ap_sat_weight,ap_act_weight,ib_sat_weight,ib_act_weight,school_id
+        from d_weight
+        where
+        <if test="IbActWeight!=null and IbActWeight!=0">
+            ib_act_weight &lt; #{IbActWeight+10} and  ib_act_weight &gt; #{IbActWeight-5}
+        </if>
+    </select>
+
+
+</mapper>
