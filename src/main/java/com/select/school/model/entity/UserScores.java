@@ -7,7 +7,7 @@ public class UserScores {
     private String username;
     private String openId;
     //得分
-    private Integer scores;
+    private int scores;
     /**
      * 雅思或者托福
      */

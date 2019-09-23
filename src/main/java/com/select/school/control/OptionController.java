@@ -5,32 +5,51 @@ import com.select.school.model.dto.OptionDTO;
 import com.select.school.model.entity.Option;
 import com.select.school.model.vo.OptionVo;
 import com.select.school.service.OptionService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.select.school.service.ProblemService;
+import com.select.school.service.UserScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
-@RequestMapping("/option")
-@RestController
+@Controller
+@RequestMapping(value = "option")
 public class OptionController {
-    private static Logger logger = LoggerFactory.getLogger(OptionController.class);
 
     @Autowired
-    private OptionService optionService;
+    private ProblemService problemService;
+
+    @Autowired
+    private UserScoreService userScoreService;
 
     /**
+     * 问题接口
+     *
+     * @return
+     */
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/problemList")
+    @ResponseBody
+    public AjaxResult problemList() {
+        AjaxResult ajaxResult = problemService.selectProblems();
+        return ajaxResult;
+    }
+
+    /**
+     * 接收小程序传输数据
      * @param optionVo
      * @return
      */
-    @RequestMapping(method = {RequestMethod.POST}, value = "/option-receive")
+    @RequestMapping(method = {RequestMethod.POST}, value = "/optionReceive")
     @ResponseBody
     public AjaxResult optionReceive(@RequestBody OptionVo optionVo) {
         try {
             List<OptionDTO> options = optionVo.getOptionList();
             // 执行批量保存
-            optionService.selectOption(options);
+            userScoreService.selectOption(options);
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResult.error(900, "操作失败：系统错误");

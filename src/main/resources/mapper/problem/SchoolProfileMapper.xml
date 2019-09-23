@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.select.school.dao.mapper.SchoolProfileMapper">
-
-        <select id="selectById" resultType="com.select.school.model.entity.SchoolProfile">
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.select.school.dao.mapper.OptionMapper">
+   <!-- <select id="selectById" resultType="com.select.school.model.entity.SchoolProfile">
                 select * from d_school_profile where id = #{id}
-        </select>
+    </select>-->
 </mapper>

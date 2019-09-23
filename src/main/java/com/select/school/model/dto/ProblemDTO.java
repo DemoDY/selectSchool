@@ -15,8 +15,14 @@ public class ProblemDTO {
      * 标题说明
      */
     private String description;
+    private int number;
+    /**
+     * 单选 (radio) or 多选(checkbox)
+     * @return
+     */
+    private String radioCheckBox;
 
-    private List<OptionDTO> optionList;
+    private List<Option> optionList;
 
     public String getId() {
         return id;
@@ -24,6 +30,14 @@ public class ProblemDTO {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     public String getTitle() {
@@ -42,11 +56,19 @@ public class ProblemDTO {
         this.description = description;
     }
 
-    public List<OptionDTO> getOptionList() {
+    public List<Option> getOptionList() {
         return optionList;
     }
 
-    public void setOptionList(List<OptionDTO> optionList) {
+    public void setOptionList(List<Option> optionList) {
         this.optionList = optionList;
+    }
+
+    public String getRadioCheckBox() {
+        return radioCheckBox;
+    }
+
+    public void setRadioCheckBox(String radioCheckBox) {
+        this.radioCheckBox = radioCheckBox;
     }
 }

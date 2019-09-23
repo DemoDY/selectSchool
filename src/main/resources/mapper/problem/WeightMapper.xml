@@ -1,21 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.select.school.dao.mapper.WeightMapper">
+    <resultMap id="option" type="com.select.school.model.entity.Weight">
+        <id column="id" property="id"/>
+        <result column="school_id" property="schoolId"/>
+        <result column="scores_id" property="scoresId"/>
+        <result column="ap_sat_weight" property="apSatWeight"/>
+        <result column="ap_act_weight" property="apActWeight"/>
+        <result column="ib_sat_weight" property="ibSatWeight"/>
+        <result column="ib_act_weight" property="ibActWeight"/>
+    </resultMap>
 
     <select id="selectWeightList" resultType="com.select.school.model.entity.Weight">
-        select id,scores_id,ap_sat_weight,ap_act_weight,ib_sat_weight,ib_act_weight,school_id
-        from d_weight
+        select
+        w.id,
+        w.scores_id,
+        w.ap_sat_weight,
+        w.ap_act_weight,
+        w.ib_sat_weight,
+        w.ib_act_weight,
+        w.school_id
+        from d_weight w
     </select>
 
-
-    <select id="selectIbActWeightDream" resultType="com.select.school.model.entity.Weight" resultMap="class java.lang.Integer">
-        select id,scores_id,ap_sat_weight,ap_act_weight,ib_sat_weight,ib_act_weight,school_id
-        from d_weight
+    <select id="selectIbActWeightDream" resultType="com.select.school.model.entity.Weight" parameterType="java.lang.Double">
+        select
+        w.id,
+        w.scores_id,
+        w.ap_sat_weight,
+        w.ap_act_weight,
+        w.ib_sat_weight,
+        w.ib_act_weight,
+        w.school_id
+        from d_weight w
         where
-        <if test="IbActWeight!=null and IbActWeight!=0">
-            ib_act_weight &lt; #{IbActWeight+10} and  ib_act_weight &gt; #{IbActWeight-5}
+        <if test="ibActWeight!=null and ibActWeight!=0">
+            w.ib_act_weight &lt; #{ibActWeight}+5 and  w.ib_act_weight &gt; #{ibActWeight}-5
         </if>
     </select>
-
-
 </mapper>

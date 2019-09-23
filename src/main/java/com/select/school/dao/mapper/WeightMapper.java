@@ -1,11 +1,10 @@
 package com.select.school.dao.mapper;
 
 import com.select.school.model.entity.Weight;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-@Mapper
 public interface WeightMapper {
     /**
      * 查询 权重列表 集合
@@ -15,8 +14,8 @@ public interface WeightMapper {
 
     /**
      * 查询 Ib Act 权重数据
-     * @param IbActWeight
+     * @param ibActWeight
      * @return
      */
-    Weight selectIbActWeightDream(int IbActWeight);
+    List<Weight> selectIbActWeightDream(@Param("ibActWeight") double ibActWeight);
 }

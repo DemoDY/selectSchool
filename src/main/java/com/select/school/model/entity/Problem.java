@@ -6,11 +6,20 @@ public class Problem {
      * 标题
      */
     private String title;
-    private int number;
     /**
      * 标题说明
      */
     private String description;
+    /**
+     * 序号
+     */
+    private int number;
+
+    /**
+     * 单选 (radio) or 多选(checkbox)
+     * @return
+     */
+    private String radioCheckBox;
 
     public String getId() {
         return id;
@@ -42,5 +51,13 @@ public class Problem {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getRadioCheckBox() {
+        return radioCheckBox;
+    }
+
+    public void setRadioCheckBox(String radioCheckBox) {
+        this.radioCheckBox = radioCheckBox;
     }
 }

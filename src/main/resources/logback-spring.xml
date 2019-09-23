@@ -18,8 +18,8 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
         	<!-- Linux文件路径:/home/_xyy_/output/SpringBootDemo/logs/stdout.logFile.%d{yyyy-MM-dd}.log -->
 <!--        	 Windows文件路径:E:\\logs\\temp\\logFile.%d{yyyy-MM-dd}.log -->
-            <fileNamePattern>D:\\selectSchool\\logs\\logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
-<!--            <fileNamePattern>E:/selectSchool/logs/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+<!--            <fileNamePattern>D:\\selectSchool\\logs\\logFile.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+            <fileNamePattern>E:/selectSchool/logs/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>90</maxHistory>
         </rollingPolicy>
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">

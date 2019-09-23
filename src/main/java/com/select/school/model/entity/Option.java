@@ -23,6 +23,11 @@ public class Option {
      */
     private String description;
 
+    /**
+     * 答案序号
+     */
+    private int seq;
+
     public Option() {
     }
 
@@ -69,6 +74,18 @@ public class Option {
         this.description = description;
     }
 
+    public int getSeq() {
+        return seq;
+    }
+
+    public void setSeq(int seq) {
+        this.seq = seq;
+    }
+
+    public String getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
         return "Option{" +
@@ -78,15 +95,17 @@ public class Option {
                 ", number='" + number + '\'' +
                 ", tl='" + tl + '\'' +
                 ", description='" + description + '\'' +
+                ", seq='" + seq + '\'' +
                 '}';
     }
 
-    public Option(String id, int problemId, String option, String number, String tl, String description) {
+    public Option(String id, int problemId, String option, String number, String tl, String description,int seq) {
         this.id = id;
         this.problemId = problemId;
         this.option = option;
         this.number = number;
         this.tl = tl;
         this.description = description;
+        this.seq = seq;
     }
 }
