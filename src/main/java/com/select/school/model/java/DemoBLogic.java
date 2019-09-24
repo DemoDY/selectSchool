@@ -3,7 +3,6 @@ package com.select.school.model.java;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.select.school.model.entity.DemoSQL01IM;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.select.school.model.dto.DemoReqt;
 import com.select.school.model.dto.DemoResp;
 import com.select.school.model.dto.DemoRespS01;
-import com.select.school.model.entity.DemoSQL01OM;
 import com.select.school.dao.QueryDao;
 import com.select.school.service.wxApplet.BizLogic;
 import com.select.school.utils.BeanCopierEx;
