@@ -35,7 +35,7 @@
         from d_weight w
         where
         <if test="ibActWeight!=null and ibActWeight!=0">
-            w.ib_act_weight &lt; #{ibActWeight}+5 and  w.ib_act_weight &gt; #{ibActWeight}-5
+            w.ib_act_weight &lt; #{ibActWeight} and  w.ib_act_weight &gt; #{ibActWeight}
         </if>
     </select>
 </mapper>

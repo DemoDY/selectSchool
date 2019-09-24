@@ -6,31 +6,31 @@ public class SchoolAdmissionScores {
      * 学校简介 id
      */
     private String schoolId;
-    private int firstStudentsNum;//留学生大一入学人数
+    private String firstStudentsNum;//留学生大一入学人数
     private String comAdmissionRate;//2019 综合录取率
-    private int numberFreshmen;//大一新生人数
+    private String numberFreshmen;//大一新生人数
     private String nationalStuAccep;//国际生录取率
-    private double tuitionFees;//学费（美元）
-    private int numNationalFreshmen;//大一国际生人数
+    private String tuitionFees;//学费（美元）
+    private String numNationalFreshmen;//大一国际生人数
     private String chStuHighRank;//中国录取学生高中年级排名
-    private int chStuWeightRank;//中国学生排名权重
-    private double chGpaAvgStu;//中国学生平均GPA
+    private String chStuWeightRank;//中国学生排名权重
+    private String chGpaAvgStu;//中国学生平均GPA
     private String chGpaWeightStu;//中国学生GPA权重
-    private double chSatAvgLowStu;//中国学生SAT平均低位成绩
-    private double chSatAvgHighStu;//中国学生SAT平均高位成绩
-    private double satWeight;//SAT权重
-    private double actAvgResults;//ACT平均成绩
-    private double actWeight;//ACT权重
+    private String chSatAvgLowStu;//中国学生SAT平均低位成绩
+    private String chSatAvgHighStu;//中国学生SAT平均高位成绩
+    private String satWeight;//SAT权重
+    private String actAvgResults;//ACT平均成绩
+    private String actWeight;//ACT权重
     private String apNumCourse;//AP 选课数量
-    private int apWeight;//AP 选课权重
-    private double ibAvgResults;//IB 平均成绩
-    private int ibWeight;//IB 权重
-    private double toeflLowReq;//TOEFL 最低要求
-    private double ieltsLowReq;//IELTS 最低要求
-    private double apSat;//学生选择AP，或者不选，提供SAT成绩
-    private double apAct;//学生选择AP，或者不选，提供ACT成绩
-    private double ibSat;//学生选择IB，提供SAT成绩
-    private double ibAct;// 学生选择IB，提供ACT成绩
+    private String apWeight;//AP 选课权重
+    private String ibAvgResults;//IB 平均成绩
+    private String ibWeight;//IB 权重
+    private String toeflLowReq;//TOEFL 最低要求
+    private String ieltsLowReq;//IELTS 最低要求
+    private String apSat;//学生选择AP，或者不选，提供SAT成绩
+    private String apAct;//学生选择AP，或者不选，提供ACT成绩
+    private String ibSat;//学生选择IB，提供SAT成绩
+    private String ibAct;// 学生选择IB，提供ACT成绩
 
     public String getId() {
         return id;
@@ -48,11 +48,11 @@ public class SchoolAdmissionScores {
         this.schoolId = schoolId;
     }
 
-    public int getFirstStudentsNum() {
+    public String getFirstStudentsNum() {
         return firstStudentsNum;
     }
 
-    public void setFirstStudentsNum(int firstStudentsNum) {
+    public void setFirstStudentsNum(String firstStudentsNum) {
         this.firstStudentsNum = firstStudentsNum;
     }
 
@@ -64,11 +64,11 @@ public class SchoolAdmissionScores {
         this.comAdmissionRate = comAdmissionRate;
     }
 
-    public int getNumberFreshmen() {
+    public String getNumberFreshmen() {
         return numberFreshmen;
     }
 
-    public void setNumberFreshmen(int numberFreshmen) {
+    public void setNumberFreshmen(String numberFreshmen) {
         this.numberFreshmen = numberFreshmen;
     }
 
@@ -80,19 +80,19 @@ public class SchoolAdmissionScores {
         this.nationalStuAccep = nationalStuAccep;
     }
 
-    public double getTuitionFees() {
+    public String getTuitionFees() {
         return tuitionFees;
     }
 
-    public void setTuitionFees(double tuitionFees) {
+    public void setTuitionFees(String tuitionFees) {
         this.tuitionFees = tuitionFees;
     }
 
-    public int getNumNationalFreshmen() {
+    public String getNumNationalFreshmen() {
         return numNationalFreshmen;
     }
 
-    public void setNumNationalFreshmen(int numNationalFreshmen) {
+    public void setNumNationalFreshmen(String numNationalFreshmen) {
         this.numNationalFreshmen = numNationalFreshmen;
     }
 
@@ -104,19 +104,19 @@ public class SchoolAdmissionScores {
         this.chStuHighRank = chStuHighRank;
     }
 
-    public int getChStuWeightRank() {
+    public String getChStuWeightRank() {
         return chStuWeightRank;
     }
 
-    public void setChStuWeightRank(int chStuWeightRank) {
+    public void setChStuWeightRank(String chStuWeightRank) {
         this.chStuWeightRank = chStuWeightRank;
     }
 
-    public double getChGpaAvgStu() {
+    public String getChGpaAvgStu() {
         return chGpaAvgStu;
     }
 
-    public void setChGpaAvgStu(double chGpaAvgStu) {
+    public void setChGpaAvgStu(String chGpaAvgStu) {
         this.chGpaAvgStu = chGpaAvgStu;
     }
 
@@ -128,43 +128,43 @@ public class SchoolAdmissionScores {
         this.chGpaWeightStu = chGpaWeightStu;
     }
 
-    public double getChSatAvgLowStu() {
+    public String getChSatAvgLowStu() {
         return chSatAvgLowStu;
     }
 
-    public void setChSatAvgLowStu(double chSatAvgLowStu) {
+    public void setChSatAvgLowStu(String chSatAvgLowStu) {
         this.chSatAvgLowStu = chSatAvgLowStu;
     }
 
-    public double getChSatAvgHighStu() {
+    public String getChSatAvgHighStu() {
         return chSatAvgHighStu;
     }
 
-    public void setChSatAvgHighStu(double chSatAvgHighStu) {
+    public void setChSatAvgHighStu(String chSatAvgHighStu) {
         this.chSatAvgHighStu = chSatAvgHighStu;
     }
 
-    public double getSatWeight() {
+    public String getSatWeight() {
         return satWeight;
     }
 
-    public void setSatWeight(double satWeight) {
+    public void setSatWeight(String satWeight) {
         this.satWeight = satWeight;
     }
 
-    public double getActAvgResults() {
+    public String getActAvgResults() {
         return actAvgResults;
     }
 
-    public void setActAvgResults(double actAvgResults) {
+    public void setActAvgResults(String actAvgResults) {
         this.actAvgResults = actAvgResults;
     }
 
-    public double getActWeight() {
+    public String getActWeight() {
         return actWeight;
     }
 
-    public void setActWeight(double actWeight) {
+    public void setActWeight(String actWeight) {
         this.actWeight = actWeight;
     }
 
@@ -176,75 +176,75 @@ public class SchoolAdmissionScores {
         this.apNumCourse = apNumCourse;
     }
 
-    public int getApWeight() {
+    public String getApWeight() {
         return apWeight;
     }
 
-    public void setApWeight(int apWeight) {
+    public void setApWeight(String apWeight) {
         this.apWeight = apWeight;
     }
 
-    public double getIbAvgResults() {
+    public String getIbAvgResults() {
         return ibAvgResults;
     }
 
-    public void setIbAvgResults(double ibAvgResults) {
+    public void setIbAvgResults(String ibAvgResults) {
         this.ibAvgResults = ibAvgResults;
     }
 
-    public int getIbWeight() {
+    public String getIbWeight() {
         return ibWeight;
     }
 
-    public void setIbWeight(int ibWeight) {
+    public void setIbWeight(String ibWeight) {
         this.ibWeight = ibWeight;
     }
 
-    public double getToeflLowReq() {
+    public String getToeflLowReq() {
         return toeflLowReq;
     }
 
-    public void setToeflLowReq(double toeflLowReq) {
+    public void setToeflLowReq(String toeflLowReq) {
         this.toeflLowReq = toeflLowReq;
     }
 
-    public double getIeltsLowReq() {
+    public String getIeltsLowReq() {
         return ieltsLowReq;
     }
 
-    public void setIeltsLowReq(double ieltsLowReq) {
+    public void setIeltsLowReq(String ieltsLowReq) {
         this.ieltsLowReq = ieltsLowReq;
     }
 
-    public double getApSat() {
+    public String getApSat() {
         return apSat;
     }
 
-    public void setApSat(double apSat) {
+    public void setApSat(String apSat) {
         this.apSat = apSat;
     }
 
-    public double getApAct() {
+    public String getApAct() {
         return apAct;
     }
 
-    public void setApAct(double apAct) {
+    public void setApAct(String apAct) {
         this.apAct = apAct;
     }
 
-    public double getIbSat() {
+    public String getIbSat() {
         return ibSat;
     }
 
-    public void setIbSat(double ibSat) {
+    public void setIbSat(String ibSat) {
         this.ibSat = ibSat;
     }
 
-    public double getIbAct() {
+    public String getIbAct() {
         return ibAct;
     }
 
-    public void setIbAct(double ibAct) {
+    public void setIbAct(String ibAct) {
         this.ibAct = ibAct;
     }
 }

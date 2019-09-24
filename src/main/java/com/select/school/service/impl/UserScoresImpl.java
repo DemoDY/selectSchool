@@ -41,7 +41,7 @@ public class UserScoresImpl implements UserScoreService {
         String toefl = "";
         String act_sat = "";
         String ib_ap = "";
-        String username = "230242591";
+        String openId = "js231foi823412h23";
         String sex = "";
         UserScores userScores = new UserScores();
         String id = UUID.randomUUID().toString();
@@ -81,61 +81,74 @@ public class UserScoresImpl implements UserScoreService {
                     toefl = option.getOption();
                 }
             }
+//            openId = option.getOpenId();
         }
         if (toefl != "" && ielts != "") {
             if (toefl.equals(">=100")) {
                 // 1 如果 托福 是大于100分 以托福为主。不管雅思多少分c
                 if (ielts.equals("7.5") || ielts.equals("7") || ielts.equals("6.5") || ielts.equals("6") || ielts.equals("5.5") || ielts.equals("低于5.5")) {
-                    userScores.setTl(toefl);
+                    userScores.setTl("TOEFL");
+                    userScores.setTlScore(toefl);
                 }
             }
             if (toefl.equals("99—90")) {
                 // 2 如果 托福 是99—90分 而 雅思是 7.5以上  以雅思为主 否则以托福为主。
                 if (ielts.equals("7.5")) {
-                    userScores.setTl(ielts);
+                    userScores.setTl("IELTS");
+                    userScores.setTlScore(ielts);
                 }
                 if (ielts.equals("7") || ielts.equals("6.5") || ielts.equals("6") || ielts.equals("5.5") || ielts.equals("低于5.5")) {
-                    userScores.setTl(toefl);
+                    userScores.setTl("TOEFL");
+                    userScores.setTlScore(toefl);
                 }
             }
 
             if (toefl.equals("89—79")) {
                 // 3 如果 托福 是89—79分 而雅思是 7以上 以雅思为主 否则以托福为主。
                 if (ielts.equals("7.5") || ielts.equals("7")) {
-                    userScores.setTl(ielts);
+                    userScores.setTl("IELTS");
+                    userScores.setTlScore(ielts);
                 }
                 if (ielts.equals("6.5") || ielts.equals("6") || ielts.equals("5.5") || ielts.equals("低于5.5")) {
-                    userScores.setTl(toefl);
+                    userScores.setTl("TOEFL");
+                    userScores.setTlScore(toefl);
                 }
             }
             if (toefl.equals("78—69")) {
                 // 4 如果 托福 是78—69分 而雅思是 6.5以上 以雅思为主 否则以托福为主。
                 if (ielts.equals("7.5") || ielts.equals("7") || ielts.equals("6.5")) {
-                    userScores.setTl(ielts);
+                    userScores.setTl("IELTS");
+                    userScores.setTlScore(ielts);
                 }
                 if (ielts.equals("6") || ielts.equals("5.5") || ielts.equals("低于5.5")) {
-                    userScores.setTl(toefl);
+                    userScores.setTlScore(toefl);
+                    userScores.setTl("TOEFL");
                 }
             }
             if (toefl.equals("68-61")) {
                 // 5 如果 托福 是68-61分 而雅思是 6.5以上 以雅思为主 否则以托福为主。
                 if (ielts.equals("7.5") || ielts.equals("7") || ielts.equals("6.5") || ielts.equals("6")) {
-                    userScores.setTl(ielts);
+                    userScores.setTl("IELTS");
+                    userScores.setTlScore(ielts);
                 }
                 if (ielts.equals("5.5") || ielts.equals("低于5.5")) {
-                    userScores.setTl(toefl);
+                    userScores.setTlScore(toefl);
+                    userScores.setTl("TOEFL");
                 }
             }
             if (toefl.equals("小于61")) {
                 if (ielts.equals("低于5.5")) {
-                    userScores.setTl(toefl);
+                    userScores.setTlScore(toefl);
+                    userScores.setTl("TOEFL");
                 }
             }
         }
         if (toefl != "" && ielts == "") {
+            userScores.setTlScore(toefl);
             userScores.setTl(toefl);
         }
         if (toefl == "" && ielts != "") {
+            userScores.setTlScore(ielts);
             userScores.setTl(ielts);
         }
         if (sex.equals("女")) {
@@ -152,64 +165,79 @@ public class UserScoresImpl implements UserScoreService {
         System.out.println(num);
 
         userScores.setCreateTime(new Date());
+
         userScores.setScores(num);
         userScores.setActSat(act_sat);
         userScores.setApIb(ib_ap);
-        userScores.setUsername(username);
-        userScores.setOpenId("92302121");
+        userScores.setOpenId(openId);
         userScores.setId(id);
-
-//        userScoresMapper.insertList(userScores);
-//        selectSchool(username);
+        /*userScoresMapper.insertList(userScores);
+        selectSchool(openId);*/
         return AjaxResult.success();
     }
 
     /**
      * 根据学生成绩查询 九所学校
      *
-     * @param username
+     * @param openId
      * @return
      */
-    public AjaxResult selectSchool(String username) {
+    public AjaxResult selectSchool(String openId) {
         AjaxResult ajaxResult = new AjaxResult();
-        UserScores userScores = userScoresMapper.selectUsername(username);
+        UserScores userScores = userScoresMapper.selectOpenId(openId);
         String sat_act = userScores.getActSat();
         String ib_ap = userScores.getApIb();
         String tl = userScores.getTl();
         List<SchoolProfileVo> schoolProfileVos = new ArrayList<>();
         List<Weight> weights = weightMapper.selectWeightList();
         List<Weight> weightSelect = null;
+        int num=0;
         SchoolProfile schoolProfile = null;
-        for (Weight weight : weights) {
-            SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
-            if (sat_act.equals("ACT")) {
-                if (ib_ap.equals("IB")) {//act ib
-                    weightSelect = weightMapper.selectIbActWeightDream(userScores.getScores() + 50);
+        SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+
+
+        if (sat_act.equals("ACT")) {
+
+            if (ib_ap.equals("IB")) {//act ib
+                weightSelect = weightMapper.selectIbActWeightDream(userScores.getScores() + 50);
 //                    schoolProfile = schoolProfileMapper.selectById(weightSelect.getSchoolId());
-                    BeanCopierEx.copy(schoolProfile, schoolProfileVo);
-                    schoolProfileVo.setDreamSchool("dream");
-                    schoolProfileVos.add(schoolProfileVo);
-                    System.out.println("IB ACT_IB===" + userScores.getScores());
-                }
-                if (ib_ap.equals("AP")) {//act ap
-                    double act_ap = weight.getApActWeight();
-                    System.out.println("AP ACT_AP===" + userScores.getScores());
-                }
+                BeanCopierEx.copy(schoolProfile, schoolProfileVo);
+                schoolProfileVo.setDreamSchool("dream");
+                schoolProfileVos.add(schoolProfileVo);
+                System.out.println("IB ACT_IB===" + userScores.getScores());
             }
-            if (sat_act.equals("SAT")) {
-                if (ib_ap.equals("IB")) {//sat ib
-                    double sat_ib = weight.getIbSatWeight();
-                    System.out.println("IB SAT_IB===" + userScores.getScores());
-                }
-                if (ib_ap.equals("AP")) {//sat ap
+            if (ib_ap.equals("AP")) {//act ap
+//                double act_ap = weight.getApActWeight();
+                System.out.println("AP ACT_AP===" + userScores.getScores());
+            }
+        }
+        if (sat_act.equals("SAT")) {
+            if (ib_ap.equals("IB")) {//sat ib
+//                double sat_ib = weight.getIbSatWeight();
+                System.out.println("IB SAT_IB===" + userScores.getScores());
+            }
+            if (ib_ap.equals("AP")) {//sat ap
+                //梦想学校 求具体分数 得出三个学校 加60分 如果没有 就依次往下减10分
+                weightSelect = weightMapper.selectIbActWeightDream(userScores.getScores() + 60);
+                num = weightSelect.size();
+                if(weightSelect.size() < 3){
                     weightSelect = weightMapper.selectIbActWeightDream(userScores.getScores() + 50);
+
+                }else if (weightSelect.size() < 3){
+
+                }
 //                    schoolProfile = schoolProfileMapper.selectById(weightSelect.getSchoolId());
 //                    BeanCopierEx.copy(schoolProfile,schoolProfileVo);
 //                    schoolProfileVo.setDreamSchool("dream");
 //                    schoolProfileVos.add(schoolProfileVo);
-                    System.out.println("AP SAT_AP===" + userScores.getScores());
-                }
+                System.out.println("AP SAT_AP===" + userScores.getScores());
             }
+        }
+
+
+        for (Weight weight : weights) {
+
+
         }
         System.out.println("userScore==" + userScores.getActSat());
         ajaxResult.put("school", schoolProfileVos);

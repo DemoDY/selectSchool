@@ -12,9 +12,9 @@ public interface UserScoresMapper {
      */
     int insertList(UserScores userScores);
     /**
-     * 根据用户名查询
-     * @param username
+     * 根据openId查询
+     * @param openId
      * @return
      */
-    UserScores selectUsername(String username);
+    UserScores selectOpenId(String openId);
 }

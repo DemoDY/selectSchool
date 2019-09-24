@@ -7,6 +7,7 @@ public class OptionDTO {
     private String number;
     private String tl;
     private String description;
+    private String openid;
 
     public int getProblemId() {
         return problemId;
@@ -54,5 +55,13 @@ public class OptionDTO {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
     }
 }
