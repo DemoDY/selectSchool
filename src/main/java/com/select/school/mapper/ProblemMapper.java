@@ -1,4 +1,4 @@
-package com.select.school.dao.mapper;
+package com.select.school.mapper;
 
 import com.select.school.model.dto.ProblemDTO;
 

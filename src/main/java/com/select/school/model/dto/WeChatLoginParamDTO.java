@@ -1,21 +1,21 @@
 /**
  * projectName: selectSchool
- * fileName: WeChatLoginParamVO.java
+ * fileName: WeChatLoginParamDTO.java
  * packageName: com.select.school.vo
  * date: 2019-09-24
  * copyright(c) 2017-2020 德慧公司
  */
-package com.select.school.vo;
+package com.select.school.model.dto;
 
 /**
  * @version: V1.0
  * @author: DongXiaoMing
- * @className: WeChatLoginParamVO
+ * @className: WeChatLoginParamDTO
  * @packageName: com.select.school.vo
  * @description: 微信小程序登录参数
  * @data: 2019-09-24
  **/
-public class WeChatLoginParamVO {
+public class WeChatLoginParamDTO {
 
     private String code;
     private String nickName;    //昵称
@@ -56,7 +56,7 @@ public class WeChatLoginParamVO {
 
     @Override
     public String toString() {
-        return "WeChatLoginParamVO{" +
+        return "WeChatLoginParamDTO{" +
                 "code='" + code + '\'' +
                 ", nickName='" + nickName + '\'' +
                 ", avatarUrl='" + avatarUrl + '\'' +

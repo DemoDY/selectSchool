@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.select.school.dao.mapper.WeightMapper">
+<mapper namespace="com.select.school.mapper.WeightMapper">
     <resultMap id="option" type="com.select.school.model.entity.Weight">
         <id column="id" property="id"/>
         <result column="school_id" property="schoolId"/>

@@ -1,15 +1,15 @@
 package com.select.school.service.wxApplet.impl;
 
-import com.select.school.bean.AjaxResult;
-import com.select.school.bean.Const;
-import com.select.school.dao.mapper.ProblemMapper;
+import com.select.school.utils.result.AjaxResult;
+import com.select.school.utils.result.Const;
+import com.select.school.mapper.ProblemMapper;
 import com.select.school.model.dto.ProblemDTO;
 import com.select.school.service.wxApplet.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import static com.select.school.bean.AjaxResult.AJAX_DATA;
+import static com.select.school.utils.result.AjaxResult.AJAX_DATA;
 
 @Service
 public class ProblemImpl implements ProblemService {

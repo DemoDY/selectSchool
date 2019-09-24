@@ -1,11 +1,11 @@
 /**
  * projectName: selectSchool
  * fileName: WechatConfig.java
- * packageName: com.select.school.config
+ * packageName: com.select.school.common.config
  * date: 2019-09-24
  * copyright(c) 2017-2020 德慧公司
  */
-package com.select.school.config;
+package com.select.school.common.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @version: V1.0
  * @author: DongXiaoMing
  * @className: WechatConfig
- * @packageName: com.select.school.config
+ * @packageName: com.select.school.common.config
  * @description: 微信属性配置
  * @data: 2019-09-24
  **/

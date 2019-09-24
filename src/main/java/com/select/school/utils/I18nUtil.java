@@ -12,7 +12,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.select.school.bean.enums.LangEnum;
+import com.select.school.common.bean.enums.LangEnum;
 
 
 

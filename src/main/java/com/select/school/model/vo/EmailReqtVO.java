@@ -1,4 +1,4 @@
-package com.select.school.vo;
+package com.select.school.model.vo;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.select.school.dao.mapper.ProblemMapper">
+<mapper namespace="com.select.school.mapper.ProblemMapper">
     <resultMap id="problemOption" type="com.select.school.model.dto.ProblemDTO">
         <id column="id" jdbcType="VARCHAR" property="id"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>

@@ -10,8 +10,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
 
-import com.select.school.vo.EmailReqtVO;
-import com.select.school.vo.ReceivePeopleVO;
+import com.select.school.model.vo.EmailReqtVO;
+import com.select.school.model.vo.ReceivePeopleVO;
 
 /**
  * java发送邮件，参考地址：http://blog.csdn.net/xietansheng/article/details/51673073

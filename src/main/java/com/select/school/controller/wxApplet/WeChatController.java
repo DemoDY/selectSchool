@@ -7,10 +7,10 @@
  */
 package com.select.school.controller.wxApplet;
 
+import com.select.school.model.dto.WeChatLoginParamDTO;
 import com.select.school.service.wxApplet.WeChatService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseUtil;
-import com.select.school.vo.WeChatLoginParamVO;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,21 +30,20 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping(value = "/wechat")
 public class WeChatController {
-@Resource
-private WeChatService weChatService;
-    /**
-     * 微信小程序登录
-     * @param code
-     * @return
-     */
-    @RequestMapping(value = "/login",method = {RequestMethod.POST})
-    public String login(@RequestBody WeChatLoginParamVO login){
+    @Resource
+    private WeChatService weChatService;
 
-        if (login.getCode() == null || login.getCode().equals("") || login.getCode().equals("null") ){
+    /*
+     * 微信小程序登录
+     */
+    @RequestMapping(value = "/login", method = {RequestMethod.POST})
+    public String login(@RequestBody WeChatLoginParamDTO login) {
+
+        if (login.getCode() == null || login.getCode().equals("") || login.getCode().equals("null")) {
             return ResponseUtil.setResult(ResponseCode.REQUEST_NOT);
         }
-        weChatService.login(login);
+        String response = weChatService.login(login);
 
-        return null;
+        return response;
     }
 }

@@ -1,4 +1,4 @@
-package com.select.school.bean;
+package com.select.school.utils.result;
 
 public class Const {
     public enum CodeEnum{

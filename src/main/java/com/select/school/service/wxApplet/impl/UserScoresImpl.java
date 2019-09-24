@@ -1,10 +1,10 @@
 package com.select.school.service.wxApplet.impl;
 
-import com.select.school.bean.AjaxResult;
-import com.select.school.bean.BeanCopierEx;
-import com.select.school.dao.mapper.SchoolProfileMapper;
-import com.select.school.dao.mapper.UserScoresMapper;
-import com.select.school.dao.mapper.WeightMapper;
+import com.select.school.utils.result.AjaxResult;
+import com.select.school.common.bean.BeanCopierEx;
+import com.select.school.mapper.SchoolProfileMapper;
+import com.select.school.mapper.UserScoresMapper;
+import com.select.school.mapper.WeightMapper;
 import com.select.school.model.dto.OptionDTO;
 import com.select.school.model.entity.SchoolProfile;
 import com.select.school.model.entity.UserScores;

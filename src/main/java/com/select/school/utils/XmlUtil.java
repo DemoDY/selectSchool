@@ -9,7 +9,7 @@
 //import java.text.SimpleDateFormat;
 //import java.util.ArrayList;
 //
-//import com.select.school.bean.SystemMessage;
+//import com.select.school.common.bean.SystemMessage;
 //import org.apache.commons.lang3.StringUtils;
 //import org.dom4j.Document;
 //import org.dom4j.DocumentException;

@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.pagehelper.Page;
-import com.select.school.bean.PageControllerInfo;
-import com.select.school.bean.ServiceResponseBase;
-import com.select.school.bean.SystemMessage;
-import com.select.school.consts.CommonConsts;
+import com.select.school.common.bean.PageControllerInfo;
+import com.select.school.common.bean.SystemMessage;
+import com.select.school.common.consts.CommonConsts;
 
 public class Pub {
 

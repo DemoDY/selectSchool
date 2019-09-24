@@ -3,7 +3,7 @@ package com.select.school.model.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import com.select.school.bean.PageControllerInfo;
+import com.select.school.common.bean.PageControllerInfo;
 
 
 

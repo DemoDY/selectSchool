@@ -1,6 +1,6 @@
 package com.select.school.controller.wxApplet;
 
-import com.select.school.bean.AjaxResult;
+import com.select.school.utils.result.AjaxResult;
 import com.select.school.model.dto.OptionDTO;
 import com.select.school.model.vo.OptionVo;
 import com.select.school.service.wxApplet.ProblemService;

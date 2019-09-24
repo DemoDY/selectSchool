@@ -8,11 +8,11 @@
 package com.select.school.service.wxApplet.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.select.school.config.WechatConfig;
+import com.select.school.common.config.WechatConfig;
 import com.select.school.model.entity.User;
 import com.select.school.service.wxApplet.WeChatService;
 import com.select.school.utils.dxm.wechat.WeChatUtil;
-import com.select.school.vo.WeChatLoginParamVO;
+import com.select.school.model.dto.WeChatLoginParamDTO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -33,7 +33,7 @@ public class WeChatServiceImpl implements WeChatService {
     private WechatConfig wechatConfig;
 
     @Override
-    public String login(WeChatLoginParamVO LoginVO) {
+    public String login(WeChatLoginParamDTO LoginVO) {
 
         String appid= wechatConfig.getAppid();
         String appscrect= wechatConfig.getAppscrect();
@@ -45,7 +45,7 @@ public class WeChatServiceImpl implements WeChatService {
             User user = new User();
             user.setNickName(wexinResult.get("nickName").toString());
             user.setOpenid(wexinResult.get("openid").toString());
-            user.setMoblie(wexinResult.get("mobile").toString());
+            user.setMobile(wexinResult.get("mobile").toString());
 
         }catch (Exception e){
 
