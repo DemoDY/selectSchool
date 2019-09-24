@@ -1,15 +1,22 @@
 package com.select.school.model.entity;
 
+import java.io.Serializable;
 import java.sql.Date;
 
 /**
  * 用户授权表
  */
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private String id;
-    private String openId;
-    private String username;
-    private Date createTime;
+    private String openid;
+    private String unionid;
+    private String nickName;    //昵称
+    private String mobile;      //手机号
+    private Date createTime;    //创建时间
+    private Date update_time;   //修改时间
 
     public String getId() {
         return id;
@@ -19,20 +26,36 @@ public class User {
         this.id = id;
     }
 
-    public String getOpenId() {
-        return openId;
+    public String getOpenid() {
+        return openid;
     }
 
-    public void setOpenId(String openId) {
-        this.openId = openId;
+    public void setOpenid(String openid) {
+        this.openid = openid;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUnionid() {
+        return unionid;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUnionid(String unionid) {
+        this.unionid = unionid;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public Date getCreateTime() {
@@ -41,5 +64,13 @@ public class User {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Date getUpdate_time() {
+        return update_time;
+    }
+
+    public void setUpdate_time(Date update_time) {
+        this.update_time = update_time;
     }
 }

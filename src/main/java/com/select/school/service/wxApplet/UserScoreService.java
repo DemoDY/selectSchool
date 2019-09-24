@@ -1,4 +1,4 @@
-package com.select.school.service;
+package com.select.school.service.wxApplet;
 
 import com.select.school.bean.AjaxResult;
 import com.select.school.model.dto.OptionDTO;

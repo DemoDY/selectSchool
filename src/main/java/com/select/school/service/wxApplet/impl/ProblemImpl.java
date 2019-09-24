@@ -1,10 +1,10 @@
-package com.select.school.service.impl;
+package com.select.school.service.wxApplet.impl;
 
 import com.select.school.bean.AjaxResult;
 import com.select.school.bean.Const;
 import com.select.school.dao.mapper.ProblemMapper;
 import com.select.school.model.dto.ProblemDTO;
-import com.select.school.service.ProblemService;
+import com.select.school.service.wxApplet.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,3 +1,4 @@
+/*
 package com.select.school.config;
 
 import java.text.MessageFormat;
@@ -21,6 +22,7 @@ import com.select.school.bean.ServiceResponseBase;
 import com.select.school.bean.SystemMessage;
 import com.select.school.exception.BizLogicException;
 
+*/
 /**
  * 描述:全局异常处理
  * 参考地址：http://www.cnblogs.com/java-zhao/archive/2016/08/13/5769018.html
@@ -32,13 +34,16 @@ import com.select.school.exception.BizLogicException;
  * @author: heyanpeng
  * @date: 和2018年7月22日22:24:53
  * @version:v0.1
- */
+ *//*
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
     
-    /**
+    */
+/**
      * 日志
-     */
+     *//*
+
     private final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     
     @ExceptionHandler//处理所有异常
@@ -93,3 +98,4 @@ public class GlobalExceptionHandler {
     
 
 }
+*/

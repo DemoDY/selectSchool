@@ -16,7 +16,7 @@ import com.select.school.model.dto.DemoResp;
 import com.select.school.model.dto.DemoRespS01;
 import com.select.school.model.entity.DemoSQL01OM;
 import com.select.school.dao.QueryDao;
-import com.select.school.service.BizLogic;
+import com.select.school.service.wxApplet.BizLogic;
 import com.select.school.utils.BeanCopierEx;
 
 
