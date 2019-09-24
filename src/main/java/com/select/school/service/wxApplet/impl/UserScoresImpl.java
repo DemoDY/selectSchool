@@ -1,4 +1,4 @@
-package com.select.school.service.impl;
+package com.select.school.service.wxApplet.impl;
 
 import com.select.school.bean.AjaxResult;
 import com.select.school.bean.BeanCopierEx;
@@ -10,7 +10,7 @@ import com.select.school.model.entity.SchoolProfile;
 import com.select.school.model.entity.UserScores;
 import com.select.school.model.entity.Weight;
 import com.select.school.model.vo.SchoolProfileVo;
-import com.select.school.service.UserScoreService;
+import com.select.school.service.wxApplet.UserScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

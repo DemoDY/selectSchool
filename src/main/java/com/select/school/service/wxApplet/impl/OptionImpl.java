@@ -1,8 +1,8 @@
-package com.select.school.service.impl;
+package com.select.school.service.wxApplet.impl;
 
 import com.select.school.dao.mapper.OptionMapper;
 import com.select.school.model.entity.Option;
-import com.select.school.service.OptionService;
+import com.select.school.service.wxApplet.OptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

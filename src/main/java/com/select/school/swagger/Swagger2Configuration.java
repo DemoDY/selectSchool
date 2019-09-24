@@ -20,7 +20,7 @@ public class Swagger2Configuration {
         return new Docket(DocumentationType.SWAGGER_2) 
                 .apiInfo(buildApiInf()) 
                 .select() 
-                .apis(RequestHandlerSelectors.basePackage("com.select.school.control"))//要扫描的API(Controller)基础包
+                .apis(RequestHandlerSelectors.basePackage("com.select.school.controller"))//要扫描的API(Controller)基础包
                 .paths(PathSelectors.any()) 
                 .build(); 
     }

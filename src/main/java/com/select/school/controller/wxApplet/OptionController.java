@@ -1,12 +1,10 @@
-package com.select.school.control;
+package com.select.school.controller.wxApplet;
 
 import com.select.school.bean.AjaxResult;
 import com.select.school.model.dto.OptionDTO;
-import com.select.school.model.entity.Option;
 import com.select.school.model.vo.OptionVo;
-import com.select.school.service.OptionService;
-import com.select.school.service.ProblemService;
-import com.select.school.service.UserScoreService;
+import com.select.school.service.wxApplet.ProblemService;
+import com.select.school.service.wxApplet.UserScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
