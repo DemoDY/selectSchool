@@ -1,7 +1,7 @@
 package com.select.school.service.wxApplet.impl;
 
+import com.select.school.utils.BeanCopierEx;
 import com.select.school.utils.result.AjaxResult;
-import com.select.school.common.bean.BeanCopierEx;
 import com.select.school.mapper.SchoolProfileMapper;
 import com.select.school.mapper.UserScoresMapper;
 import com.select.school.mapper.WeightMapper;
@@ -11,6 +11,7 @@ import com.select.school.model.entity.UserScores;
 import com.select.school.model.entity.Weight;
 import com.select.school.model.vo.SchoolProfileVo;
 import com.select.school.service.wxApplet.UserScoreService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,7 +84,7 @@ public class UserScoresImpl implements UserScoreService {
             }
 //            openId = option.getOpenId();
         }
-        if (toefl != "" && ielts != "") {
+        if (StringUtils.isNotBlank(toefl) && StringUtils.isNotBlank(ielts)) {
             if (toefl.equals(">=100")) {
                 // 1 如果 托福 是大于100分 以托福为主。不管雅思多少分c
                 if (ielts.equals("7.5") || ielts.equals("7") || ielts.equals("6.5") || ielts.equals("6") || ielts.equals("5.5") || ielts.equals("低于5.5")) {
@@ -143,13 +144,15 @@ public class UserScoresImpl implements UserScoreService {
                 }
             }
         }
-        if (toefl != "" && ielts == "") {
+        //如果 托福不为空 雅思为空 则保存托福成绩
+        if (StringUtils.isNotBlank(toefl )&& StringUtils.isEmpty(ielts) ) {
             userScores.setTlScore(toefl);
-            userScores.setTl(toefl);
+            userScores.setTl("TOEFL");
         }
+        //如果 雅思不为空 托福为空 则保存雅思成绩
         if (toefl == "" && ielts != "") {
             userScores.setTlScore(ielts);
-            userScores.setTl(ielts);
+            userScores.setTl("IELTS");
         }
         if (sex.equals("女")) {
             //因为本来分数是已经加到一起的 所以 如果小于500就减去原有的10分
@@ -162,17 +165,14 @@ public class UserScoresImpl implements UserScoreService {
                 num = num - 10;
             }
         }
-        System.out.println(num);
-
         userScores.setCreateTime(new Date());
-
         userScores.setScores(num);
         userScores.setActSat(act_sat);
         userScores.setApIb(ib_ap);
         userScores.setOpenId(openId);
         userScores.setId(id);
-        /*userScoresMapper.insertList(userScores);
-        selectSchool(openId);*/
+        userScoresMapper.insertList(userScores);
+//        selectSchool(openId);
         return AjaxResult.success();
     }
 
@@ -188,13 +188,17 @@ public class UserScoresImpl implements UserScoreService {
         String sat_act = userScores.getActSat();
         String ib_ap = userScores.getApIb();
         String tl = userScores.getTl();
+        String tlScore = userScores.getTlScore();
         List<SchoolProfileVo> schoolProfileVos = new ArrayList<>();
         List<Weight> weights = weightMapper.selectWeightList();
         List<Weight> weightSelect = null;
         int num=0;
         SchoolProfile schoolProfile = null;
         SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+        if (tl.equals("TOEFL")){
 
+        }
+        if (tl.equals("IELTS"))
 
         if (sat_act.equals("ACT")) {
 

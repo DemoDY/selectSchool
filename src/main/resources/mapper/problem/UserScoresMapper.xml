@@ -13,8 +13,8 @@
     </resultMap>
 
     <insert id="insertList" parameterType="com.select.school.model.entity.UserScores">
-        insert into d_user_scores (id, open_id, scores, createTime, o_tl, act_sat, ap_ib )
-        values (#{id}, #{openId}, #{scores},  #{createTime}, #{tl}, #{actSat}, #{apIb} )
+        insert into d_user_scores (id, open_id, scores, createTime, o_tl,o_tl_score ,act_sat, ap_ib )
+        values (#{id}, #{openId}, #{scores},  #{createTime}, #{tl},#{tlScore},#{actSat}, #{apIb} )
     </insert>
 
     <select id="selectOpenId" resultMap="user">
@@ -23,6 +23,7 @@
         u.scores,
         u.createTime,
         u.o_tl,
+        u.o_tl_score,
         u.act_sat,
         u.ap_ib
         from d_user_scores u
