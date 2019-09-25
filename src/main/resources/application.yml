@@ -80,5 +80,3 @@ wechat:
     appid: wx1330df3ec7f2cac0
     appscrect: 0ddba9f0f9ef6eb42c2e8b6e37b78fc3
     key: 123
-    # APIUrl
-    loginUrl: https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code

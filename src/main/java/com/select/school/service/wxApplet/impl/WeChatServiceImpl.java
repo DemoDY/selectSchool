@@ -8,9 +8,12 @@
 package com.select.school.service.wxApplet.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.select.school.common.config.WechatConfig;
+import com.select.school.config.WechatConfig;
+import com.select.school.mapper.UserMapper;
 import com.select.school.model.entity.User;
 import com.select.school.service.wxApplet.WeChatService;
+import com.select.school.utils.dxm.result.ResponseCode;
+import com.select.school.utils.dxm.result.ResponseUtil;
 import com.select.school.utils.dxm.wechat.WeChatUtil;
 import com.select.school.model.dto.WeChatLoginParamDTO;
 import org.springframework.stereotype.Service;
@@ -31,26 +34,37 @@ public class WeChatServiceImpl implements WeChatService {
 
     @Resource
     private WechatConfig wechatConfig;
+    @Resource
+    private UserMapper userMapper;
 
     @Override
-    public String login(WeChatLoginParamDTO LoginVO) {
-
-        String appid= wechatConfig.getAppid();
-        String appscrect= wechatConfig.getAppscrect();
-        // 调取微信登录接口获取openid
-        String result = WeChatUtil.login(LoginVO.getCode(), appid, appscrect);
-        JSONObject wexinResult = JSONObject.parseObject(result);
-        // 保存用户信息到数据库
+    public String login(WeChatLoginParamDTO login) {
         try {
-            User user = new User();
-            user.setNickName(wexinResult.get("nickName").toString());
-            user.setOpenid(wexinResult.get("openid").toString());
-            user.setMobile(wexinResult.get("mobile").toString());
+            String appid= wechatConfig.getAppid();
+            String appscrect= wechatConfig.getAppscrect();
+
+            // 调取微信登录接口获取openid
+            String result = WeChatUtil.login( appid, appscrect,login.getCode());
+
+            System.out.println(result);
+            JSONObject wexinResult = JSONObject.parseObject(result);
+            // 保存用户信息到数据库
+            if (result.contains("openid")){
+                User user = new User();
+                user.setNickName(login.getNickName());
+                user.setOpenid(wexinResult.get("openid").toString());
+                user.setMobile(login.getMoblie());
+                user.setAvatarUrl(login.getAvatarUrl());
+                int i = userMapper.create(user);
+                System.out.println("创建："+i);
+            }else {
+                return ResponseUtil.setResult(ResponseCode.REQUEST_NOT, result);
+            }
+            return ResponseUtil.setResult(ResponseCode.SUCCESS, result);
 
         }catch (Exception e){
-
+            e.printStackTrace();
+            return ResponseUtil.setResult(ResponseCode.ERROR);
         }
-
-        return result;
     }
 }

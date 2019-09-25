@@ -26,7 +26,7 @@ public enum ResponseCode {
     USERNAME_PASSWORD_ERROR(7, "用户名或密码错误"),
     ACCOUNT_ALREADY(71, "账户已经存在"),
     QUERY_NO_DATAS(8, "未查询到数据"),
-    ERROR(500, "操作失败"),
+    ERROR(500, "服务器出错"),
     ERROR_SERVICE_NOT_EXIST(501, "服务不存在");
 
 

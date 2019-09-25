@@ -37,7 +37,7 @@ public class ResponseUtil {
     public static String setResult(ResponseCode responseCode,Object data){
         ResponseResult response = new ResponseResult();
         response.setCodeMsg(responseCode);
-        response.setData(JSONObject.fromObject(data).toString());
+        response.setData(JSONObject.fromObject(data));
         return JSONObject.fromObject(response).toString();
     }
 

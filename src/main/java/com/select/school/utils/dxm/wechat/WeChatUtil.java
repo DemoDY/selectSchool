@@ -26,7 +26,7 @@ public class WeChatUtil {
     }
 
     public static void main(String[] args) {
-        String code ="081OyDfr0sy1Xg10HZgr0fUzfr0OyDf2";
+        String code ="011IRFwc118JYv0MW8xc1pACwc1IRFwH";
 //        appid: wx1330df3ec7f2cac0
 //        appscrect: 0ddba9f0f9ef6eb42c2e8b6e37b78fc3
         String url = String.format(WeChatAPIUrls.USER_LOGIN, "wx1330df3ec7f2cac0", "0ddba9f0f9ef6eb42c2e8b6e37b78fc3", code);

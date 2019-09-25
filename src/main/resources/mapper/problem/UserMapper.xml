@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.select.school.mapper.UserMapper">
+    <resultMap id ="user" type="com.select.school.model.entity.User">
+        <id column="id" property="id" />
+
+        <result column="nick_name" property="nickName" />
+        <result column="real_name" property="realName" />
+        <result column="avatar_url" property="avatarUrl" />
+        <result column="mobile" property="mobile" />
+        <result column="password" property="password" />
+
+        <result column="openid" property="openid" />
+        <result column="unionid" property="unionid" />
+        <result column="email" property="email" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+
+    </resultMap>
+
+    <insert id="create" parameterType="com.select.school.model.entity.User">
+<!--
+        <selectKey resultType="long" keyProperty="id" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>-->
+        insert into d_user
+        (nick_name,avatar_url,mobile,openid,unionid,create_time)
+        values
+        (#{nickName},#{avatarUrl},#{mobile},#{openid},#{unionid},now())
+    </insert>
+
+    <select id="query" parameterType="map" resultMap="user">
+
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+
+    </select>
+
+    <select id="detail" parameterType="map" resultMap="user">
+
+    </select>
+
+    <delete id="delete" parameterType="map">
+
+    </delete>
+
+    <update id="update">
+
+    </update>
+
+    <sql id="TreasureCouponUpdateCriteria">
+        <set>
+            <if test="openid != null"> openid = #{openid}, </if>
+        </set>
+    </sql>
+    <sql id="TreasureCouponFindCriteria">
+        <where>
+            <if test="openid != null">and openid = #{openid}</if>
+        </where>
+    </sql>
+
+</mapper>

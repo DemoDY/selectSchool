@@ -7,6 +7,9 @@
  */
 package com.select.school.utils.dxm.result;
 
+
+import net.sf.json.JSONObject;
+
 /**
  * @version: V1.0
  * @author: DongXiaoMing
@@ -19,7 +22,7 @@ public class ResponseResult {
 
     private int code;
     private String msg;
-    private String data;
+    private JSONObject data;
 
 
 
@@ -45,11 +48,11 @@ public class ResponseResult {
         this.msg = msg;
     }
 
-    public String getData() {
+    public JSONObject getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(JSONObject data) {
         this.data = data;
     }
 }

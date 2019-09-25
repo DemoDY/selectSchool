@@ -5,7 +5,7 @@
  * date: 2019-09-24
  * copyright(c) 2017-2020 德慧公司
  */
-package com.select.school.common.config;
+package com.select.school.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

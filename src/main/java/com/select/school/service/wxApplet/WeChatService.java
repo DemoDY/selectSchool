@@ -8,5 +8,4 @@ public interface WeChatService {
     // 微信小程序登录
     public String login(WeChatLoginParamDTO LoginVO);
 
-
 }
