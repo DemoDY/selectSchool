@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.select.school.mapper.SchoolAdmissionScoresMapper">
+    <resultMap id="schoolAdmissionScores" type="com.select.school.model.entity.SchoolAdmissionScores">
+        <id column="id" property="id"/>
+        <result column="school_id" property="schoolId"/>
+        <result column="first_students_num" property="firstStudentsNum"/>
+        <result column="com_admission_rate" property="comAdmissionRate"/>
+        <result column="number_freshmen" property="numberFreshmen"/>
+        <result column="national_stu_accep" property="nationalStuAccep"/>
+        <result column="tuition_fees" property="tuitionFees"/>
+        <result column="num_national_freshmen" property="numNationalFreshmen"/>
+        <result column="ch_stu_high_rank" property="chStuHighRank"/>
+        <result column="ch_stu_weight_rank" property="chStuWeightRank"/>
+        <result column="ch_gpa_avg_stu" property="chGpaAvgStu"/>
+        <result column="ch_gpa_weight_stu" property="chGpaWeightStu"/>
+        <result column="ch_sat_avg_low_stu" property="chSatAvgLowStu"/>
+        <result column="ch_sat_avg_high_stu" property="chSatAvgHighStu"/>
+        <result column="sat_weight" property="satWeight"/>
+        <result column="act_avg_results" property="actAvgResults"/>
+        <result column="act_weight" property="actWeight"/>
+        <result column="ap_num_course" property="apNumCourse"/>
+        <result column="ap_weight" property="apWeight"/>
+        <result column="ib_avg_results" property="ibAvgResults"/>
+        <result column="ib_weight" property="ibWeight"/>
+        <result column="toeft_low_req" property="toeflLowReq"/>
+        <result column="ielts_low_req" property="ieltsLowReq"/>
+        <result column="ap_sat" property="apSat"/>
+        <result column="ap_act" property="apAct"/>
+        <result column="ib_sat" property="ibSat"/>
+        <result column="ib_act" property="ibAct"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+            id,school_id,first_students_num,com_admission_rate,number_freshmen,national_stu_accep,tuition_fees,
+            num_national_freshmen,ch_stu_high_rank,ch_stu_weight_rank,ch_gpa_avg_stu,ch_gpa_weight_stu,ch_sat_avg_low_stu,
+            ch_sat_avg_high_stu,sat_weight,act_avg_results,act_weight,ap_num_course,ap_weight,ib_avg_results,ib_weight,
+            toeft_low_req,ielts_low_req,ap_sat,ap_act,ib_sat,ib_act
+    </sql>
+    <select id="selectByAll" parameterType="com.select.school.model.entity.SchoolAdmissionScores">
+        select
+        <include refid="Base_Column_List" />
+        from d_school_admission_scores
+    </select>
+
+    <!--  根据托福成绩查询  -->
+    <select id="selectByToeflLowReq" parameterType="int" resultMap="schoolAdmissionScores">
+        select
+        <include refid="Base_Column_List" />
+        from d_school_admission_scores
+        where toeft_low_req &lt; #{toeflLowReq}
+    </select>
+    <!--根据雅思成绩查询学校-->
+    <select id="selectByIeltsLowReq" parameterType="double" resultMap="schoolAdmissionScores">
+        select
+        <include refid="Base_Column_List" />
+        from d_school_admission_scores
+        where ielts_low_req &lt; #{ieltsLowReq}
+    </select>
+</mapper>

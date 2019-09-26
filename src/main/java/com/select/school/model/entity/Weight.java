@@ -1,15 +1,15 @@
 package com.select.school.model.entity;
 
 public class Weight {
-    private String id;
+    private int id;
     /**
      * 学校简介 id
      */
-    private String schoolId;
+    private int schoolId;
     /**
      * 学校数据id
      */
-    private String scoresId;
+    private int scoresId;
     /**
      * 权重 (AP, Student take SAT )
      */
@@ -27,27 +27,27 @@ public class Weight {
      */
     private double ibActWeight;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getSchoolId() {
+    public int getSchoolId() {
         return schoolId;
     }
 
-    public void setSchoolId(String schoolId) {
+    public void setSchoolId(int schoolId) {
         this.schoolId = schoolId;
     }
 
-    public String getScoresId() {
+    public int getScoresId() {
         return scoresId;
     }
 
-    public void setScoresId(String scoresId) {
+    public void setScoresId(int scoresId) {
         this.scoresId = scoresId;
     }
 

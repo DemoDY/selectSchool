@@ -1,11 +1,15 @@
 package com.select.school.model.entity;
 
 public class SchoolProfile {
-    private String id;
+    private int id;
     /**
      * 学校名称
      */
     private String schoolName;
+    /**
+     * 中文名称
+     */
+    private String chName;
     /**
      * 学校排名
      */
@@ -30,15 +34,35 @@ public class SchoolProfile {
      * 公立 public / 私立 Private
      */
     private String publicPrivate;
-    public SchoolProfile(){
+
+    public SchoolProfile(int id, String schoolName, String chName, int schoolRank, String schoolProfile, String crest, String state, String theArea, String publicPrivate) {
+        this.id = id;
+        this.schoolName = schoolName;
+        this.chName = chName;
+        this.schoolRank = schoolRank;
+        this.schoolProfile = schoolProfile;
+        this.crest = crest;
+        this.state = state;
+        this.theArea = theArea;
+        this.publicPrivate = publicPrivate;
     }
 
-    public String getId() {
+    public SchoolProfile(){}
+
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getChName() {
+        return chName;
+    }
+
+    public void setChName(String chName) {
+        this.chName = chName;
     }
 
     public String getSchoolName() {
@@ -97,7 +121,7 @@ public class SchoolProfile {
         this.publicPrivate = publicPrivate;
     }
 
-    public SchoolProfile(String id, String schoolName, int schoolRank, String schoolProfile, String crest, String state, String theArea, String publicPrivate) {
+    public SchoolProfile(int id, String schoolName, int schoolRank, String schoolProfile, String crest, String state, String theArea, String publicPrivate) {
         this.id = id;
         this.schoolName = schoolName;
         this.schoolRank = schoolRank;

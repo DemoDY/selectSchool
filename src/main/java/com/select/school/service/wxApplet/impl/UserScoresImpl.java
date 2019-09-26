@@ -1,6 +1,8 @@
 package com.select.school.service.wxApplet.impl;
 
+import com.select.school.mapper.SchoolAdmissionScoresMapper;
 import com.select.school.utils.BeanCopierEx;
+import com.select.school.utils.dxm.sqlUtils.SqlParameter;
 import com.select.school.utils.result.AjaxResult;
 import com.select.school.mapper.SchoolProfileMapper;
 import com.select.school.mapper.UserScoresMapper;
@@ -18,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserScoresImpl implements UserScoreService {
@@ -29,6 +30,8 @@ public class UserScoresImpl implements UserScoreService {
     private WeightMapper weightMapper;
     @Autowired
     private SchoolProfileMapper schoolProfileMapper;
+    @Autowired
+    private SchoolAdmissionScoresMapper schoolAdmissionScoresMapper;
 
     /**
      * 微信学生选择之后返回数据
@@ -36,16 +39,15 @@ public class UserScoresImpl implements UserScoreService {
      * @param options
      * @return
      */
-    public AjaxResult selectOption(List<OptionDTO> options) {
+    public AjaxResult insertOption(List<OptionDTO> options) {
         int num = 0;
         String ielts = "";
         String toefl = "";
         String act_sat = "";
         String ib_ap = "";
-        String openId = "js231foi823412h23";
         String sex = "";
+        String openId = "";
         UserScores userScores = new UserScores();
-        String id = UUID.randomUUID().toString();
         for (OptionDTO option : options) {
             int problemId = option.getProblemId();
             //判断问题分数不等于 并且分数不等于0 并且第一题不算入分数中
@@ -82,7 +84,7 @@ public class UserScoresImpl implements UserScoreService {
                     toefl = option.getOption();
                 }
             }
-//            openId = option.getOpenId();
+            openId = option.getOpenid();
         }
         if (StringUtils.isNotBlank(toefl) && StringUtils.isNotBlank(ielts)) {
             if (toefl.equals(">=100")) {
@@ -145,7 +147,7 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         //如果 托福不为空 雅思为空 则保存托福成绩
-        if (StringUtils.isNotBlank(toefl )&& StringUtils.isEmpty(ielts) ) {
+        if (StringUtils.isNotBlank(toefl) && StringUtils.isEmpty(ielts)) {
             userScores.setTlScore(toefl);
             userScores.setTl("TOEFL");
         }
@@ -170,7 +172,6 @@ public class UserScoresImpl implements UserScoreService {
         userScores.setActSat(act_sat);
         userScores.setApIb(ib_ap);
         userScores.setOpenId(openId);
-        userScores.setId(id);
         userScoresMapper.insertList(userScores);
 //        selectSchool(openId);
         return AjaxResult.success();
@@ -181,6 +182,7 @@ public class UserScoresImpl implements UserScoreService {
      *
      * @param openId
      * @return
+     * @
      */
     public AjaxResult selectSchool(String openId) {
         AjaxResult ajaxResult = new AjaxResult();
@@ -190,61 +192,2686 @@ public class UserScoresImpl implements UserScoreService {
         String tl = userScores.getTl();
         String tlScore = userScores.getTlScore();
         List<SchoolProfileVo> schoolProfileVos = new ArrayList<>();
-        List<Weight> weights = weightMapper.selectWeightList();
-        List<Weight> weightSelect = null;
-        int num=0;
-        SchoolProfile schoolProfile = null;
-        SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
-        if (tl.equals("TOEFL")){
-
-        }
-        if (tl.equals("IELTS"))
-
-        if (sat_act.equals("ACT")) {
-
-            if (ib_ap.equals("IB")) {//act ib
-                weightSelect = weightMapper.selectIbActWeightDream(userScores.getScores() + 50);
-//                    schoolProfile = schoolProfileMapper.selectById(weightSelect.getSchoolId());
-                BeanCopierEx.copy(schoolProfile, schoolProfileVo);
-                schoolProfileVo.setDreamSchool("dream");
-                schoolProfileVos.add(schoolProfileVo);
-                System.out.println("IB ACT_IB===" + userScores.getScores());
-            }
-            if (ib_ap.equals("AP")) {//act ap
-//                double act_ap = weight.getApActWeight();
-                System.out.println("AP ACT_AP===" + userScores.getScores());
-            }
-        }
-        if (sat_act.equals("SAT")) {
-            if (ib_ap.equals("IB")) {//sat ib
-//                double sat_ib = weight.getIbSatWeight();
-                System.out.println("IB SAT_IB===" + userScores.getScores());
-            }
-            if (ib_ap.equals("AP")) {//sat ap
-                //梦想学校 求具体分数 得出三个学校 加60分 如果没有 就依次往下减10分
-                weightSelect = weightMapper.selectIbActWeightDream(userScores.getScores() + 60);
-                num = weightSelect.size();
-                if(weightSelect.size() < 3){
-                    weightSelect = weightMapper.selectIbActWeightDream(userScores.getScores() + 50);
-
-                }else if (weightSelect.size() < 3){
-
+        List<Weight> weightList = null;
+        SqlParameter sql = SqlParameter.getParameter();
+        if (tl.equals("TOEFL")) {
+            if (tlScore.equals(">=100")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校 Dream School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70)
+                                .addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "100").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMin", userScores.getScores() + 20).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70)
+                                .addQuery("apActWeightMin", userScores.getScores() - 30).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
                 }
-//                    schoolProfile = schoolProfileMapper.selectById(weightSelect.getSchoolId());
-//                    BeanCopierEx.copy(schoolProfile,schoolProfileVo);
-//                    schoolProfileVo.setDreamSchool("dream");
-//                    schoolProfileVos.add(schoolProfileVo);
-                System.out.println("AP SAT_AP===" + userScores.getScores());
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "100").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70)
+                                .addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校 求具体分数 得出三个学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "100").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70)
+                                .addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "100").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("99—90")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "99").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "99").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70)
+                                .addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "99").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "99").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "99").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "99").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "99").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "99").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "99").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校 求具体分数 得出三个学校 加60分 如果没有 就依次往下减10分
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "99").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "99").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "99").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("89—79")) {
+                //查询小于90的学校
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //根据 查出来的权重id 去查询权重数据
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "89").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "89").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "89").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "89").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "89").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "89").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "89").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "89").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "89").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "89").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "89").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "89").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("78—69")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //根据 查出来的权重id 去查询权重数据
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "78").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "78").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "78").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "78").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "78").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "78").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {
+                            if (weightList.size() >= 3) {
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "78").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {
+                            if (weightList.size() >= 3) {
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "78").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {
+                            if (weightList.size() >= 3) {
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "78").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {
+                            if (weightList.size() >= 3) {
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "78").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {
+                            if (weightList.size() >= 3) {
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "78").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "78").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("68—61")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "68").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "68").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "68").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "68").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "68").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "68").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "68").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "68").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "68").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "68").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "68").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "68").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("小于61")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "60").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "60").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "60").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "60").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "60").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apctWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "60").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "60").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "60").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "60").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "60").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "60").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "60").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
             }
         }
-
-
-        for (Weight weight : weights) {
-
-
+        if (tl.equals("IELTS")) {
+            if (tlScore.equals("7.5")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "7.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("7")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "7").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "7").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "7").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "7").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "7").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "7").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "7").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "7").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "7").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "7").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "7").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "7").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("6.5")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "6.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("6")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "6").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "6").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "6").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "6").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "6").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "6").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "6").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "6").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "6").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "6").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "6").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "6").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("5.5")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "5.5").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
+            if (tlScore.equals("低于5.5")) {
+                if (sat_act.equals("ACT")) {
+                    if (ib_ap.equals("IB")) {//act ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
+                                addQuery("ibActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//act ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
+                                .addQuery("apActWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
+                                addQuery("apActWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+                if (sat_act.equals("SAT")) {
+                    if (ib_ap.equals("IB")) {//sat ib
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0")
+                                .getMap());
+                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
+                                addQuery("ibSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                    if (ib_ap.equals("AP")) {//sat ap
+                        //梦想学校
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 60).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0")
+                                .getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Dream School");//梦想学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //目标学校 Target School
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 20).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Target School");//目标学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                        //保底学校 Safety colleges
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
+                                addQuery("apSatWeightMax", userScores.getScores() - 30).addQuery("toeflHigh", "5.4").addQuery("toeflLow", "0").getMap());
+                        if (weightList.size() > 0) {//如果大于0
+                            if (weightList.size() >= 3) {
+                                //如果大于3 需要截取前三所学校
+                                weightList = weightList.subList(0, 3);
+                            }
+                            for (Weight weight : weightList) {
+                                Weight weight1 = weightMapper.selectById(weight.getId());
+                                SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
+                                SchoolProfileVo schoolProfileVo = new SchoolProfileVo();
+                                BeanCopierEx.copy(schoolProfile,schoolProfileVo);
+                                schoolProfileVo.setDreamSchool("Safety colleges");//保底学校
+                                schoolProfileVos.add(schoolProfileVo);
+                            }
+                        }
+                    }
+                }
+            }
         }
-        System.out.println("userScore==" + userScores.getActSat());
         ajaxResult.put("school", schoolProfileVos);
         return ajaxResult;
     }
 }
+

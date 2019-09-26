@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.select.school.mapper.OptionMapper">
-   <!-- <select id="selectById" resultType="com.select.school.model.entity.SchoolProfile">
-                select * from d_school_profile where id = #{id}
-    </select>-->
+<mapper namespace="com.select.school.mapper.SchoolProfileMapper">
+   <resultMap id="schoolProfile" type="com.select.school.model.entity.SchoolProfile">
+      <id column="id" property="id"/>
+      <result column="school_name" property="schoolName"/>
+      <result column="ch_name" property="chName"/>
+      <result column="school_rank" property="schoolRank"/>
+      <result column="school_profile" property="schoolProfile"/>
+      <result column="crest" property="crest"/>
+      <result column="state" property="state"/>
+      <result column="the_area" property="theArea"/>
+      <result column="public_private" property="publicPrivate"/>
+   </resultMap>
+   <sql id="Base_Column_List">
+      id,school_name,ch_name,school_profile,crest,state,the_area,public_private
+   </sql>
+    <select id="selectById" resultMap="schoolProfile">
+              select
+               ds.id,
+               ds.school_name,
+               ds.ch_name,
+               ds.school_profile,
+               ds.crest,state,
+               ds.the_area,
+               ds.public_private
+              from d_school_profile ds
+              where ds.id = #{id}
+  </select>
 </mapper>

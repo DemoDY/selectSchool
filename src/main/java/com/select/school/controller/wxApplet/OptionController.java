@@ -1,5 +1,6 @@
 package com.select.school.controller.wxApplet;
 
+import com.select.school.model.vo.SchoolProfileVo;
 import com.select.school.utils.result.AjaxResult;
 import com.select.school.model.dto.OptionDTO;
 import com.select.school.model.vo.OptionVo;
@@ -47,11 +48,24 @@ public class OptionController {
         try {
             List<OptionDTO> options = optionVo.getOptionList();
             // 执行批量保存
-            userScoreService.selectOption(options);
+            userScoreService.insertOption(options);
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResult.error(900, "操作失败：系统错误");
         }
         return AjaxResult.success(AjaxResult.CODE_SUCCESS, "操作成功");
+    }
+
+
+    /**
+     * 学校查询
+     *
+     * @return
+     */
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/schoolList")
+    @ResponseBody
+    public AjaxResult schoolList(String openId) {
+        AjaxResult ajaxResult = userScoreService.selectSchool(openId);
+        return ajaxResult;
     }
 }

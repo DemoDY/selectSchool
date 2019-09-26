@@ -6,7 +6,7 @@ import java.util.List;
 
 public class ProblemDTO {
 
-    private String id;
+    private int id;
     /**
      * 标题
      */
@@ -24,11 +24,11 @@ public class ProblemDTO {
 
     private List<Option> optionList;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

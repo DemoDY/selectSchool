@@ -1,7 +1,7 @@
 package com.select.school.model.entity;
 
 public class Problem {
-    private String id;
+    private int id;
     /**
      * 标题
      */
@@ -21,11 +21,11 @@ public class Problem {
      */
     private String radioCheckBox;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

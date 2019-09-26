@@ -1,7 +1,7 @@
 package com.select.school.model.dto;
 
 public class OptionDTO {
-    private  String id;
+    private  int id;
     private int problemId;
     private String option;
     private String number;
@@ -49,11 +49,11 @@ public class OptionDTO {
         this.description = description;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

@@ -1,7 +1,7 @@
 package com.select.school.model.entity;
 
 public class Option {
-    private String id;
+    private int id;
     /**
      * 问题id
      */
@@ -31,9 +31,6 @@ public class Option {
     public Option() {
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
     public int getProblemId() {
         return problemId;
     }
@@ -82,8 +79,12 @@ public class Option {
         this.seq = seq;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override
@@ -99,7 +100,7 @@ public class Option {
                 '}';
     }
 
-    public Option(String id, int problemId, String option, String number, String tl, String description,int seq) {
+    public Option(int id, int problemId, String option, String number, String tl, String description,int seq) {
         this.id = id;
         this.problemId = problemId;
         this.option = option;

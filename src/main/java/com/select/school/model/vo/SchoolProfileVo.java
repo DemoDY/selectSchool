@@ -1,11 +1,16 @@
 package com.select.school.model.vo;
 
 public class SchoolProfileVo {
-    private String id;
+    private int id;
     /**
      * 学校名称
      */
     private String schoolName;
+
+    /**
+     * 中文名称
+     */
+    private String chName;
     /**
      * 学校排名
      */
@@ -17,30 +22,38 @@ public class SchoolProfileVo {
     /**
      * 校徽
      */
-    private String crest;
+//    private String crest;
     /**
      * 所在州
      */
-    private String state;
+//    private String state;
     /**
      * 所在地区
      */
-    private String theArea;
+//    private String theArea;
     /**
      * 公立 public / 私立 Private
      */
-    private String publicPrivate;
+//    private String publicPrivate;
 
-    private String dreamSchool;
+    private String dreamSchool;//梦想学校
 
     public SchoolProfileVo(){
     }
 
-    public String getId() {
+    public String getChName() {
+        return chName;
+    }
+
+    public void setChName(String chName) {
+        this.chName = chName;
+    }
+
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -68,37 +81,7 @@ public class SchoolProfileVo {
         this.schoolProfile = schoolProfile;
     }
 
-    public String getCrest() {
-        return crest;
-    }
 
-    public void setCrest(String crest) {
-        this.crest = crest;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getTheArea() {
-        return theArea;
-    }
-
-    public void setTheArea(String theArea) {
-        this.theArea = theArea;
-    }
-
-    public String getPublicPrivate() {
-        return publicPrivate;
-    }
-
-    public void setPublicPrivate(String publicPrivate) {
-        this.publicPrivate = publicPrivate;
-    }
 
     public String getDreamSchool() {
         return dreamSchool;
@@ -108,15 +91,11 @@ public class SchoolProfileVo {
         this.dreamSchool = dreamSchool;
     }
 
-    public SchoolProfileVo(String id, String schoolName, int schoolRank, String schoolProfile, String crest, String state, String theArea, String publicPrivate,String dreamSchool) {
+    public SchoolProfileVo(int id, String schoolName, int schoolRank, String schoolProfile,String dreamSchool) {
         this.id = id;
         this.schoolName = schoolName;
         this.schoolRank = schoolRank;
         this.schoolProfile = schoolProfile;
-        this.crest = crest;
-        this.state = state;
-        this.theArea = theArea;
-        this.publicPrivate = publicPrivate;
         this.dreamSchool = dreamSchool;
     }
 
@@ -127,10 +106,6 @@ public class SchoolProfileVo {
                 ", schoolName='" + schoolName + '\'' +
                 ", schoolRank=" + schoolRank +
                 ", schoolProfile='" + schoolProfile + '\'' +
-                ", crest='" + crest + '\'' +
-                ", state='" + state + '\'' +
-                ", theArea='" + theArea + '\'' +
-                ", publicPrivate='" + publicPrivate + '\'' +
                 ", dreamSchool='" + dreamSchool + '\'' +
                 '}';
     }

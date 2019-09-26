@@ -3,7 +3,7 @@ package com.select.school.model.entity;
 import java.util.Date;
 
 public class UserScores {
-    private String id;
+    private int id;
     private String openId;
     //得分
     private int scores;
@@ -17,11 +17,11 @@ public class UserScores {
     private String actSat; //act或者sat
     private String apIb;//ap或者ib
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

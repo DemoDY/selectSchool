@@ -1,11 +1,11 @@
 package com.select.school.model.entity;
 
 public class SchoolAdmissionScores {
-    private String id;
+    private int id;
     /**
      * 学校简介 id
      */
-    private String schoolId;
+    private int schoolId;
     private String firstStudentsNum;//留学生大一入学人数
     private String comAdmissionRate;//2019 综合录取率
     private String numberFreshmen;//大一新生人数
@@ -25,26 +25,26 @@ public class SchoolAdmissionScores {
     private String apWeight;//AP 选课权重
     private String ibAvgResults;//IB 平均成绩
     private String ibWeight;//IB 权重
-    private String toeflLowReq;//TOEFL 最低要求
-    private String ieltsLowReq;//IELTS 最低要求
+    private int toeflLowReq;//TOEFL 最低要求
+    private double ieltsLowReq;//IELTS 最低要求
     private String apSat;//学生选择AP，或者不选，提供SAT成绩
     private String apAct;//学生选择AP，或者不选，提供ACT成绩
     private String ibSat;//学生选择IB，提供SAT成绩
     private String ibAct;// 学生选择IB，提供ACT成绩
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getSchoolId() {
+    public int getSchoolId() {
         return schoolId;
     }
 
-    public void setSchoolId(String schoolId) {
+    public void setSchoolId(int schoolId) {
         this.schoolId = schoolId;
     }
 
@@ -200,19 +200,19 @@ public class SchoolAdmissionScores {
         this.ibWeight = ibWeight;
     }
 
-    public String getToeflLowReq() {
+    public int getToeflLowReq() {
         return toeflLowReq;
     }
 
-    public void setToeflLowReq(String toeflLowReq) {
+    public void setToeflLowReq(int toeflLowReq) {
         this.toeflLowReq = toeflLowReq;
     }
 
-    public String getIeltsLowReq() {
+    public double getIeltsLowReq() {
         return ieltsLowReq;
     }
 
-    public void setIeltsLowReq(String ieltsLowReq) {
+    public void setIeltsLowReq(double ieltsLowReq) {
         this.ieltsLowReq = ieltsLowReq;
     }
 

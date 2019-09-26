@@ -23,7 +23,8 @@
         from d_weight w
     </select>
 
-    <select id="selectIbActWeightDream" resultType="com.select.school.model.entity.Weight" parameterType="java.lang.Double">
+    <select id="selectIbActWeightDream" resultType="com.select.school.model.entity.Weight" parameterType="map">
+
         select
         w.id,
         w.scores_id,
@@ -31,11 +32,52 @@
         w.ap_act_weight,
         w.ib_sat_weight,
         w.ib_act_weight,
+        w.school_id,
+        sas.id,
+        sas.toeft_low_req,
+        sas.ielts_low_req,
+        sas.school_id
+        from d_school_admission_scores sas ,d_weight w
+        where w.scores_id = sas.id
+        <if test="ibActWeightMax!=null and ibActWeightMax!=0">
+            and sas.toeft_low_req &lt;= #{toeflHigh} and sas.toeft_low_req &gt;= #{toeflLow}
+            and w.ib_act_weight &gt;= #{ibActWeightMin} and w.ib_act_weight &lt;= #{ibActWeightMax}
+        </if>
+        <if test="apActWeightMin!=null and apActWeightMin!=0">
+            and sas.toeft_low_req &lt; #{toeflHigh} and sas.toeft_low_req &gt; #{toeflLow}
+            and w.ap_act_weight &gt;= #{apActWeightMin} and w.ap_act_weight &lt;= #{apActWeightMax}
+        </if>
+        <if test="ibSatWeightMax!=null and ibSatWeightMax!=0">
+            and sas.toeft_low_req &lt; #{toeflHigh} and sas.toeft_low_req &gt; #{toeflLow}
+            and w.ib_sat_weight &gt;= #{ibSatWeightMin} and w.ib_sat_weight &lt;= #{ibSatWeightMax}
+        </if>
+        <if test="apSatWeightMin!=null and apSatWeightMin!=0">
+            and sas.toeft_low_req &lt;= #{toeflHigh} and sas.toeft_low_req &gt;= #{toeflLow}
+            and w.ap_sat_weight &gt;= #{apSatWeightMin} and w.ap_sat_weight &lt;= #{apSatWeightMax}
+        </if>
+        order by w.ib_act_weight desc ,w.ap_sat_weight desc,w.ib_sat_weight desc,w.ap_act_weight desc
+    </select>
+
+    <select id="selectByScoreId" resultMap="option">
+        select  w.id,
+        w.scores_id,
+        w.ap_sat_weight,
+        w.ap_act_weight,
+        w.ib_sat_weight,
+        w.ib_act_weight,
         w.school_id
         from d_weight w
-        where
-        <if test="ibActWeight!=null and ibActWeight!=0">
-            w.ib_act_weight &lt; #{ibActWeight} and  w.ib_act_weight &gt; #{ibActWeight}
-        </if>
+        where w.scores_id = #{scoreId}
+    </select>
+    <select id="selectById" resultMap="option">
+        select  w.id,
+        w.scores_id,
+        w.ap_sat_weight,
+        w.ap_act_weight,
+        w.ib_sat_weight,
+        w.ib_act_weight,
+        w.school_id
+        from d_weight w
+        where w.id = #{id}
     </select>
 </mapper>
