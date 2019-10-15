@@ -38,12 +38,10 @@ public class WeChatController {
      */
     @RequestMapping(value = "/login", method = {RequestMethod.POST})
     public String login(@RequestBody WeChatLoginParamDTO login) {
-
         if (login.getCode() == null || login.getCode().equals("") || login.getCode().equals("null")) {
             return ResponseUtil.setResult(ResponseCode.REQUEST_NOT);
         }
         String response = weChatService.login(login);
-
         return response;
     }
 }

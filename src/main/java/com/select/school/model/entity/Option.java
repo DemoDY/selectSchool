@@ -26,7 +26,11 @@ public class Option {
     /**
      * 答案序号
      */
-    private int seq;
+    private String seq;
+
+
+    private String skipDown;//向下跳转
+
 
     public Option() {
     }
@@ -71,12 +75,20 @@ public class Option {
         this.description = description;
     }
 
-    public int getSeq() {
+    public String getSeq() {
         return seq;
     }
 
-    public void setSeq(int seq) {
+    public void setSeq(String seq) {
         this.seq = seq;
+    }
+
+    public String getSkipDown() {
+        return skipDown;
+    }
+
+    public void setSkipDown(String skipDown) {
+        this.skipDown = skipDown;
     }
 
     public int getId() {
@@ -97,16 +109,18 @@ public class Option {
                 ", tl='" + tl + '\'' +
                 ", description='" + description + '\'' +
                 ", seq='" + seq + '\'' +
+                ", skipDown='" + skipDown + '\'' +
                 '}';
     }
 
-    public Option(int id, int problemId, String option, String number, String tl, String description,int seq) {
+    public Option(int id, int problemId, String option, String number, String tl, String description,String skipDown,String seq) {
         this.id = id;
         this.problemId = problemId;
         this.option = option;
         this.number = number;
         this.tl = tl;
         this.description = description;
+        this.skipDown = skipDown;
         this.seq = seq;
     }
 }

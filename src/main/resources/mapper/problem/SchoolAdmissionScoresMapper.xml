@@ -4,6 +4,8 @@
     <resultMap id="schoolAdmissionScores" type="com.select.school.model.entity.SchoolAdmissionScores">
         <id column="id" property="id"/>
         <result column="school_id" property="schoolId"/>
+        <result column="nineteen" property="nineteen"/>
+        <result column="twenty" property="twenty"/>
         <result column="first_students_num" property="firstStudentsNum"/>
         <result column="com_admission_rate" property="comAdmissionRate"/>
         <result column="number_freshmen" property="numberFreshmen"/>
@@ -29,31 +31,19 @@
         <result column="ap_act" property="apAct"/>
         <result column="ib_sat" property="ibSat"/>
         <result column="ib_act" property="ibAct"/>
+        <result column="add_value" property="addValue"/>
     </resultMap>
     <sql id="Base_Column_List">
-            id,school_id,first_students_num,com_admission_rate,number_freshmen,national_stu_accep,tuition_fees,
+            id,school_id,nineteen,twenty,first_students_num,com_admission_rate,number_freshmen,national_stu_accep,tuition_fees,
             num_national_freshmen,ch_stu_high_rank,ch_stu_weight_rank,ch_gpa_avg_stu,ch_gpa_weight_stu,ch_sat_avg_low_stu,
             ch_sat_avg_high_stu,sat_weight,act_avg_results,act_weight,ap_num_course,ap_weight,ib_avg_results,ib_weight,
-            toeft_low_req,ielts_low_req,ap_sat,ap_act,ib_sat,ib_act
+            toeft_low_req,ielts_low_req,ap_sat,ap_act,ib_sat,ib_act,add_value
     </sql>
-    <select id="selectByAll" parameterType="com.select.school.model.entity.SchoolAdmissionScores">
+    <select id="selectById" resultMap="schoolAdmissionScores">
         select
         <include refid="Base_Column_List" />
         from d_school_admission_scores
+        where id = #{id}
     </select>
 
-    <!--  根据托福成绩查询  -->
-    <select id="selectByToeflLowReq" parameterType="int" resultMap="schoolAdmissionScores">
-        select
-        <include refid="Base_Column_List" />
-        from d_school_admission_scores
-        where toeft_low_req &lt; #{toeflLowReq}
-    </select>
-    <!--根据雅思成绩查询学校-->
-    <select id="selectByIeltsLowReq" parameterType="double" resultMap="schoolAdmissionScores">
-        select
-        <include refid="Base_Column_List" />
-        from d_school_admission_scores
-        where ielts_low_req &lt; #{ieltsLowReq}
-    </select>
 </mapper>

@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface UserScoreService {
 
-    //报错数据
-    public AjaxResult insertOption(List<OptionDTO> options);
+    //插入数据
+    public AjaxResult insertOption(List<OptionDTO> options,String openid);
     //查询数据
-    public AjaxResult selectSchool(String openId);
+    public AjaxResult selectSchool(int id);
 }

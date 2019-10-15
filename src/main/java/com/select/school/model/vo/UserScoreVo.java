@@ -5,13 +5,13 @@ import com.select.school.model.entity.UserScores;
 import java.util.List;
 
 public class UserScoreVo {
-    private List<UserScores> userScores;
+    private int id;
 
-    public List<UserScores> getUserScores() {
-        return userScores;
+    public int getId() {
+        return id;
     }
 
-    public void setUserScores(List<UserScores> userScores) {
-        this.userScores = userScores;
+    public void setId(int id) {
+        this.id = id;
     }
 }

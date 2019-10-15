@@ -22,6 +22,8 @@ public class ProblemDTO {
      */
     private String radioCheckBox;
 
+    private String skipUp;//向上跳转
+
     private List<Option> optionList;
 
     public int getId() {
@@ -70,5 +72,13 @@ public class ProblemDTO {
 
     public void setRadioCheckBox(String radioCheckBox) {
         this.radioCheckBox = radioCheckBox;
+    }
+
+    public String getSkipUp() {
+        return skipUp;
+    }
+
+    public void setSkipUp(String skipUp) {
+        this.skipUp = skipUp;
     }
 }

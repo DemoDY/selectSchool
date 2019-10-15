@@ -6,6 +6,8 @@ public class SchoolAdmissionScores {
      * 学校简介 id
      */
     private int schoolId;
+    private String nineteen;//2019 录取人数
+    private String twenty;//2020 录取人数
     private String firstStudentsNum;//留学生大一入学人数
     private String comAdmissionRate;//2019 综合录取率
     private String numberFreshmen;//大一新生人数
@@ -25,12 +27,13 @@ public class SchoolAdmissionScores {
     private String apWeight;//AP 选课权重
     private String ibAvgResults;//IB 平均成绩
     private String ibWeight;//IB 权重
-    private int toeflLowReq;//TOEFL 最低要求
-    private double ieltsLowReq;//IELTS 最低要求
+    private String toeflLowReq;//TOEFL 最低要求
+    private String ieltsLowReq;//IELTS 最低要求
     private String apSat;//学生选择AP，或者不选，提供SAT成绩
     private String apAct;//学生选择AP，或者不选，提供ACT成绩
     private String ibSat;//学生选择IB，提供SAT成绩
     private String ibAct;// 学生选择IB，提供ACT成绩
+    private String addValue;//增值活动
 
     public int getId() {
         return id;
@@ -38,6 +41,22 @@ public class SchoolAdmissionScores {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getNineteen() {
+        return nineteen;
+    }
+
+    public void setNineteen(String nineteen) {
+        this.nineteen = nineteen;
+    }
+
+    public String getTwenty() {
+        return twenty;
+    }
+
+    public void setTwenty(String twenty) {
+        this.twenty = twenty;
     }
 
     public int getSchoolId() {
@@ -200,19 +219,19 @@ public class SchoolAdmissionScores {
         this.ibWeight = ibWeight;
     }
 
-    public int getToeflLowReq() {
+    public String getToeflLowReq() {
         return toeflLowReq;
     }
 
-    public void setToeflLowReq(int toeflLowReq) {
+    public void setToeflLowReq(String toeflLowReq) {
         this.toeflLowReq = toeflLowReq;
     }
 
-    public double getIeltsLowReq() {
+    public String getIeltsLowReq() {
         return ieltsLowReq;
     }
 
-    public void setIeltsLowReq(double ieltsLowReq) {
+    public void setIeltsLowReq(String ieltsLowReq) {
         this.ieltsLowReq = ieltsLowReq;
     }
 
@@ -246,5 +265,13 @@ public class SchoolAdmissionScores {
 
     public void setIbAct(String ibAct) {
         this.ibAct = ibAct;
+    }
+
+    public String getAddValue() {
+        return addValue;
+    }
+
+    public void setAddValue(String addValue) {
+        this.addValue = addValue;
     }
 }

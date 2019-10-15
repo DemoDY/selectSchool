@@ -7,9 +7,9 @@
         <result column="o_option" property="option"/>
         <result column="o_number" property="number"/>
         <result column="o_description" property="description"/>
+        <result column="o_skip_down" property="skipDown"/>
         <result column="o_tl" property="tl"/>
     </resultMap>
-
     <select id="selectOne" resultMap="option">
         select * from d_option
     </select>

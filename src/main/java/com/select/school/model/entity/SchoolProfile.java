@@ -13,7 +13,7 @@ public class SchoolProfile {
     /**
      * 学校排名
      */
-    private int schoolRank;
+    private String schoolRank;
     /**
      * 学校简介
      */
@@ -35,7 +35,7 @@ public class SchoolProfile {
      */
     private String publicPrivate;
 
-    public SchoolProfile(int id, String schoolName, String chName, int schoolRank, String schoolProfile, String crest, String state, String theArea, String publicPrivate) {
+    public SchoolProfile(int id, String schoolName, String chName, String schoolRank, String schoolProfile, String crest, String state, String theArea, String publicPrivate) {
         this.id = id;
         this.schoolName = schoolName;
         this.chName = chName;
@@ -73,11 +73,11 @@ public class SchoolProfile {
         this.schoolName = schoolName;
     }
 
-    public int getSchoolRank() {
+    public String getSchoolRank() {
         return schoolRank;
     }
 
-    public void setSchoolRank(int schoolRank) {
+    public void setSchoolRank(String schoolRank) {
         this.schoolRank = schoolRank;
     }
 
@@ -121,7 +121,7 @@ public class SchoolProfile {
         this.publicPrivate = publicPrivate;
     }
 
-    public SchoolProfile(int id, String schoolName, int schoolRank, String schoolProfile, String crest, String state, String theArea, String publicPrivate) {
+    public SchoolProfile(int id, String schoolName, String schoolRank, String schoolProfile, String crest, String state, String theArea, String publicPrivate) {
         this.id = id;
         this.schoolName = schoolName;
         this.schoolRank = schoolRank;

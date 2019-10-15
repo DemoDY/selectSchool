@@ -13,19 +13,19 @@ public class Weight {
     /**
      * 权重 (AP, Student take SAT )
      */
-    private double apSatWeight;
+    private String apSatWeight;
     /**
      * 权重 (AP, Student take ACT )
      */
-    private double apActWeight;
+    private String apActWeight;
     /**
      * 权重( IB, Student take SAT )
      */
-    private double ibSatWeight;
+    private String ibSatWeight;
     /**
      * 权重( IB, Student take ACT )
      */
-    private double ibActWeight;
+    private String ibActWeight;
 
     public int getId() {
         return id;
@@ -51,35 +51,35 @@ public class Weight {
         this.scoresId = scoresId;
     }
 
-    public double getApSatWeight() {
+    public String getApSatWeight() {
         return apSatWeight;
     }
 
-    public void setApSatWeight(double apSatWeight) {
+    public void setApSatWeight(String apSatWeight) {
         this.apSatWeight = apSatWeight;
     }
 
-    public double getApActWeight() {
+    public String getApActWeight() {
         return apActWeight;
     }
 
-    public void setApActWeight(double apActWeight) {
+    public void setApActWeight(String apActWeight) {
         this.apActWeight = apActWeight;
     }
 
-    public double getIbSatWeight() {
+    public String getIbSatWeight() {
         return ibSatWeight;
     }
 
-    public void setIbSatWeight(double ibSatWeight) {
+    public void setIbSatWeight(String ibSatWeight) {
         this.ibSatWeight = ibSatWeight;
     }
 
-    public double getIbActWeight() {
+    public String getIbActWeight() {
         return ibActWeight;
     }
 
-    public void setIbActWeight(double ibActWeight) {
+    public void setIbActWeight(String ibActWeight) {
         this.ibActWeight = ibActWeight;
     }
 }

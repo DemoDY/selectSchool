@@ -11,8 +11,13 @@
         <result column="act_sat" property="actSat" jdbcType="VARCHAR"/>
         <result column="ap_ib" property="apIb" jdbcType="VARCHAR"/>
     </resultMap>
+    <resultMap id="userVo" type="com.select.school.model.vo.UserScoreVo">
+        <id column="id" property="id" />
+    </resultMap>
 
-    <insert id="insertList" parameterType="com.select.school.model.entity.UserScores">
+<!--    <insert id="insertList" parameterType="com.select.school.model.entity.UserScores">-->
+    <insert id="insertList" useGeneratedKeys="true" keyProperty="id"  keyColumn="id" parameterType="com.select.school.model.entity.UserScores">
+
         insert into d_user_scores (open_id, scores, createTime, o_tl,o_tl_score ,act_sat, ap_ib )
         values (#{openId}, #{scores},  #{createTime}, #{tl},#{tlScore},#{actSat}, #{apIb} )
     </insert>
@@ -27,6 +32,11 @@
         u.act_sat,
         u.ap_ib
         from d_user_scores u
-        where u.open_id = #{openId}
+        where u.id = #{id}
+    </select>
+    <select id="selectId" resultMap="userVo">
+        select u.id
+        from d_user_scores u
+        where u.id = #{id}
     </select>
 </mapper>

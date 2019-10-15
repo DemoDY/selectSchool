@@ -1,6 +1,7 @@
 package com.select.school.utils;
 
 import java.text.MessageFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,5 +48,34 @@ public class DateUtil {
         patternStrList.add(DATE_PATTERN_YYYYMMDDHHmmSS);
         String[] dateFormatList = new String[0];
         return (String[]) patternStrList.toArray(dateFormatList);
+    }
+
+    /**
+     * 带百分号的String类型 转成double类型
+     * @param print
+     * @return
+     */
+    public static double stringToDouble(String print){
+        double num = 0;
+        if (print!=null&&!"".equals(print)){
+            //去掉%号 将含有%的字符串转换成浮点型数据类型。
+             num = Double.parseDouble(print.replace("%",""))*0.01;
+        }
+        return num;
+    }
+
+    /**
+     * Double转化为百分数
+     * @param d
+     * @param IntegerDigits
+     * @param FractionDigits
+     * @return
+     */
+    public static String getPercentFormat(double d,int IntegerDigits,int FractionDigits) {
+        NumberFormat nf = java.text.NumberFormat.getPercentInstance();
+        nf.setMaximumIntegerDigits(IntegerDigits);//小数点前保留几位
+        nf.setMinimumFractionDigits(FractionDigits);// 小数点后保留几位
+        String str = nf.format(d);
+        return str;
     }
 }

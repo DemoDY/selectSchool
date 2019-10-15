@@ -1,6 +1,5 @@
 package com.select.school.controller.wxApplet;
 
-import com.select.school.model.vo.SchoolProfileVo;
 import com.select.school.utils.result.AjaxResult;
 import com.select.school.model.dto.OptionDTO;
 import com.select.school.model.vo.OptionVo;
@@ -39,21 +38,24 @@ public class OptionController {
 
     /**
      * 接收小程序传输数据
+     *
      * @param optionVo
      * @return
      */
     @RequestMapping(method = {RequestMethod.POST}, value = "/optionReceive")
     @ResponseBody
     public AjaxResult optionReceive(@RequestBody OptionVo optionVo) {
+        AjaxResult ajaxResult = null;
         try {
             List<OptionDTO> options = optionVo.getOptionList();
+            String openid = optionVo.getOpenid();
             // 执行批量保存
-            userScoreService.insertOption(options);
+            ajaxResult = userScoreService.insertOption(options, openid);
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResult.error(900, "操作失败：系统错误");
         }
-        return AjaxResult.success(AjaxResult.CODE_SUCCESS, "操作成功");
+        return ajaxResult;
     }
 
 
@@ -64,8 +66,14 @@ public class OptionController {
      */
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/schoolList")
     @ResponseBody
-    public AjaxResult schoolList(String openId) {
-        AjaxResult ajaxResult = userScoreService.selectSchool(openId);
+    public AjaxResult schoolList(int id) {
+        AjaxResult ajaxResult = null;
+        try {
+            ajaxResult = userScoreService.selectSchool(id);
+        }catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.error(900, "操作失败：系统错误");
+        }
         return ajaxResult;
     }
 }

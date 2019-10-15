@@ -19,18 +19,14 @@
     </resultMap>
 
     <insert id="create" parameterType="com.select.school.model.entity.User">
-<!--
-        <selectKey resultType="long" keyProperty="id" >
-            SELECT LAST_INSERT_ID()
-        </selectKey>-->
         insert into d_user
         (nick_name,avatar_url,mobile,openid,unionid,create_time)
         values
         (#{nickName},#{avatarUrl},#{mobile},#{openid},#{unionid},now())
     </insert>
 
-    <select id="query" parameterType="map" resultMap="user">
-
+    <select id="selectAll" resultMap="user">
+        select * from d_user
     </select>
 
     <select id="count" parameterType="map" resultType="int">

@@ -5,9 +5,10 @@ public class OptionDTO {
     private int problemId;
     private String option;
     private String number;
-    private String tl;
+    private String tl;//托福或雅思
+    private String skipDown;
     private String description;
-    private String openid;
+    private String seq;
 
     public int getProblemId() {
         return problemId;
@@ -49,6 +50,14 @@ public class OptionDTO {
         this.description = description;
     }
 
+    public String getSkipDown() {
+        return skipDown;
+    }
+
+    public void setSkipDown(String skipDown) {
+        this.skipDown = skipDown;
+    }
+
     public int getId() {
         return id;
     }
@@ -57,11 +66,25 @@ public class OptionDTO {
         this.id = id;
     }
 
-    public String getOpenid() {
-        return openid;
+    public String getSeq() {
+        return seq;
     }
 
-    public void setOpenid(String openid) {
-        this.openid = openid;
+    public void setSeq(String seq) {
+        this.seq = seq;
+    }
+
+    @Override
+    public String toString() {
+        return "OptionDTO{" +
+                "id=" + id +
+                ", problemId=" + problemId +
+                ", option='" + option + '\'' +
+                ", number='" + number + '\'' +
+                ", tl='" + tl + '\'' +
+                ", description='" + description + '\'' +
+                ", skipDown='" + skipDown + '\'' +
+                ", seq='" + seq + '\'' +
+                '}';
     }
 }
