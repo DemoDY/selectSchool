@@ -1,28 +1,19 @@
 server:
     port: 8983
-#    tomcat:
-#        remote-ip-header: x-forwarded-for
-#        protocol-header: x-forwarded-proto
-#        port-header: X-Forwarded-Port
-#    use-forward-headers: true
-#    compression:
-#        enabled: true
-#        mime-types: text/plain,application/javascript,application/x-javascript,text/css,application/xml,text/javascript,application/x-httpd-php,image/jpeg,image/gif,image/png
-        
-#eureka:
-#    client:
-#        enabled: true
-#        fetch-registry: true
-#        register-with-eureka: true
-#        instance-info-replication-interval-seconds: 10
-#        registry-fetch-interval-seconds: 10
-#        instance:
-#            appname: blog-service
-#            instanceId: blog-service:${spring.application.instance-id:${random.value}}
-#        serviceUrl:
-#            defaultZone: http://106.12.36.80:10000/eureka/
+    tomcat:
+        remote-ip-header: x-forwarded-for
+        protocol-header: x-forwarded-proto
+        port-header: X-Forwarded-Port
+    use-forward-headers: true
+    compression:
+        enabled: true
+        mime-types: text/plain,application/javascript,application/x-javascript,text/css,application/xml,text/javascript,application/x-httpd-php,image/jpeg,image/gif,image/png
+
 
 spring:
+    profiles:
+        active: dev
+
     application:
         name: selectSchool-service
     datasource:
@@ -44,7 +35,7 @@ spring:
             hibernate:
                 hbm2ddl:
                     auto: update
-                    
+# 日志
     
 jhipster:
     async:
@@ -80,3 +71,5 @@ wechat:
     appid: wx1330df3ec7f2cac0
     appscrect: 0ddba9f0f9ef6eb42c2e8b6e37b78fc3
     key: 123
+logging:
+    path: /school/log

@@ -1,0 +1,38 @@
+server:
+    port: 8983
+
+#eureka:
+#    client:
+#        enabled: true
+#        fetch-registry: true
+#        register-with-eureka: true
+#        instance-info-replication-interval-seconds: 10
+#        registry-fetch-interval-seconds: 10
+#        instance:
+#            appname: blog-service
+#            instanceId: blog-service:${spring.application.instance-id:${random.value}}
+#        serviceUrl:
+#            defaultZone: http://106.12.36.80:10000/eureka/
+
+spring:
+    application:
+        name: selectSchool-service
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:mysql://139.196.193.182:8306/selectSchool?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+        username: root
+        password: DecentSmart2016
+        hikari:
+            data-source-properties:
+                cachePrepStmts: true
+                prepStmtCacheSize: 250
+                prepStmtCacheSqlLimit: 2048
+                useServerPrepStmts: true
+    jpa:
+        show-sql: true
+        #hibernate:
+        #    ddl-auto: create
+        properties:
+            hibernate:
+                hbm2ddl:
+                    auto: update
