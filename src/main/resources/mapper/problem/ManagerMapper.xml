@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.select.school.mapper.ManagerMapper">
+    <resultMap id="manager" type="com.select.school.model.entity.Manager">
+        <id column="id" property="id"/>
+        <result column="login_name" property="loginName"/>
+        <result column="name" property="name"/>
+        <result column="password" property="password"/>
+        <result column="create_time" property="createTime"/>
+        <result column="state" property="state"/>
+    </resultMap>
+
+    <select id="findByLogin" parameterType="com.select.school.model.entity.Manager" resultMap="manager">
+        select * from d_manager where login_name = #{loginName} and state = 1
+    </select>
+
+</mapper>

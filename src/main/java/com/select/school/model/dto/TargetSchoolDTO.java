@@ -28,7 +28,7 @@ public class TargetSchoolDTO {
     /**
      * 校徽
      */
-//    private String crest;
+    private String crest;
     private String nineteen;//2019 录取人数
     private String twenty;//2020 录取人数
     private String nationalStuAccep;//国际生录取率
@@ -133,5 +133,13 @@ public class TargetSchoolDTO {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public String getCrest() {
+        return crest;
+    }
+
+    public void setCrest(String crest) {
+        this.crest = crest;
     }
 }

@@ -10,7 +10,13 @@
         <result column="o_skip_down" property="skipDown"/>
         <result column="o_tl" property="tl"/>
     </resultMap>
+
     <select id="selectOne" resultMap="option">
         select * from d_option
+    </select>
+
+    <select id="findByProblemId" parameterType="com.select.school.model.entity.Option" resultMap="option">
+        select id,problem_id,o_option,o_number,o_description,o_tl
+        from d_option where o_option like CONCAT('%', #{option, jdbcType=VARCHAR}, '%') and problem_id = #{problemId}
     </select>
 </mapper>

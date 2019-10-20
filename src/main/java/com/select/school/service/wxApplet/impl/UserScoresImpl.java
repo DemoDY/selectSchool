@@ -17,9 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class UserScoresImpl implements UserScoreService {
@@ -69,18 +67,18 @@ public class UserScoresImpl implements UserScoreService {
             String number = option.getNumber();
             if (number != null && !number.equals("0")) {
                 // 12 题
-                if (problemId == 12) {
+                if (problemId == 13) {
                     act_sat = "SAT";
                     sat = option.getOption();
-                } else if (problemId == 13) { //13 题
+                } else if (problemId == 14) { //13 题
                     act_sat = "ACT";
                     act = option.getOption();
                 }
                 //15 题
-                if (problemId == 15) {
+                if (problemId == 16) {
                     ib_ap = "AP";
-                    ap = option.getOption();
-                } else if (problemId == 16) {
+                    ap = option.getNumber();
+                } else if (problemId == 17) {
                     ib_ap = "IB";
                     ib = option.getOption();
                 }
@@ -107,11 +105,11 @@ public class UserScoresImpl implements UserScoreService {
             }
             //获取排名
             if (problemId == 4) {
-                rank = option.getOption();
+                rank = option.getNumber();
             }
             //获取gpa
             if (problemId == 6) {
-                gpa = option.getOption();
+                gpa = option.getNumber();
             }
             String tl = option.getTl();
             //选择雅思或者托福成绩
@@ -139,8 +137,8 @@ public class UserScoresImpl implements UserScoreService {
                     userScores.setTlScore(toefl);
                 }
             }
-            if (toefl.equals("99—90")) {
-                // 2 如果 托福 是99—90分 而 雅思是 7.5以上  以雅思为主 否则以托福为主。
+            if (toefl.equals("99-90")) {
+                // 2 如果 托福 是99-90分 而 雅思是 7.5以上  以雅思为主 否则以托福为主。
                 if (ielts.equals("7.5")) {
                     userScores.setTl("IELTS");
                     userScores.setTlScore(ielts);
@@ -151,8 +149,8 @@ public class UserScoresImpl implements UserScoreService {
                 }
             }
 
-            if (toefl.equals("89—79")) {
-                // 3 如果 托福 是89—79分 而雅思是 7以上 以雅思为主 否则以托福为主。
+            if (toefl.equals("89-79")) {
+                // 3 如果 托福 是89-79分 而雅思是 7以上 以雅思为主 否则以托福为主。
                 if (ielts.equals("7.5") || ielts.equals("7")) {
                     userScores.setTl("IELTS");
                     userScores.setTlScore(ielts);
@@ -162,8 +160,8 @@ public class UserScoresImpl implements UserScoreService {
                     userScores.setTlScore(toefl);
                 }
             }
-            if (toefl.equals("78—69")) {
-                // 4 如果 托福 是78—69分 而雅思是 6.5以上 以雅思为主 否则以托福为主。
+            if (toefl.equals("78-69")) {
+                // 4 如果 托福 是78-69分 而雅思是 6.5以上 以雅思为主 否则以托福为主。
                 if (ielts.equals("7.5") || ielts.equals("7") || ielts.equals("6.5")) {
                     userScores.setTl("IELTS");
                     userScores.setTlScore(ielts);
@@ -232,7 +230,7 @@ public class UserScoresImpl implements UserScoreService {
         userScoresMapper.insertList(userScores);
         //根据id 查询数据库 返回一个id 给小程序
         UserScoreVo userScores1 = userScoresMapper.selectId(userScores.getId());
-        scores.setUserId(userScores1.getId());
+        scores.setUserScoreId(userScores1.getId());
         scores.setActAvg(act);//act 平均
         scores.setApCourse(ap);//ap
         scores.setGpaAvg(gpa);//gpa
@@ -258,10 +256,11 @@ public class UserScoresImpl implements UserScoreService {
         UserScores userScores = userScoresMapper.selectOpenId(id);
         String sat_act = userScores.getActSat();
         String ib_ap = userScores.getApIb();
-        String tl = userScores.getTl();
-        String tlScore = userScores.getTlScore();
-        List<SchoolProfileVo> schoolProfileVo = new ArrayList<>();
+        String tl = userScores.getTl();//托福或雅思
+        String tlScore = userScores.getTlScore();//托福成绩
         ReportFileDTO reportFileDTOS = new ReportFileDTO();
+        SchoolProfileVo schoolProfileVo = new SchoolProfileVo();//学校详情
+        AcceptanceVo acceptanceVo = new AcceptanceVo();//录取率
         List<Weight> weightList = null;
         SqlParameter sql = SqlParameter.getParameter();
         reportFileDTOS.setPreface("前言：\n" +
@@ -288,7 +287,7 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS,userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -298,7 +297,7 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70)
@@ -308,7 +307,7 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -322,7 +321,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -332,7 +331,7 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70)
@@ -342,7 +341,7 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -358,7 +357,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -369,7 +368,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70)
@@ -379,7 +378,7 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -393,7 +392,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -404,7 +403,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70)
@@ -414,12 +413,12 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
             }
-            if (tlScore.equals("99—90")) {
+            if (tlScore.equals("99-90")) {
                 if (sat_act.equals("ACT")) {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
@@ -432,7 +431,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -443,7 +442,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70)
@@ -454,7 +453,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -468,7 +467,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -479,7 +478,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -490,7 +489,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -507,7 +506,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -518,7 +517,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -529,7 +528,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -542,7 +541,7 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -552,7 +551,7 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -562,12 +561,12 @@ public class UserScoresImpl implements UserScoreService {
                                 //如果大于3 需要截取前三所学校
                                 weightList = weightList.subList(0, 3);
                             }
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
             }
-            if (tlScore.equals("89—79")) {
+            if (tlScore.equals("89-79")) {
                 //查询小于90的学校
                 if (sat_act.equals("ACT")) {
                     if (ib_ap.equals("IB")) {//act ib
@@ -582,7 +581,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -593,7 +592,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -604,7 +603,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -618,7 +617,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -629,7 +628,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -640,7 +639,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
 
                     }
@@ -658,7 +657,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -669,7 +668,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -680,7 +679,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -694,7 +693,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -705,7 +704,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -716,12 +715,12 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
             }
-            if (tlScore.equals("78—69")) {
+            if (tlScore.equals("78-69")) {
                 if (sat_act.equals("ACT")) {
                     if (ib_ap.equals("IB")) {//act ib
                         //根据 查出来的权重id 去查询权重数据
@@ -734,7 +733,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -745,7 +744,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -756,7 +755,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -770,7 +769,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -781,7 +780,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -791,7 +790,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -807,7 +806,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -817,7 +816,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -827,7 +826,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -840,7 +839,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -851,7 +850,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -862,12 +861,12 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
             }
-            if (tlScore.equals("68—61")) {
+            if (tlScore.equals("68-61")) {
                 if (sat_act.equals("ACT")) {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
@@ -880,7 +879,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -891,7 +890,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -902,7 +901,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -916,7 +915,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -927,7 +926,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -938,7 +937,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -955,7 +954,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -966,7 +965,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -977,7 +976,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -991,7 +990,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -1002,7 +1001,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -1013,7 +1012,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1031,7 +1030,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -1042,7 +1041,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -1053,7 +1052,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -1067,7 +1066,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -1078,7 +1077,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -1089,7 +1088,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1106,7 +1105,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -1117,7 +1116,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -1128,7 +1127,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -1142,7 +1141,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -1153,7 +1152,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -1164,7 +1163,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1184,7 +1183,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -1195,7 +1194,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -1206,7 +1205,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -1220,7 +1219,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -1231,7 +1230,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -1242,7 +1241,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1259,7 +1258,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -1270,7 +1269,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -1281,7 +1280,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -1295,7 +1294,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -1306,7 +1305,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -1317,7 +1316,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1335,7 +1334,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -1346,7 +1345,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -1357,7 +1356,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -1371,7 +1370,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -1382,7 +1381,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -1393,7 +1392,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1410,7 +1409,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -1421,7 +1420,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -1432,7 +1431,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -1446,7 +1445,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -1457,7 +1456,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -1468,7 +1467,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1486,7 +1485,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -1497,7 +1496,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -1508,7 +1507,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -1522,7 +1521,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -1533,7 +1532,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -1544,7 +1543,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1561,7 +1560,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -1572,7 +1571,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -1583,7 +1582,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -1597,7 +1596,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -1608,7 +1607,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -1619,7 +1618,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1637,7 +1636,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -1648,7 +1647,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -1659,7 +1658,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -1673,7 +1672,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -1684,7 +1683,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -1695,7 +1694,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1712,7 +1711,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -1723,7 +1722,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -1734,7 +1733,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -1748,7 +1747,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -1759,7 +1758,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -1770,7 +1769,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1788,7 +1787,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -1799,7 +1798,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -1810,7 +1809,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -1824,7 +1823,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -1835,7 +1834,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -1846,7 +1845,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1863,7 +1862,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -1874,7 +1873,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -1885,7 +1884,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -1899,7 +1898,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -1910,7 +1909,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -1921,7 +1920,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -1939,7 +1938,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 20)
@@ -1950,7 +1949,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 70).
@@ -1961,7 +1960,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//act ap
@@ -1975,7 +1974,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 20)
@@ -1986,7 +1985,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 70).
@@ -1997,7 +1996,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -2014,7 +2013,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 20)
@@ -2025,7 +2024,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 70).
@@ -2036,7 +2035,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                     if (ib_ap.equals("AP")) {//sat ap
@@ -2050,7 +2049,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //梦想学校
-                            dreamSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            dreamSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //目标学校 Target School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 20)
@@ -2061,7 +2060,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //目标学校
-                            targetSchool(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            targetSchool(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                         //保底学校 Safety colleges
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 70).
@@ -2072,7 +2071,7 @@ public class UserScoresImpl implements UserScoreService {
                                 weightList = weightList.subList(0, 3);
                             }
                             //保底学校
-                            safetyColleges(weightList, reportFileDTOS, schoolProfileVo,userScores);
+                            safetyColleges(weightList, reportFileDTOS, userScores,schoolProfileVo,acceptanceVo);
                         }
                     }
                 }
@@ -2083,10 +2082,8 @@ public class UserScoresImpl implements UserScoreService {
     }
 
     //保底学校
-    private void safetyColleges(List<Weight> weightList, ReportFileDTO reportFileDTO, List<SchoolProfileVo> schoolProfileVo,UserScores userScores) {
+    private void safetyColleges(List<Weight> weightList, ReportFileDTO reportFileDTO, UserScores userScores, SchoolProfileVo schoolVo,AcceptanceVo acceptanceVo) {
         List<SafetySchoolDTO> safetySchoolDTOS = new ArrayList<>();
-        SchoolProfileVo schoolVo = new SchoolProfileVo();
-        List<AcceptanceVo> acceptanceVos = new ArrayList<>();
         String act_sat = "";
         String ap_ib = "";
         if (userScores.getActSat().equals("ACT")){
@@ -2098,33 +2095,24 @@ public class UserScoresImpl implements UserScoreService {
         }if (userScores.getActSat().equals("SAT")){
             act_sat = "SAT";
         }
-        AcceptanceVo acceptanceVo = new AcceptanceVo();//录取率
         List<SafetyAcceptanceDTO> safetyAcceptanceDTOList = new ArrayList<>();
         for (Weight weight : weightList) {
-
-            RadarMapVo radarMapVo = new RadarMapVo();//雷达图
             SafetyAcceptanceDTO safetyAcceptanceDTO = new SafetyAcceptanceDTO();//保底学校数据
             Weight weight1 = weightMapper.selectById(weight.getId());
             SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
             SchoolAdmissionScores admissionScores = schoolAdmissionScoresMapper.selectById(schoolProfile.getId());
             SafetySchoolDTO safetySchoolDTO = new SafetySchoolDTO();
             //雷达图数据 radarMapVo
-            radarMapVo.setActAvgResults(admissionScores.getActAvgResults());
-            radarMapVo.setApNumCourse(admissionScores.getApNumCourse());
-            radarMapVo.setChGpaAvgStu(admissionScores.getChGpaAvgStu());
-            radarMapVo.setIbAvgResults(admissionScores.getIbAvgResults());
-            radarMapVo.setSchoolRank(admissionScores.getNineteen());
-            radarMapVo.setToeflLowReq(admissionScores.getToeflLowReq());
-            radarMapVo.setChSatAvgHighStu(admissionScores.getChSatAvgHighStu());
+            RadarMapVo radarMapVo = radarMap(admissionScores);
             String national = admissionScores.getNationalStuAccep();
             //学校详情数据
-            safetySchoolDTO.setDetails("您的TOEFL成绩符合羅格斯大學新布朗斯維克分校录取要求。\n" +
-                    "您在AP选课方面与历届羅格斯大學新布朗斯維克分校中国留学生的平均成绩有差距，还需努力！\n" +
-                    "您的年级排名，GPA，SAT比历届羅格斯大學新布朗斯維克分校中国留学生的平均成绩高。\n");
+            String detail = selectDetails(admissionScores,userScores,schoolProfile);
+            safetySchoolDTO.setDetails(detail);
             safetySchoolDTO.setChName(schoolProfile.getChName());//学校中文名
             safetySchoolDTO.setSchoolName(schoolProfile.getSchoolName());//学校英文名
             safetySchoolDTO.setSchoolProfile("\t" + schoolProfile.getSchoolProfile());//学校简介
             safetySchoolDTO.setNineteen(admissionScores.getNineteen());//19年排名
+            safetySchoolDTO.setCrest(schoolProfile.getCrest());
             safetySchoolDTO.setTwenty(admissionScores.getTwenty());//20年排名
             safetySchoolDTO.setSchoolRank(schoolProfile.getSchoolRank());//学校排名
             safetySchoolDTO.setTuitionFees(admissionScores.getTuitionFees());//学费 美元
@@ -2171,21 +2159,16 @@ public class UserScoresImpl implements UserScoreService {
             String acc = DateUtil.getPercentFormat(number,2,2);
             safetyAcceptanceDTO.setAcceptance(acc);//添加保底学校的录取率 录取率=国际生录取率*100/(100-（最后权重-学校权重）
             safetyAcceptanceDTOList.add(safetyAcceptanceDTO);
-
         }
         schoolVo.setSafetySchoolDTOS(safetySchoolDTOS);//把保底学校的数据放入list 里面
         acceptanceVo.setSafety(safetyAcceptanceDTOList);
-        acceptanceVos.add(acceptanceVo);
-        schoolProfileVo.add(schoolVo);
-        reportFileDTO.setSchoolProfileVos(schoolProfileVo);
-        reportFileDTO.setAcceptance(acceptanceVos);
+        reportFileDTO.setSchoolProfileVos(schoolVo);
+        reportFileDTO.setAcceptance(acceptanceVo);
     }
 
     //目标学校
-    private void targetSchool(List<Weight> weightList, ReportFileDTO reportFileDTO, List<SchoolProfileVo> schoolProfileVo,UserScores userScores) {
+    private void targetSchool(List<Weight> weightList, ReportFileDTO reportFileDTO,UserScores userScores,SchoolProfileVo schoolProfileVo,AcceptanceVo acceptanceVo) {
         List<TargetSchoolDTO> targetSchoolDTOS = new ArrayList<>();
-        SchoolProfileVo schoolVo = new SchoolProfileVo();
-        List<AcceptanceVo> acceptanceVos = new ArrayList<>();
         String act_sat = "";
         String ap_ib = "";
         if (userScores.getActSat().equals("ACT")){
@@ -2198,34 +2181,27 @@ public class UserScoresImpl implements UserScoreService {
             act_sat = "SAT";
         }
         List<TargetAcceptanceDTO> targetAcceptanceDTOS = new ArrayList<>();
-        AcceptanceVo acceptanceVo = new AcceptanceVo();//录取率
         for (Weight weight : weightList) {
-            RadarMapVo radarMapVo = new RadarMapVo();//雷达图
+//            RadarMapVo radarMapVo = new RadarMapVo();//雷达图
             TargetAcceptanceDTO targetAcceptanceDTO = new TargetAcceptanceDTO();
             Weight weight1 = weightMapper.selectById(weight.getId());
             SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
             SchoolAdmissionScores admissionScores = schoolAdmissionScoresMapper.selectById(schoolProfile.getId());
             TargetSchoolDTO targetSchoolDTO = new TargetSchoolDTO();
             //雷达图数据 radarMapVo
-            radarMapVo.setActAvgResults(admissionScores.getActAvgResults());
-            radarMapVo.setApNumCourse(admissionScores.getApNumCourse());
-            radarMapVo.setChGpaAvgStu(admissionScores.getChGpaAvgStu());
-            radarMapVo.setIbAvgResults(admissionScores.getIbAvgResults());
-            radarMapVo.setSchoolRank(admissionScores.getNineteen());
-            radarMapVo.setToeflLowReq(admissionScores.getToeflLowReq());
-            radarMapVo.setChSatAvgHighStu(admissionScores.getChSatAvgHighStu());
+            RadarMapVo radarMapVo = radarMap(admissionScores);
             String national = admissionScores.getNationalStuAccep();
             //学校详情数据
             targetSchoolDTO.setChName(schoolProfile.getChName());
             targetSchoolDTO.setSchoolName(schoolProfile.getSchoolName());
-            targetSchoolDTO.setDetails("您的TOEFL成绩符合羅格斯大學新布朗斯維克分校录取要求。\n" +
-                    "您在AP选课方面与历届羅格斯大學新布朗斯維克分校中国留学生的平均成绩有差距，还需努力！\n" +
-                    "您的年级排名，GPA，SAT比历届羅格斯大學新布朗斯維克分校中国留学生的平均成绩高。\n");
+            String detail = selectDetails(admissionScores,userScores,schoolProfile);
+            targetSchoolDTO.setDetails(detail);
             targetSchoolDTO.setSchoolProfile("\t" + schoolProfile.getSchoolProfile());
             targetSchoolDTO.setNineteen(admissionScores.getNineteen());//19年排名
             targetSchoolDTO.setTwenty(admissionScores.getTwenty());//20年排名
             targetSchoolDTO.setSchoolRank(schoolProfile.getSchoolRank());//学校排名
             targetSchoolDTO.setTuitionFees(admissionScores.getTuitionFees());//学费 美元
+            targetSchoolDTO.setCrest(schoolProfile.getCrest());
             targetSchoolDTO.setTargetSchool("Target School 目标学校：\n");
             targetSchoolDTO.setNumNationalFreshmen(admissionScores.getNumNationalFreshmen());//大一国际生人数
             targetSchoolDTO.setNationalStuAccep(national);//国际生录取率
@@ -2270,19 +2246,15 @@ public class UserScoresImpl implements UserScoreService {
             targetAcceptanceDTO.setAcceptance(acc);//添加保底学校的录取率 录取率=国际生录取率*100/(100-（最后权重-学校权重）
             targetAcceptanceDTOS.add(targetAcceptanceDTO);
         }
-        schoolVo.setTargetSchoolDTOS(targetSchoolDTOS);
+        schoolProfileVo.setTargetSchoolDTOS(targetSchoolDTOS);
         acceptanceVo.setTarget(targetAcceptanceDTOS);
-        acceptanceVos.add(acceptanceVo);
-        schoolProfileVo.add(schoolVo);
         reportFileDTO.setSchoolProfileVos(schoolProfileVo);
-//        reportFileDTO.setAcceptance(acceptanceVos);
+        reportFileDTO.setAcceptance(acceptanceVo);
     }
 
     //梦想学校
-    private void dreamSchool(List<Weight> weightList, ReportFileDTO reportFileDTO, List<SchoolProfileVo> schoolProfileVo,UserScores userScores) {
+    private void dreamSchool(List<Weight> weightList, ReportFileDTO reportFileDTO,UserScores userScores,SchoolProfileVo schoolVo,AcceptanceVo acceptanceVo) {
         List<DreamSchoolDTO> dreamSchoolDTOS = new ArrayList<>();
-        SchoolProfileVo schoolVo = new SchoolProfileVo();
-        List<AcceptanceVo> acceptanceVos = new ArrayList<>();
         String act_sat = "";
         String ap_ib = "";
         if (userScores.getActSat().equals("ACT")){
@@ -2295,22 +2267,15 @@ public class UserScoresImpl implements UserScoreService {
             act_sat = "SAT";
         }
         List<DreamAcceptanceDTO> dreamAcceptanceDTOS = new ArrayList<>();
-        AcceptanceVo acceptanceVo = new AcceptanceVo();
         for (Weight weight : weightList) {
-            RadarMapVo radarMapVo = new RadarMapVo();//雷达图
+//            RadarMapVo radarMapVo = new RadarMapVo();//雷达图
             DreamAcceptanceDTO dreamAcceptanceDTO = new DreamAcceptanceDTO();//录取率
             Weight weight1 = weightMapper.selectById(weight.getId());
             SchoolProfile schoolProfile = schoolProfileMapper.selectById(weight1.getSchoolId());
             SchoolAdmissionScores admissionScores = schoolAdmissionScoresMapper.selectById(schoolProfile.getId());
             DreamSchoolDTO dreamSchoolDTO = new DreamSchoolDTO();
             //雷达图数据 radarMapVo
-            radarMapVo.setActAvgResults(admissionScores.getActAvgResults());
-            radarMapVo.setApNumCourse(admissionScores.getApNumCourse());
-            radarMapVo.setChGpaAvgStu(admissionScores.getChGpaAvgStu());
-            radarMapVo.setIbAvgResults(admissionScores.getIbAvgResults());
-            radarMapVo.setSchoolRank(admissionScores.getNineteen());
-            radarMapVo.setToeflLowReq(admissionScores.getToeflLowReq());
-            radarMapVo.setChSatAvgHighStu(admissionScores.getChSatAvgHighStu());
+            RadarMapVo radarMapVo = radarMap(admissionScores);
             String national = admissionScores.getNationalStuAccep();
             //学校详情数据
             dreamSchoolDTO.setChName(schoolProfile.getChName());
@@ -2320,10 +2285,10 @@ public class UserScoresImpl implements UserScoreService {
             dreamSchoolDTO.setTwenty(admissionScores.getTwenty());//20年排名
             dreamSchoolDTO.setSchoolRank(schoolProfile.getSchoolRank());//学校排名
             dreamSchoolDTO.setTuitionFees(admissionScores.getTuitionFees());//学费 美元
+            dreamSchoolDTO.setCrest(schoolProfile.getCrest());
             dreamSchoolDTO.setDreamSchool("Dream School 梦想学校：\n");
-            dreamSchoolDTO.setDetails("您的TOEFL成绩符合羅格斯大學新布朗斯維克分校录取要求。\n" +
-                    "您在AP选课方面与历届羅格斯大學新布朗斯維克分校中国留学生的平均成绩有差距，还需努力！\n" +
-                    "您的年级排名，GPA，SAT比历届羅格斯大學新布朗斯維克分校中国留学生的平均成绩高。\n");
+            String detail = selectDetails(admissionScores,userScores,schoolProfile);
+            dreamSchoolDTO.setDetails(detail);
             dreamSchoolDTO.setNumNationalFreshmen(admissionScores.getNumNationalFreshmen());//大一国际生人数
             dreamSchoolDTO.setNationalStuAccep(national);//国际生录取率
             dreamSchoolDTO.setRadarMap(radarMapVo);
@@ -2369,11 +2334,168 @@ public class UserScoresImpl implements UserScoreService {
 
         }
         schoolVo.setDreamSchoolDTOS(dreamSchoolDTOS);
-        schoolProfileVo.add(schoolVo);
+        reportFileDTO.setSchoolProfileVos(schoolVo);//保存学校详情
         acceptanceVo.setDream(dreamAcceptanceDTOS); // 把梦想学校录取率 放到集合里
-        acceptanceVos.add(acceptanceVo);
-        reportFileDTO.setAcceptance(acceptanceVos);//保存录取率
-        reportFileDTO.setSchoolProfileVos(schoolProfileVo);//保存学校详情
+        reportFileDTO.setAcceptance(acceptanceVo);//保存录取率
+    }
+
+    @Autowired
+    private OptionMapper optionMapper;
+    /**
+     *
+     * 获取雷达图数据
+     * @param admissionScores
+     * @return
+     */
+    private RadarMapVo radarMap(SchoolAdmissionScores admissionScores) {
+        RadarMapVo radarMapVo = new RadarMapVo();
+        //雷达图数据 radarMapVo
+        String act = admissionScores.getActAvgResults();
+        String act_rad = "";
+        Option option = null;
+        if (!act.equals("") && act != null) {
+            //查询数据库数据
+            option = optionMapper.findByProblemId(act, 14);
+            if (option != null) {
+                act_rad = option.getNumber();
+//                double n = DateUtil.stringToDouble(act_rad);//把录取率转成double类型 用来计算
+                int i = Integer.parseInt(act_rad);
+//                String print = DateUtil.getPercentFormat(n, 2, 0);
+                int percentInter = DateUtil.getPercentInter(i, 200);
+                radarMapVo.setActAvgResults(percentInter);//传给前端百分比数据
+            }
+        }
+        String ap = admissionScores.getApNumCourse();
+        String ap_rad = "";
+        if (!ap.equals("") && ap != null) {
+            option = optionMapper.findByProblemId(ap, 16);
+            if (option != null) {
+                ap_rad = option.getNumber();
+                int i = Integer.parseInt(ap_rad);//把录取率转成double类型 用来计算
+                int percentInter = DateUtil.getPercentInter(i, 200);
+                radarMapVo.setApNumCourse(percentInter);
+            }
+        }
+
+        String gpa = admissionScores.getChGpaAvgStu();
+        String gpa_rad = "";
+        if (!gpa.equals("") && gpa != null) {
+            option = optionMapper.findByProblemId(gpa, 6);
+            if (option != null) {
+                gpa_rad = option.getNumber();
+                int i = Integer.parseInt(gpa_rad);//把录取率转成double类型 用来计算
+                int percentInter = DateUtil.getPercentInter(i, 200);
+                radarMapVo.setChGpaAvgStu(percentInter);//去除百分号
+            }
+        }
+
+        String ib = admissionScores.getIbAvgResults();
+        String ib_rad = "";
+        if (!ib.equals("") && ib != null) {
+            option = optionMapper.findByProblemId(ib, 17);
+            if (option != null) {
+                ib_rad = option.getNumber();
+                int i = Integer.parseInt(ib_rad);//把录取率转成double类型 用来计算
+                int percentInter = DateUtil.getPercentInter(i, 200);
+                radarMapVo.setIbAvgResults(percentInter);
+            }
+        }
+
+        String rank = admissionScores.getNineteen();//排名
+        if (rank != null && !rank.equals("")) {
+            int i = Integer.parseInt(rank);//把录取率转成double类型 用来计算
+            //TODO 从数据库动态获取学校个数
+            int percentInter = DateUtil.getPercentInter(i, 300);
+            radarMapVo.setSchoolRank(101-percentInter);
+        }
+
+        String tolfl = admissionScores.getToeflLowReq();//托福成绩
+        String toefl_rad = "";
+        if (!tolfl.equals("") && tolfl != null) {
+            option = optionMapper.findByProblemId(tolfl, 7);
+            if (option != null) {
+                toefl_rad = option.getNumber();
+                int i = Integer.parseInt(toefl_rad);//把录取率转成double类型 用来计算
+                int percentInter = DateUtil.getPercentInter(i, 100);
+                radarMapVo.setToeflLowReq(percentInter);
+            }
+
+            String sat = admissionScores.getChSatAvgLowStu();//sat成绩
+            String sat_rad = "";
+            if (!sat.equals("") && sat != null) {
+                option = optionMapper.findByProblemId(sat, 13);
+                if (option != null) {
+                    sat_rad = option.getNumber();
+                    int i = Integer.parseInt(sat_rad);//把录取率转成double类型 用来计算
+                    int percentInter = DateUtil.getPercentInter(i, 200);
+                    radarMapVo.setChSatAvgHighStu(percentInter);
+                }
+            }
+        }
+        return radarMapVo;
+    }
+
+    private String selectDetails(SchoolAdmissionScores admissionScores,UserScores userScores,SchoolProfile schoolProfile){
+
+        String schoolName = schoolProfile.getChName();//学校名称
+        String toefl = admissionScores.getToeflLowReq();//托福学校成绩
+        int userid = userScores.getId();
+        Scores scores = scoresMapper.findByUserScoreId(userid);
+//        int gpa = Integer.parseInt(admissionScores.getChGpaAvgStu());//gpa 学校平均成绩
+//        int gpa_score = Integer.parseInt(scores.getGpaAvg());
+        int ap = Integer.parseInt(admissionScores.getApWeight());//ap 学校选课权重
+        int ap_score = Integer.parseInt(scores.getApCourse());
+        int act = Integer.parseInt(admissionScores.getActAvgResults());// act 学校平均成绩
+        int act_score = Integer.parseInt(scores.getActAvg());
+
+        String toefl_score = scores.getToeflLow();//托福 选择的成绩
+        String tf_detail = "";
+        int tf = Integer.parseInt(toefl);
+        if (toefl_score.equals(">=100")){
+            if (tf>100 && tf<=100){
+                tf_detail = "您的TOEFL成绩符合"+schoolName+"录取要求。\n";
+            }else{
+                tf_detail = "您的TOEFL成绩不符合"+schoolName+"录取要求。\n";
+            }
+        }else if (toefl_score.equals("99-90")){
+            if (tf<=99){
+                tf_detail = "您的TOEFL成绩符合"+schoolName+"录取要求。\n";
+            }else{
+                tf_detail = "您的TOEFL成绩不符合"+schoolName+"录取要求。\n";
+            }
+        }else if (toefl_score.equals("89-79")){
+            if (tf<=89){
+                tf_detail = "您的TOEFL成绩符合"+schoolName+"录取要求。\n";
+            }else{
+                tf_detail = "您的TOEFL成绩不符合"+schoolName+"录取要求。\n";
+            }
+        }else if (toefl_score.equals("78-69")){
+            if (tf<=78){
+                tf_detail = "您的TOEFL成绩符合"+schoolName+"录取要求。\n";
+            }else{
+                tf_detail = "您的TOEFL成绩不符合"+schoolName+"录取要求。\n";
+            }
+        }else if (toefl_score.equals("68-61")){
+            if (tf<=68){
+                tf_detail = "您的TOEFL成绩符合"+schoolName+"录取要求。\n";
+            }else{
+                tf_detail = "您的TOEFL成绩不符合"+schoolName+"录取要求。\n";
+            }
+        }else{
+            if (tf<=60){
+                tf_detail = "您的TOEFL成绩符合"+schoolName+"录取要求。\n";
+            }else{
+                tf_detail = "您的TOEFL成绩不符合"+schoolName+"录取要求。\n";
+            }
+        }
+        String ap_detail = "";
+        String gpa_detail= "";
+        if (ap>ap_score){
+            ap_detail = "您在AP选课方面与历届"+schoolName+"中国留学生的平均成绩有差距，还需努力！\n";
+        }else{
+            gpa_detail = "您的年级排名，AP，SAT比历届"+schoolName+"中国留学生的平均成绩高。\n";
+        }
+        return tf_detail+ap_detail+gpa_detail;
     }
 }
 

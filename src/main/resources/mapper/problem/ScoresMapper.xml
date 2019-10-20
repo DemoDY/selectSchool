@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.select.school.mapper.ScoresMapper">
-    <resultMap id="option" type="com.select.school.model.entity.Scores">
+    <resultMap id="score" type="com.select.school.model.entity.Scores">
         <id column="id" property="id"/>
-        <result column="user_id" property="userId"/>
+        <result column="user_score_id" property="userScoreId"/>
         <result column="gpa_avg" property="gpaAvg"/>
         <result column="rank" property="rank"/>
         <result column="sat_avg_high" property="satAvgHigh"/>
@@ -13,8 +13,19 @@
         <result column="ib_avg" property="ibAvg"/>
     </resultMap>
 
+    <sql id="Base_Column_List">
+        id,user_score_id,gpa_avg,rank,sat_avg_high,act_avg,toefl_low,ap_course,ib_avg
+    </sql>
+
     <insert id="insertScores" parameterType="com.select.school.model.entity.UserScores">
-        insert into d_scores (user_id, gpa_avg, rank, sat_avg_high,act_avg ,toefl_low, ap_course,ib_avg )
-        values (#{userId}, #{gpaAvg},  #{rank}, #{satAvgHigh},#{actAvg},#{toeflLow}, #{apCourse},#{ibAvg} )
+        insert into d_scores (user_score_id, gpa_avg, rank, sat_avg_high,act_avg ,toefl_low, ap_course,ib_avg )
+        values (#{userScoreId}, #{gpaAvg},  #{rank}, #{satAvgHigh},#{actAvg},#{toeflLow}, #{apCourse},#{ibAvg} )
     </insert>
+
+    <select id="findByUserScoreId" parameterType="com.select.school.model.entity.UserScores" resultMap="score">
+        select
+        <include refid="Base_Column_List" />
+        from d_scores
+        where user_score_id = #{userScoreId}
+    </select>
 </mapper>

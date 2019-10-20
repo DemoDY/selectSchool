@@ -1,7 +1,6 @@
 package com.select.school.controller.web;
 
-import com.select.school.service.wxApplet.ProblemService;
-import com.select.school.utils.result.AjaxResult;
+import com.select.school.service.web.ManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -9,26 +8,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+
 @CrossOrigin
 @Controller
-@RequestMapping(value = "problem")
-public class ProblemController {
+@RequestMapping(value = "login")
+public class LoginController {
 
     @Autowired
-    private ProblemService problemService;
-
+    private ManagerService managerService;
 
     /**
-     * 问题接口
-     *
+     * 用户登录后台
+     * @param username
+     * @param password
      * @return
      */
-    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/problemList")
+    @RequestMapping(method = {RequestMethod.GET,RequestMethod.POST}, value = "/login")
     @ResponseBody
-    public AjaxResult problemList() {
-        AjaxResult ajaxResult = problemService.selectProblems();
-        return ajaxResult;
+    public String login(String username,String password) {
+        String result = managerService.login(username,password);
+        return result;
     }
-
-
 }

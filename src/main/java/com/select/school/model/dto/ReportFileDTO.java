@@ -14,9 +14,9 @@ public class ReportFileDTO {
     private String preface;//前言
     private String dataModel;//数据模型
 
-    private List<SchoolProfileVo> schoolProfileVos;//学校
+    private SchoolProfileVo schoolProfileVos;//学校
 
-    private List<AcceptanceVo> acceptance;//录取率
+    private AcceptanceVo acceptance;//录取率
 
     private String explain;
 
@@ -36,19 +36,19 @@ public class ReportFileDTO {
         this.dataModel = dataModel;
     }
 
-    public List<SchoolProfileVo> getSchoolProfileVos() {
+    public SchoolProfileVo getSchoolProfileVos() {
         return schoolProfileVos;
     }
 
-    public void setSchoolProfileVos(List<SchoolProfileVo> schoolProfileVos) {
+    public void setSchoolProfileVos(SchoolProfileVo schoolProfileVos) {
         this.schoolProfileVos = schoolProfileVos;
     }
 
-    public List<AcceptanceVo> getAcceptance() {
+    public AcceptanceVo getAcceptance() {
         return acceptance;
     }
 
-    public void setAcceptance(List<AcceptanceVo> acceptance) {
+    public void setAcceptance(AcceptanceVo acceptance) {
         this.acceptance = acceptance;
     }
 

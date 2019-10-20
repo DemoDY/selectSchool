@@ -5,7 +5,7 @@ package com.select.school.model.entity;
  */
 public class Scores {
     private int id;
-    private int userId;
+    private int userScoreId;
     private String gpaAvg;//中国学生平均GPA
     /**
      * 学校排名
@@ -26,12 +26,12 @@ public class Scores {
         this.id = id;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getUserScoreId() {
+        return userScoreId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserScoreId(int userScoreId) {
+        this.userScoreId = userScoreId;
     }
 
     public String getGpaAvg() {

@@ -65,7 +65,7 @@ public class DateUtil {
     }
 
     /**
-     * Double转化为百分数
+     * Double 转化为百分数
      * @param d
      * @param IntegerDigits
      * @param FractionDigits
@@ -77,5 +77,10 @@ public class DateUtil {
         nf.setMinimumFractionDigits(FractionDigits);// 小数点后保留几位
         String str = nf.format(d);
         return str;
+    }
+
+    public static int getPercentInter(int number,int maxNumber) {
+        int i = number / (maxNumber / 100);
+        return i;
     }
 }

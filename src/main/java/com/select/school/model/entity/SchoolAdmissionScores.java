@@ -3,11 +3,11 @@ package com.select.school.model.entity;
 public class SchoolAdmissionScores {
     private int id;
     /**
-     * 学校简介 id
+     * 学校简介 id230
      */
     private int schoolId;
     private String nineteen;//2019 录取人数
-    private String twenty;//2020 录取人数
+    private String twenty;//2020 录取人数/
     private String firstStudentsNum;//留学生大一入学人数
     private String comAdmissionRate;//2019 综合录取率
     private String numberFreshmen;//大一新生人数

@@ -3,70 +3,70 @@ package com.select.school.model.vo;
 //雷达图字段
 public class RadarMapVo {
 
-    private String chGpaAvgStu;//中国学生平均GPA
+    private int chGpaAvgStu;//中国学生平均GPA
     /**
      * 学校排名
      */
-    private String schoolRank;
-    private String chSatAvgHighStu;//中国学生SAT平均高位成绩
-    private String actAvgResults;//ACT平均成绩
-    private String toeflLowReq;//TOEFL 最低要求
-    private String apNumCourse;//AP 选课数量
-    private String ibAvgResults;//IB 平均成绩
+    private int schoolRank;
+    private int chSatAvgHighStu;//中国学生SAT平均高位成绩
+    private int actAvgResults;//ACT平均成绩
+    private int toeflLowReq;//TOEFL 最低要求
+    private int apNumCourse;//AP 选课数量
+    private int ibAvgResults;//IB 平均成绩
 
-    public String getChGpaAvgStu() {
+    public int getChGpaAvgStu() {
         return chGpaAvgStu;
     }
 
-    public void setChGpaAvgStu(String chGpaAvgStu) {
+    public void setChGpaAvgStu(int chGpaAvgStu) {
         this.chGpaAvgStu = chGpaAvgStu;
     }
 
-    public String getSchoolRank() {
+    public int getSchoolRank() {
         return schoolRank;
     }
 
-    public void setSchoolRank(String schoolRank) {
+    public void setSchoolRank(int schoolRank) {
         this.schoolRank = schoolRank;
     }
 
-    public String getChSatAvgHighStu() {
+    public int getChSatAvgHighStu() {
         return chSatAvgHighStu;
     }
 
-    public void setChSatAvgHighStu(String chSatAvgHighStu) {
+    public void setChSatAvgHighStu(int chSatAvgHighStu) {
         this.chSatAvgHighStu = chSatAvgHighStu;
     }
 
-    public String getActAvgResults() {
+    public int getActAvgResults() {
         return actAvgResults;
     }
 
-    public void setActAvgResults(String actAvgResults) {
+    public void setActAvgResults(int actAvgResults) {
         this.actAvgResults = actAvgResults;
     }
 
-    public String getToeflLowReq() {
+    public int getToeflLowReq() {
         return toeflLowReq;
     }
 
-    public void setToeflLowReq(String toeflLowReq) {
+    public void setToeflLowReq(int toeflLowReq) {
         this.toeflLowReq = toeflLowReq;
     }
 
-    public String getApNumCourse() {
+    public int getApNumCourse() {
         return apNumCourse;
     }
 
-    public void setApNumCourse(String apNumCourse) {
+    public void setApNumCourse(int apNumCourse) {
         this.apNumCourse = apNumCourse;
     }
 
-    public String getIbAvgResults() {
+    public int getIbAvgResults() {
         return ibAvgResults;
     }
 
-    public void setIbAvgResults(String ibAvgResults) {
+    public void setIbAvgResults(int ibAvgResults) {
         this.ibAvgResults = ibAvgResults;
     }
 }

@@ -27,7 +27,10 @@ public enum ResponseCode {
     ACCOUNT_ALREADY(71, "账户已经存在"),
     QUERY_NO_DATAS(8, "未查询到数据"),
     ERROR(500, "服务器出错"),
-    ERROR_SERVICE_NOT_EXIST(501, "服务不存在");
+    ERROR_SERVICE_NOT_EXIST(501, "服务不存在"),
+    ACCOUNT_NOT(501, "账户不存在"),
+    PASSWORD_NOT(502, "密码不为空"),
+    PASSWORD_ERROR(201, "密码不正确");
 
 
     private Integer code;
