@@ -14,11 +14,13 @@ import com.select.school.model.entity.User;
 import com.select.school.service.wxApplet.WeChatService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseUtil;
+import com.select.school.utils.dxm.sqlUtils.SqlParameter;
 import com.select.school.utils.dxm.wechat.WeChatUtil;
 import com.select.school.model.dto.WeChatLoginParamDTO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @version: V1.0
@@ -50,13 +52,21 @@ public class WeChatServiceImpl implements WeChatService {
             JSONObject wexinResult = JSONObject.parseObject(result);
             // 保存用户信息到数据库
             if (result.contains("openid")){
+
+                // 查询用户是否存在
+
+                User userResult = userMapper.detail(SqlParameter.getParameter().addQuery("openid", wexinResult.get("openid").toString()).getMap());
+                if (userResult != null ){
+                    return ResponseUtil.setResult(ResponseCode.SUCCESS, result);
+                }
+
                 User user = new User();
                 user.setNickName(login.getNickName());
                 user.setOpenid(wexinResult.get("openid").toString());
                 user.setMobile(login.getMoblie());
                 user.setAvatarUrl(login.getAvatarUrl());
                 int i = userMapper.create(user);
-                System.out.println("创建："+i);
+                //System.out.println("创建："+i);
             }else {
                 return ResponseUtil.setResult(ResponseCode.REQUEST_NOT, result);
             }

@@ -27,10 +27,12 @@
 
     <select id="selectAll" resultMap="user">
         select * from d_user
+        <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
+        <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>
 
     <select id="count" parameterType="map" resultType="int">
-
+        select count(id) from d_user
     </select>
 
     <select id="detail" parameterType="map" resultMap="user">

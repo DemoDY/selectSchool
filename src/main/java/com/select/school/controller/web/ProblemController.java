@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @CrossOrigin
 @Controller
+@CrossOrigin
 @RequestMapping(value = "problem")
 public class ProblemController {
 
@@ -24,7 +25,6 @@ public class ProblemController {
      * @return
      */
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/problemList")
-    @ResponseBody
     public AjaxResult problemList() {
         AjaxResult ajaxResult = problemService.selectProblems();
         return ajaxResult;
