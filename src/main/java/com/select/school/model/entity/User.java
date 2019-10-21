@@ -1,7 +1,8 @@
 package com.select.school.model.entity;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
+
 
 /**
  * 用户授权表

@@ -7,6 +7,7 @@
  */
 package com.select.school.utils.dxm.result;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 /**
@@ -37,7 +38,7 @@ public class ResponseUtil {
     public static String setResult(ResponseCode responseCode,Object data){
         ResponseResult response = new ResponseResult();
         response.setCodeMsg(responseCode);
-        response.setData(JSONObject.fromObject(data));
+        response.setData(JSONArray.fromObject(data));
         return JSONObject.fromObject(response).toString();
     }
 

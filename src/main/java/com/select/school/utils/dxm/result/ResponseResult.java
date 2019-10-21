@@ -8,7 +8,12 @@
 package com.select.school.utils.dxm.result;
 
 
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @version: V1.0
@@ -22,7 +27,7 @@ public class ResponseResult {
 
     private int code;
     private String msg;
-    private JSONObject data;
+    private Object data;
 
 
 
@@ -48,11 +53,11 @@ public class ResponseResult {
         this.msg = msg;
     }
 
-    public JSONObject getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(JSONObject data) {
+    public void setData(Object data) {
         this.data = data;
     }
 }

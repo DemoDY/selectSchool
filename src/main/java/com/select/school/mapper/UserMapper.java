@@ -12,5 +12,5 @@ public interface UserMapper {
     public List<User> query(Map<String, Object> paramMap);
     public User detail(Map<String, Object> paramMap);
     public int count(Map<String, Object> paramMap);
-    public List<User> selectAll();
+    public List<User> selectAll(Map<String, Object> paramMap);
 }
