@@ -1,8 +1,8 @@
 package com.select.school.model.dto;
 
 public class OptionDTO {
-    private  int id;
-    private int problemId;
+    private  String id;
+    private String problemId;
     private String option;
     private String number;
     private String tl;//托福或雅思
@@ -10,11 +10,19 @@ public class OptionDTO {
     private String description;
     private String seq;
 
-    public int getProblemId() {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getProblemId() {
         return problemId;
     }
 
-    public void setProblemId(int problemId) {
+    public void setProblemId(String problemId) {
         this.problemId = problemId;
     }
 
@@ -56,14 +64,6 @@ public class OptionDTO {
 
     public void setSkipDown(String skipDown) {
         this.skipDown = skipDown;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getSeq() {

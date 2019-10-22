@@ -57,20 +57,19 @@ public class WeChatServiceImpl implements WeChatService {
 
                 User userResult = userMapper.detail(SqlParameter.getParameter().addQuery("openid", wexinResult.get("openid").toString()).getMap());
                 if (userResult != null ){
-                    return ResponseUtil.setResult(ResponseCode.SUCCESS, result);
+                    return ResponseUtil.setResult(ResponseCode.SUCCESS,userResult);
                 }
-
                 User user = new User();
                 user.setNickName(login.getNickName());
                 user.setOpenid(wexinResult.get("openid").toString());
                 user.setMobile(login.getMoblie());
                 user.setAvatarUrl(login.getAvatarUrl());
                 int i = userMapper.create(user);
-                //System.out.println("创建："+i);
+                System.out.println("创建："+i);
             }else {
-                return ResponseUtil.setResult(ResponseCode.REQUEST_NOT, result);
+                return ResponseUtil.setResult(ResponseCode.REQUEST_NOT,result);
             }
-            return ResponseUtil.setResult(ResponseCode.SUCCESS, result);
+            return ResponseUtil.setResult(ResponseCode.SUCCESS,result);
 
         }catch (Exception e){
             e.printStackTrace();

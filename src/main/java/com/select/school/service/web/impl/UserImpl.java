@@ -7,7 +7,6 @@ import com.select.school.service.web.UserService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseResult;
 import com.select.school.utils.dxm.sqlUtils.SqlParameter;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,13 +33,11 @@ public class UserImpl implements UserService {
         } else {
             ArrayList<User> list = new ArrayList<>();
             list.addAll(userList);
-
             pagedataDto.setRecords(userList);
             pagedataDto.setPageNum(pagedata.getPageNum());
             pagedataDto.setPageSize(pagedata.getPageSize());
             pagedataDto.setPages((int)Math.ceil(count/pagedata.getPageSize()));
             pagedataDto.setTotal(count);
-
             result.setCodeMsg(ResponseCode.SUCCESS);
             result.setData(pagedataDto);
         }

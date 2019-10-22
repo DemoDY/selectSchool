@@ -11,10 +11,8 @@ import com.select.school.model.dto.WeChatLoginParamDTO;
 import com.select.school.service.wxApplet.WeChatService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseUtil;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -27,6 +25,7 @@ import javax.annotation.Resource;
  * @data: 2019-09-24
  **/
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/wechat")
 public class WeChatController {

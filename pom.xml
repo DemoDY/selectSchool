@@ -5,7 +5,7 @@
     <groupId>maven-springboot</groupId>
     <artifactId>selectSchool</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>selectSchool</name>
     <description>一个基于springboot的框架</description>
@@ -64,6 +64,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- pagehelper分页插件 -->
         <dependency>
             <groupId>com.github.pagehelper</groupId>
@@ -97,12 +103,12 @@
              <artifactId>spring-boot-starter-data-jpa</artifactId>
          </dependency>-->
         <!-- swagger2 API 生成jar-->
-        <dependency>
+     <!--   <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>2.2.2</version>
         </dependency>
-
+-->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
@@ -127,11 +133,7 @@
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>2.8.7</version>
         </dependency>
-        <!-- <dependency>-->
-        <!-- <groupId>com.fasterxml.jackson.datatype</groupId>-->
-        <!-- <artifactId>jackson-datatype-hibernate5</artifactId>-->
-        <!-- </dependency>-->
-
+        <!--servlet-api的依赖-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -153,7 +155,6 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.58</version>
         </dependency>
-
         <!-- configuration -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -162,7 +163,12 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>selectSchool</finalName>
         <plugins>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.0</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -172,28 +178,18 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <fork>true</fork>
-                    <!--                        main 方法路径-->
-                    <mainClass>com.select.school.App</mainClass>
-                    <layout>ZIP</layout>
-
+                    <jvmArguments>-Dfile.encoding=UTF-8</jvmArguments>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
-        <!-- <plugin>
-             <groupId>org.springframework.boot</groupId>
-             <artifactId>spring-boot-maven-plugin</artifactId>
-         </plugin>-->
     </build>
 </project>

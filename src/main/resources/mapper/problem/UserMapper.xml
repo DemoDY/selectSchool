@@ -3,7 +3,6 @@
 <mapper namespace="com.select.school.mapper.UserMapper">
     <resultMap id ="user" type="com.select.school.model.entity.User">
         <id column="id" property="id" />
-
         <result column="nick_name" property="nickName" />
         <result column="real_name" property="realName" />
         <result column="avatar_url" property="avatarUrl" />
@@ -35,8 +34,12 @@
         select count(id) from d_user
     </select>
 
-    <select id="detail" parameterType="map" resultMap="user">
-
+    <select id="detail" parameterType="map" resultType="com.select.school.model.entity.User">
+        select * from d_user
+            where
+            <if test="openid != null">
+                openid = #{openid}
+            </if>
     </select>
 
     <delete id="delete" parameterType="map">
