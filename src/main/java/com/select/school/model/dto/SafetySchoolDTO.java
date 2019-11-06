@@ -37,6 +37,8 @@ public class SafetySchoolDTO {
     private String safetySchool;//保底学校
     private RadarMapVo radarMap;//雷达图
     private String details;//报告关于学校的详情
+    private String acceptance;//录取率
+
     public String getSchoolName() {
         return schoolName;
     }
@@ -139,5 +141,13 @@ public class SafetySchoolDTO {
 
     public void setCrest(String crest) {
         this.crest = crest;
+    }
+
+    public String getAcceptance() {
+        return acceptance;
+    }
+
+    public void setAcceptance(String acceptance) {
+        this.acceptance = acceptance;
     }
 }

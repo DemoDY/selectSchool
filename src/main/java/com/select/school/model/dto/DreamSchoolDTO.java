@@ -35,7 +35,7 @@ public class DreamSchoolDTO {
     private String tuitionFees;//学费（美元）
     private String numNationalFreshmen;//大一国际生人数
     private String dreamSchool;//梦想学校
-
+    private String acceptance;//录取率
     private RadarMapVo radarMap;//雷达图
 
     private String details;//报告关于学校的详情
@@ -142,5 +142,13 @@ public class DreamSchoolDTO {
 
     public void setCrest(String crest) {
         this.crest = crest;
+    }
+
+    public String getAcceptance() {
+        return acceptance;
+    }
+
+    public void setAcceptance(String acceptance) {
+        this.acceptance = acceptance;
     }
 }

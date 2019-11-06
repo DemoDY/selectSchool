@@ -9,14 +9,16 @@
         <result column="o_description" property="description"/>
         <result column="o_skip_down" property="skipDown"/>
         <result column="o_tl" property="tl"/>
+        <result column="o_seq" property="seq"/>
     </resultMap>
 
     <select id="selectOne" resultMap="option">
         select * from d_option
     </select>
 
-    <select id="findByProblemId" parameterType="com.select.school.model.entity.Option" resultMap="option">
-        select id,problem_id,o_option,o_number,o_description,o_tl
-        from d_option where o_option like CONCAT('%', #{option, jdbcType=VARCHAR}, '%') and problem_id = #{problemId}
+    <select id="selectProblemId"  resultMap="option">
+        select id,problem_id,o_option,o_number,o_description,o_tl,o_seq
+        from d_option where problem_id = #{problemId}
+        ORDER BY o_seq asc
     </select>
 </mapper>

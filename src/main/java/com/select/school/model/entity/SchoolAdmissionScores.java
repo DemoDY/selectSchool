@@ -6,13 +6,13 @@ public class SchoolAdmissionScores {
      * 学校简介 id230
      */
     private int schoolId;
-    private String nineteen;//2019 录取人数
-    private String twenty;//2020 录取人数/
+    private int nineteen;//2019 录取人数
+    private int twenty;//2020 录取人数/
     private String firstStudentsNum;//留学生大一入学人数
     private String comAdmissionRate;//2019 综合录取率
     private String numberFreshmen;//大一新生人数
     private String nationalStuAccep;//国际生录取率
-    private String tuitionFees;//学费（美元）
+    private double tuitionFees;//学费（美元）
     private String numNationalFreshmen;//大一国际生人数
     private String chStuHighRank;//中国录取学生高中年级排名
     private String chStuWeightRank;//中国学生排名权重
@@ -27,12 +27,12 @@ public class SchoolAdmissionScores {
     private String apWeight;//AP 选课权重
     private String ibAvgResults;//IB 平均成绩
     private String ibWeight;//IB 权重
-    private String toeflLowReq;//TOEFL 最低要求
-    private String ieltsLowReq;//IELTS 最低要求
-    private String apSat;//学生选择AP，或者不选，提供SAT成绩
-    private String apAct;//学生选择AP，或者不选，提供ACT成绩
-    private String ibSat;//学生选择IB，提供SAT成绩
-    private String ibAct;// 学生选择IB，提供ACT成绩
+    private int toeflLowReq;//TOEFL 最低要求
+    private double ieltsLowReq;//IELTS 最低要求
+    private int apSat;//学生选择AP，或者不选，提供SAT成绩
+    private int apAct;//学生选择AP，或者不选，提供ACT成绩
+    private int ibSat;//学生选择IB，提供SAT成绩
+    private int ibAct;// 学生选择IB，提供ACT成绩
     private String addValue;//增值活动
 
     public int getId() {
@@ -43,21 +43,6 @@ public class SchoolAdmissionScores {
         this.id = id;
     }
 
-    public String getNineteen() {
-        return nineteen;
-    }
-
-    public void setNineteen(String nineteen) {
-        this.nineteen = nineteen;
-    }
-
-    public String getTwenty() {
-        return twenty;
-    }
-
-    public void setTwenty(String twenty) {
-        this.twenty = twenty;
-    }
 
     public int getSchoolId() {
         return schoolId;
@@ -99,11 +84,27 @@ public class SchoolAdmissionScores {
         this.nationalStuAccep = nationalStuAccep;
     }
 
-    public String getTuitionFees() {
+    public int getNineteen() {
+        return nineteen;
+    }
+
+    public void setNineteen(int nineteen) {
+        this.nineteen = nineteen;
+    }
+
+    public int getTwenty() {
+        return twenty;
+    }
+
+    public void setTwenty(int twenty) {
+        this.twenty = twenty;
+    }
+
+    public double getTuitionFees() {
         return tuitionFees;
     }
 
-    public void setTuitionFees(String tuitionFees) {
+    public void setTuitionFees(double tuitionFees) {
         this.tuitionFees = tuitionFees;
     }
 
@@ -219,51 +220,51 @@ public class SchoolAdmissionScores {
         this.ibWeight = ibWeight;
     }
 
-    public String getToeflLowReq() {
+    public int getToeflLowReq() {
         return toeflLowReq;
     }
 
-    public void setToeflLowReq(String toeflLowReq) {
+    public void setToeflLowReq(int toeflLowReq) {
         this.toeflLowReq = toeflLowReq;
     }
 
-    public String getIeltsLowReq() {
+    public double getIeltsLowReq() {
         return ieltsLowReq;
     }
 
-    public void setIeltsLowReq(String ieltsLowReq) {
+    public void setIeltsLowReq(double ieltsLowReq) {
         this.ieltsLowReq = ieltsLowReq;
     }
 
-    public String getApSat() {
+    public int getApSat() {
         return apSat;
     }
 
-    public void setApSat(String apSat) {
+    public void setApSat(int apSat) {
         this.apSat = apSat;
     }
 
-    public String getApAct() {
+    public int getApAct() {
         return apAct;
     }
 
-    public void setApAct(String apAct) {
+    public void setApAct(int apAct) {
         this.apAct = apAct;
     }
 
-    public String getIbSat() {
+    public int getIbSat() {
         return ibSat;
     }
 
-    public void setIbSat(String ibSat) {
+    public void setIbSat(int ibSat) {
         this.ibSat = ibSat;
     }
 
-    public String getIbAct() {
+    public int getIbAct() {
         return ibAct;
     }
 
-    public void setIbAct(String ibAct) {
+    public void setIbAct(int ibAct) {
         this.ibAct = ibAct;
     }
 

@@ -36,7 +36,7 @@ public class TargetSchoolDTO {
     private String numNationalFreshmen;//大一国际生人数
     private String targetSchool;//目标学校
     private RadarMapVo radarMap;//雷达图
-
+    private String acceptance;//录取率
     private String details;//报告关于学校的详情
 
     public String getSchoolName() {
@@ -141,5 +141,13 @@ public class TargetSchoolDTO {
 
     public void setCrest(String crest) {
         this.crest = crest;
+    }
+
+    public String getAcceptance() {
+        return acceptance;
+    }
+
+    public void setAcceptance(String acceptance) {
+        this.acceptance = acceptance;
     }
 }

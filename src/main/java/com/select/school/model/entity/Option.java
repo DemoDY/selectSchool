@@ -22,13 +22,10 @@ public class Option {
      * 选项描述
      */
     private String description;
-
     /**
      * 答案序号
      */
-    private String seq;
-
-
+    private int seq;
     private String skipDown;//向下跳转
 
 
@@ -75,11 +72,11 @@ public class Option {
         this.description = description;
     }
 
-    public String getSeq() {
+    public int getSeq() {
         return seq;
     }
 
-    public void setSeq(String seq) {
+    public void setSeq(int seq) {
         this.seq = seq;
     }
 
@@ -113,7 +110,7 @@ public class Option {
                 '}';
     }
 
-    public Option(int id, int problemId, String option, String number, String tl, String description,String skipDown,String seq) {
+    public Option(int id, int problemId, String option, String number, String tl, String description,String skipDown,int seq) {
         this.id = id;
         this.problemId = problemId;
         this.option = option;

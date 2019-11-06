@@ -8,7 +8,7 @@ public class OptionDTO {
     private String tl;//托福或雅思
     private String skipDown;
     private String description;
-    private String seq;
+    private int seq;
 
     public String getId() {
         return id;
@@ -66,11 +66,11 @@ public class OptionDTO {
         this.skipDown = skipDown;
     }
 
-    public String getSeq() {
+    public int getSeq() {
         return seq;
     }
 
-    public void setSeq(String seq) {
+    public void setSeq(int seq) {
         this.seq = seq;
     }
 

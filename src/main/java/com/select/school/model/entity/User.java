@@ -1,6 +1,9 @@
 package com.select.school.model.entity;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
@@ -23,6 +26,8 @@ public class User implements Serializable {
     private String password;
     private Date createTime;    //创建时间
     private Date updateTime;    //修改时间
+
+    private String createTimeStr;
 
     public String getId() {
         return id;
@@ -110,5 +115,17 @@ public class User implements Serializable {
 
     public void setRealName(String realName) {
         this.realName = realName;
+    }
+
+    public String getCreateTimeStr() {
+        if (this.createTime!=null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            return simpleDateFormat.format(this.createTime);
+        }
+        return createTimeStr;
+    }
+
+    public void setCreateTimeStr(String createTimeStr) {
+        this.createTimeStr = createTimeStr;
     }
 }

@@ -22,9 +22,32 @@
                ds.ch_name,
                ds.school_profile,
                ds.crest,state,
+               ds.school_rank,
                ds.the_area,
                ds.public_private
               from d_school_profile ds
               where ds.id = #{id}
   </select>
+
+    <select id="selectAll" resultMap="schoolProfile">
+        select  ds.id,
+        ds.school_name,
+        ds.ch_name,
+        ds.school_profile,
+        ds.crest,state,
+        ds.school_rank,
+        ds.the_area,
+        ds.public_private
+        from d_school_profile ds
+        where 1=1
+        <if test="schoolName!=''">
+            and  ds.school_name like CONCAT('%', #{schoolName, jdbcType=VARCHAR}, '%') or ds.ch_name like CONCAT('%', #{schoolName, jdbcType=VARCHAR}, '%')
+        </if>
+        order by ds.id asc
+        <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+        select count(id) from d_school_profile
+    </select>
 </mapper>

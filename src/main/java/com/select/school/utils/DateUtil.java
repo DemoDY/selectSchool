@@ -76,7 +76,8 @@ public class DateUtil {
         nf.setMaximumIntegerDigits(IntegerDigits);//小数点前保留几位
         nf.setMinimumFractionDigits(FractionDigits);// 小数点后保留几位
         String str = nf.format(d);
-        return str;
+        String newStr = str.replace("%","");//去掉百分号
+        return newStr;
     }
 
     public static int getPercentInter(int number,int maxNumber) {

@@ -54,7 +54,6 @@ public class WeChatServiceImpl implements WeChatService {
             if (result.contains("openid")){
 
                 // 查询用户是否存在
-
                 User userResult = userMapper.detail(SqlParameter.getParameter().addQuery("openid", wexinResult.get("openid").toString()).getMap());
                 if (userResult != null ){
                     return ResponseUtil.setResult(ResponseCode.SUCCESS,userResult);

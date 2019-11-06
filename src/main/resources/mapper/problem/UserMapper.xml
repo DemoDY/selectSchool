@@ -8,24 +8,22 @@
         <result column="avatar_url" property="avatarUrl" />
         <result column="mobile" property="mobile" />
         <result column="password" property="password" />
-
         <result column="openid" property="openid" />
         <result column="unionid" property="unionid" />
         <result column="email" property="email" />
-        <result column="create_time" property="createTime" />
-        <result column="update_time" property="updateTime" />
-
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
     </resultMap>
 
     <insert id="create" parameterType="com.select.school.model.entity.User">
         insert into d_user
-        (nick_name,avatar_url,mobile,openid,unionid,create_time)
+        (nick_name,avatar_url,mobile,openid,unionid,create_time,update_time)
         values
-        (#{nickName},#{avatarUrl},#{mobile},#{openid},#{unionid},now())
+        (#{nickName},#{avatarUrl},#{mobile},#{openid},#{unionid},now(),#{updateTime})
     </insert>
 
     <select id="selectAll" resultMap="user">
-        select * from d_user
+        select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time from d_user
         <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
         <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>
@@ -35,21 +33,12 @@
     </select>
 
     <select id="detail" parameterType="map" resultType="com.select.school.model.entity.User">
-        select * from d_user
+        select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time  from d_user
             where
             <if test="openid != null">
                 openid = #{openid}
             </if>
     </select>
-
-    <delete id="delete" parameterType="map">
-
-    </delete>
-
-    <update id="update">
-
-    </update>
-
     <sql id="TreasureCouponUpdateCriteria">
         <set>
             <if test="openid != null"> openid = #{openid}, </if>

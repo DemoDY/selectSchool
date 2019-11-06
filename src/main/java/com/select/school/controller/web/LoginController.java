@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 
-@CrossOrigin
+
 @Controller
 @RequestMapping(value = "login")
 public class LoginController {
@@ -19,14 +19,27 @@ public class LoginController {
 
     /**
      * 用户登录后台
-     * @param username
+     * @param userName
      * @param password
      * @return
      */
+    @CrossOrigin
     @RequestMapping(method = {RequestMethod.GET,RequestMethod.POST}, value = "/login")
     @ResponseBody
-    public String login(String username,String password) {
-        String result = managerService.login(username,password);
+    public String login(String userName,String password) {
+        String result = managerService.login(userName,password);
         return result;
     }
+        /**
+     * 用户登录后台
+     * @return
+     */
+    @CrossOrigin
+    @RequestMapping(method = {RequestMethod.GET,RequestMethod.POST}, value = "/getUserInfo")
+    @ResponseBody
+    public String getUserInfo(String token) {
+        String result = managerService.login("luanbing","luanbing");
+        return result;
+    }
+
 }

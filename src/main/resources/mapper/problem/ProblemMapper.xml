@@ -48,13 +48,23 @@
 		from
 		d_problem p LEFT JOIN d_option o
 		on p.number = o.problem_id
-		ORDER BY p.number asc,o.o_seq
+		ORDER BY p.number asc,o.o_seq asc
     </select>
 
 
     <select id="selectAll" resultMap="problem">
-        select * from d_problem
-        <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
+        select p.id,
+        p.title,
+        p.description,
+        p.number,
+        p.radio_checkbox,
+        p.skip_up
+        from d_problem p
+        where 1=1
+        <if test="title!=''">
+              and  p.title like CONCAT('%', #{title, jdbcType=VARCHAR}, '%')
+        </if>
+        order by  p.number asc
         <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>
 

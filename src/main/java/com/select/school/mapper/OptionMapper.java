@@ -7,6 +7,5 @@ import java.util.List;
 public interface OptionMapper {
 
     List<Option> selectOne();
-
-    Option findByProblemId(String option,int problemId);
+    List<Option> selectProblemId(int problemId);
 }

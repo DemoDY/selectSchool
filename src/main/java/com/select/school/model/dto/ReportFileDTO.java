@@ -18,6 +18,8 @@ public class ReportFileDTO {
 
     private AcceptanceVo acceptance;//录取率
 
+    private String question;
+
     private String explain;
 
     public String getPreface() {
@@ -58,5 +60,13 @@ public class ReportFileDTO {
 
     public void setExplain(String explain) {
         this.explain = explain;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
     }
 }

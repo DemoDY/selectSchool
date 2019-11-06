@@ -24,6 +24,10 @@ public class ProblemImpl implements ProblemService {
     @Autowired
     private ProblemMapper problemMapper;
 
+    /**
+     * 查询小程序所需要的问题列表
+     * @return
+     */
     @Override
     public AjaxResult selectProblems(){
         AjaxResult ajaxResult = new AjaxResult();
@@ -32,35 +36,6 @@ public class ProblemImpl implements ProblemService {
         ajaxResult.put("problem", problemListAjaxResult);
         return ajaxResult;
     }
-
-    /**
-     * 查询问题列表
-     * @param pagedata
-     * @return
-     */
-    @Override
-    public String selectAll(PagedataDto pagedata){
-        ResponseResult result = new ResponseResult();
-        PagedataDto pagedataDto = new PagedataDto();
-
-        List<Problem> problemList = problemMapper.selectAll(SqlParameter.getParameter().addLimit(pagedata.getPageNum(), pagedata.getPageSize()).getMap());
-        int count = problemMapper.count(SqlParameter.getParameter().getMap());
-        if (problemList == null || problemList.size() == 0) {
-            result.setCodeMsg(ResponseCode.QUERY_NO_DATAS);
-        } else {
-            ArrayList<Problem> list = new ArrayList<>();
-            list.addAll(problemList);
-            pagedataDto.setRecords(problemList);
-            pagedataDto.setPageNum(pagedata.getPageNum());
-            pagedataDto.setPageSize(pagedata.getPageSize());
-            pagedataDto.setPages((int)Math.ceil(count/pagedata.getPageSize()));
-            pagedataDto.setTotal(count);
-            result.setCodeMsg(ResponseCode.SUCCESS);
-            result.setData(pagedataDto);
-        }
-        return JSONObject.fromObject(result).toString();
-    }
-
 
     private AjaxResult isNull(List list) {
         if (list.size() == 0) {

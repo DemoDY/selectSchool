@@ -69,5 +69,18 @@ public class RadarMapVo {
     public void setIbAvgResults(int ibAvgResults) {
         this.ibAvgResults = ibAvgResults;
     }
+
+    @Override
+    public String toString() {
+        return "RadarMapVo{" +
+                "chGpaAvgStu=" + chGpaAvgStu +
+                ", schoolRank=" + schoolRank +
+                ", chSatAvgHighStu=" + chSatAvgHighStu +
+                ", actAvgResults=" + actAvgResults +
+                ", toeflLowReq=" + toeflLowReq +
+                ", apNumCourse=" + apNumCourse +
+                ", ibAvgResults=" + ibAvgResults +
+                '}';
+    }
 }
 

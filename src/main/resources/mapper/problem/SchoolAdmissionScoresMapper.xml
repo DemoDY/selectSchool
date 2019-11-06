@@ -43,7 +43,7 @@
         select
         <include refid="Base_Column_List" />
         from d_school_admission_scores
-        where id = #{id}
+        where school_id = #{schoolId}
     </select>
 
 </mapper>
