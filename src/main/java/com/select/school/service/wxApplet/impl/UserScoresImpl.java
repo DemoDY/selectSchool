@@ -368,7 +368,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校 Dream School
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",100).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",100).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -401,7 +401,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",100).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",100).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -437,7 +437,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",100).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",100).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -472,7 +472,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校 求具体分数 得出三个学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",100).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",100).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -511,7 +511,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",99).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",99).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -547,7 +547,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",99).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",99).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -585,7 +585,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",99).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",99).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -623,7 +623,7 @@ public class UserScoresImpl implements UserScoreService {
                         //梦想学校 求具体分数 得出三个学校 加60分 如果没有 就依次往下减10分
                         weightList = weightMapper.selectIbActWeightDream(
                                 sql.addQuery("apSatWeightMin", 0)
-                                        .addQuery("apSatWeightMax", userScores.getScores() + 70)
+                                        .addQuery("apSatWeightMax", userScores.getScores() + 100)
                                         .addQuery("toeflHigh",99).addQuery("toeflLow",0)
                                         .addQuery("tuitionFees", free)
                                         .addQuery("required", required)
@@ -665,7 +665,7 @@ public class UserScoresImpl implements UserScoreService {
                         //根据 查出来的权重id 去查询权重数据
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",89).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",89).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -701,7 +701,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",89).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",89).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -740,7 +740,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",89).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",89).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -777,7 +777,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",89).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",89).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -817,7 +817,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //根据 查出来的权重id 去查询权重数据
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",79).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",79).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -854,7 +854,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",79).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",79).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -891,7 +891,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",79).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",79).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {
@@ -925,7 +925,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",79).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",79).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {
                             if (weightList.size() >= 3) {
@@ -964,7 +964,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",69).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",69).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -999,14 +999,10 @@ public class UserScoresImpl implements UserScoreService {
                     }
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
-                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",69).addQuery("toeflLow",0)
+                        weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",69).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
-                        if (weightList.size() <= 0){
-                            weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                    .addQuery("apSatWeightMax", userScores.getScores() + 90).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
-                                    .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
-                        }
+
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
                                 //如果大于3 需要截取前三所学校
@@ -1043,7 +1039,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",69).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",69).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -1080,7 +1076,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",69).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",69).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1120,7 +1116,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",60).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",60).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1156,7 +1152,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",60).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",60).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1194,7 +1190,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",60).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",60).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -1231,7 +1227,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh",60).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh",60).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1273,7 +1269,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 7.5).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 7.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1309,7 +1305,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 7.5).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 7.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1347,7 +1343,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 7.5).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 7.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -1384,7 +1380,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 7.5).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 7.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1424,7 +1420,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 7).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 7).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1460,7 +1456,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 7).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 7).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1498,7 +1494,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 7).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 7).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -1535,7 +1531,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 7).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 7).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1575,7 +1571,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 6.5).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 6.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1611,7 +1607,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 6.5).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 6.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1649,7 +1645,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 6.5).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 6.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -1686,7 +1682,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 6.5).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 6.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1726,7 +1722,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 6).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 6).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1762,7 +1758,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 6).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 6).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1800,7 +1796,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 6).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 6).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -1837,7 +1833,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 6).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 6).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1877,7 +1873,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 5.5).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 5.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1913,7 +1909,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 5.5).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 5.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -1951,7 +1947,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 5.5).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 5.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -1988,7 +1984,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 5.5).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 5.5).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -2028,7 +2024,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//act ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
+                                .addQuery("ibActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -2064,7 +2060,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//act ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
+                                .addQuery("apActWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -2102,7 +2098,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("IB")) {//sat ib
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
+                                .addQuery("ibSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
                         if (weightList.size() > 0) {//如果大于0
@@ -2140,7 +2136,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (ib_ap.equals("AP")) {//sat ap
                         //梦想学校
                         weightList = weightMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 70).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
+                                .addQuery("apSatWeightMax", userScores.getScores() + 100).addQuery("toeflHigh", 5.4).addQuery("toeflLow",0)
                                 .addQuery("tuitionFees", free).addQuery("required", required).addQuery("tl", tl).getMap());
                         if (weightList.size() > 0) {//如果大于0
                             if (weightList.size() >= 3) {
@@ -2278,7 +2274,6 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 }
             }else if(question.equals("")) {
-
                 if (act_sat.equals("ACT")) {
                     if (ap_ib.equals("AP")) {
                         schoolWeight = admissionScores.getApAct();
@@ -2574,6 +2569,31 @@ public class UserScoresImpl implements UserScoreService {
     }
 
 
+    private SchoolWeightVo admissionScores(int sat_ap,int sat_ib,int act_ap,int act_ib){
+        SchoolWeightVo schoolWeightVo = new SchoolWeightVo();
+        sat_ap = sat_ap + 20;
+        schoolWeightVo.setApSat(sat_ap);
+        sat_ib = sat_ib + 20;
+        schoolWeightVo.setIbSat(sat_ib);
+        act_ap = act_ap + 20;
+        schoolWeightVo.setApAct(act_ap);
+        act_ib = act_ib + 20;
+        schoolWeightVo.setIbAct(act_ib);
+        return  schoolWeightVo;
+    }
+    private SchoolWeightVo admissionScoresOne(int sat_ap,int sat_ib,int act_ap,int act_ib){
+        SchoolWeightVo schoolWeightVo = new SchoolWeightVo();
+        sat_ap = sat_ap + 10;
+        schoolWeightVo.setApSat(sat_ap);
+        sat_ib = sat_ib + 10;
+        schoolWeightVo.setIbSat(sat_ib);
+        act_ap = act_ap + 10;
+        schoolWeightVo.setApAct(act_ap);
+        act_ib = act_ib + 10;
+        schoolWeightVo.setIbAct(act_ib);
+        return  schoolWeightVo;
+    }
+
     /**
      * 第六题 根据选择的学校加分数
      * @param admissionScores
@@ -2589,256 +2609,10 @@ public class UserScoresImpl implements UserScoreService {
         int act_ap = admissionScores.getApAct();
         int act_ib = admissionScores.getIbAct();
         // 如果有这些大学 权重加20分
-        if (id == 1){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 2){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 4){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 5){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 7){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 6){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 3){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 8){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 9){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 11){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 10){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 13){
-            sat_ap = sat_ap + 20;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 20;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 20;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 20;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 14){ //以下学校加10分
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 16){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 19){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 17){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 12){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 15){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 18){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 23){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 21){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 20){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 22){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 24){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
-        }else if(id == 25){
-            sat_ap = sat_ap + 10;
-            schoolWeightVo.setApSat(sat_ap);
-            sat_ib = sat_ib + 10;
-            schoolWeightVo.setIbSat(sat_ib);
-            act_ap = act_ap + 10;
-            schoolWeightVo.setApAct(act_ap);
-            act_ib = act_ib + 10;
-            schoolWeightVo.setIbAct(act_ib);
-            return schoolWeightVo;
+        if (id == 1 || id == 2 || id == 4 || id == 5 || id == 7 || id == 6 || id == 3 || id == 8 || id == 9 || id == 11 ||id == 10 || id == 13){
+            admissionScores(sat_ap,sat_ib,act_ap,act_ib);
+        }else if(id == 14 || id == 16 || id == 19 || id == 17 || id == 12 || id == 15 || id == 18 || id == 23 || id == 21 || id == 20 ||id == 22 || id == 24 || id == 25){ //以下学校加10分
+            admissionScoresOne(sat_ap,sat_ib,act_ap,act_ib);
         }
         return schoolWeightVo;
     }

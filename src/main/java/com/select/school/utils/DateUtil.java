@@ -81,7 +81,7 @@ public class DateUtil {
     }
 
     public static int getPercentInter(int number,int maxNumber) {
-        int i = number / (maxNumber / 100);
+        int i = number / (maxNumber / 100);//录取率/(最高成绩/100)
         return i;
     }
 }

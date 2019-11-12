@@ -174,7 +174,7 @@
                 and w.ap_sat_weight &gt;= #{apSatWeightMin} and w.ap_sat_weight &lt;= #{apSatWeightMax}
             </if>
         </if>
-        order by w.ib_act_weight desc ,w.ap_sat_weight desc,w.ib_sat_weight desc,w.ap_act_weight desc
+        order by sas.nineteen asc
     </select>
 
     <select id="selectByScoreId" resultMap="option">
