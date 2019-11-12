@@ -66,9 +66,9 @@ public class WeChatServiceImpl implements WeChatService {
                 int i = userMapper.create(user);
                 System.out.println("创建："+i);
             }else {
-                return ResponseUtil.setResult(ResponseCode.REQUEST_NOT,result);
+                return ResponseUtil.setResult(ResponseCode.REQUEST_NOT,wexinResult);
             }
-            return ResponseUtil.setResult(ResponseCode.SUCCESS,result);
+            return ResponseUtil.setResult(ResponseCode.SUCCESS,wexinResult);
 
         }catch (Exception e){
             e.printStackTrace();
