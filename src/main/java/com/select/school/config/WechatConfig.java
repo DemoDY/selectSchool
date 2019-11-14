@@ -7,8 +7,10 @@
  */
 package com.select.school.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
 
 /**
  * @version: V1.0
@@ -20,12 +22,15 @@ import org.springframework.stereotype.Component;
  **/
 
 @Component
+@Data
 @ConfigurationProperties(prefix = "wechat")
-public class WechatConfig {
+public  class WechatConfig {
 
     private String appid;
     private String appscrect;
     private String key;
+    private String notify_url;
+    private String mch_id;
 
     public String getAppid() {
         return appid;
@@ -49,5 +54,21 @@ public class WechatConfig {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getNotify_url() {
+        return notify_url;
+    }
+
+    public void setNotify_url(String notify_url) {
+        this.notify_url = notify_url;
+    }
+
+    public String getMch_id() {
+        return mch_id;
+    }
+
+    public void setMch_id(String mch_id) {
+        this.mch_id = mch_id;
     }
 }

@@ -53,4 +53,4 @@ wechat:
     appscrect: 0ddba9f0f9ef6eb42c2e8b6e37b78fc3
     key: 123
 logging:
-    path: /school/log
+#    path: /school/log

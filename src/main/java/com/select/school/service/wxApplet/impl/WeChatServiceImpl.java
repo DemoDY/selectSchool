@@ -15,12 +15,11 @@ import com.select.school.service.wxApplet.WeChatService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseUtil;
 import com.select.school.utils.dxm.sqlUtils.SqlParameter;
-import com.select.school.utils.dxm.wechat.WeChatUtil;
+import com.select.school.utils.dxm.wechat.WeChatUtils;
 import com.select.school.model.dto.WeChatLoginParamDTO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @version: V1.0
@@ -46,7 +45,7 @@ public class WeChatServiceImpl implements WeChatService {
             String appscrect= wechatConfig.getAppscrect();
 
             // 调取微信登录接口获取openid
-            String result = WeChatUtil.login( appid, appscrect,login.getCode());
+            String result = WeChatUtils.login( appid, appscrect,login.getCode());
 
             System.out.println(result);
             JSONObject wexinResult = JSONObject.parseObject(result);

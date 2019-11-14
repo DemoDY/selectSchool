@@ -11,7 +11,6 @@ import com.select.school.model.dto.WeChatLoginParamDTO;
 import com.select.school.service.wxApplet.WeChatService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseUtil;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -43,4 +42,6 @@ public class WeChatController {
         String response = weChatService.login(login);
         return response;
     }
+
+
 }

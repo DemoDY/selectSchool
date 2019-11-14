@@ -25,6 +25,12 @@ public class DateUtil {
         return cd.getTime();
     }
 
+    /**
+     * 根据格式 把Date类型转为String类型
+     * @param date
+     * @param format
+     * @return String
+     */
     public static String toString(Date date, String format) {
         if (StringUtils.hasText(format) && date != null) {
             SimpleDateFormat simpleDateFormat = null;
@@ -49,6 +55,33 @@ public class DateUtil {
         String[] dateFormatList = new String[0];
         return (String[]) patternStrList.toArray(dateFormatList);
     }
+
+    /**
+     * 获取当前日期的前一天（昨天）
+     *
+     * @return Date
+     *
+     */
+    public static Date getYesterday() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -1);
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取当前日期的前一天（昨天）的指定格式字符串
+     *
+     */
+    public static String getYesterday(String pattern) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        return simpleDateFormat.format(getYesterday());
+    }
+
+
+
+
+
+
 
     /**
      * 带百分号的String类型 转成double类型
