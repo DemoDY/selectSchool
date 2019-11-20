@@ -16,7 +16,7 @@ public class ReportFileDTO {
 
     private SchoolProfileVo schoolProfileVos;//学校
 
-    private AcceptanceVo acceptance;//录取率
+//    private AcceptanceVo acceptance;//录取率
 
     private String question;
 
@@ -44,14 +44,6 @@ public class ReportFileDTO {
 
     public void setSchoolProfileVos(SchoolProfileVo schoolProfileVos) {
         this.schoolProfileVos = schoolProfileVos;
-    }
-
-    public AcceptanceVo getAcceptance() {
-        return acceptance;
-    }
-
-    public void setAcceptance(AcceptanceVo acceptance) {
-        this.acceptance = acceptance;
     }
 
     public String getExplain() {

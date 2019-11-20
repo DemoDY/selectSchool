@@ -11,16 +11,9 @@ public class RadarMapVo {
     private int chSatAvgHighStu;//中国学生SAT平均高位成绩
     private int actAvgResults;//ACT平均成绩
     private int toeflLowReq;//TOEFL 最低要求
-    private int apNumCourse;//AP 选课数量
+    private int apWeight;//AP 选课数量
     private int ibAvgResults;//IB 平均成绩
 
-    public int getChGpaAvgStu() {
-        return chGpaAvgStu;
-    }
-
-    public void setChGpaAvgStu(int chGpaAvgStu) {
-        this.chGpaAvgStu = chGpaAvgStu;
-    }
 
     public int getSchoolRank() {
         return schoolRank;
@@ -28,14 +21,6 @@ public class RadarMapVo {
 
     public void setSchoolRank(int schoolRank) {
         this.schoolRank = schoolRank;
-    }
-
-    public int getChSatAvgHighStu() {
-        return chSatAvgHighStu;
-    }
-
-    public void setChSatAvgHighStu(int chSatAvgHighStu) {
-        this.chSatAvgHighStu = chSatAvgHighStu;
     }
 
     public int getActAvgResults() {
@@ -54,13 +39,6 @@ public class RadarMapVo {
         this.toeflLowReq = toeflLowReq;
     }
 
-    public int getApNumCourse() {
-        return apNumCourse;
-    }
-
-    public void setApNumCourse(int apNumCourse) {
-        this.apNumCourse = apNumCourse;
-    }
 
     public int getIbAvgResults() {
         return ibAvgResults;
@@ -70,17 +48,28 @@ public class RadarMapVo {
         this.ibAvgResults = ibAvgResults;
     }
 
-    @Override
-    public String toString() {
-        return "RadarMapVo{" +
-                "chGpaAvgStu=" + chGpaAvgStu +
-                ", schoolRank=" + schoolRank +
-                ", chSatAvgHighStu=" + chSatAvgHighStu +
-                ", actAvgResults=" + actAvgResults +
-                ", toeflLowReq=" + toeflLowReq +
-                ", apNumCourse=" + apNumCourse +
-                ", ibAvgResults=" + ibAvgResults +
-                '}';
+    public int getChGpaAvgStu() {
+        return chGpaAvgStu;
+    }
+
+    public void setChGpaAvgStu(int chGpaAvgStu) {
+        this.chGpaAvgStu = chGpaAvgStu;
+    }
+
+    public int getChSatAvgHighStu() {
+        return chSatAvgHighStu;
+    }
+
+    public void setChSatAvgHighStu(int chSatAvgHighStu) {
+        this.chSatAvgHighStu = chSatAvgHighStu;
+    }
+
+    public int getApWeight() {
+        return apWeight;
+    }
+
+    public void setApWeight(int apWeight) {
+        this.apWeight = apWeight;
     }
 }
 

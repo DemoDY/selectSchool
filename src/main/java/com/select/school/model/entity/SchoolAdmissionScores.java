@@ -3,16 +3,16 @@ package com.select.school.model.entity;
 public class SchoolAdmissionScores {
     private int id;
     /**
-     * 学校简介 id230
+     * 学校简介id
      */
     private int schoolId;
     private int nineteen;//2019 录取人数
     private int twenty;//2020 录取人数/
-    private String firstStudentsNum;//留学生大一入学人数
+    private int firstStudentsNum;//留学生大一入学人数
     private String comAdmissionRate;//2019 综合录取率
     private String numberFreshmen;//大一新生人数
     private String nationalStuAccep;//国际生录取率
-    private double tuitionFees;//学费（美元）
+    private String tuitionFees;//学费（美元）
     private String numNationalFreshmen;//大一国际生人数
     private String chStuHighRank;//中国录取学生高中年级排名
     private String chStuWeightRank;//中国学生排名权重
@@ -20,20 +20,25 @@ public class SchoolAdmissionScores {
     private String chGpaWeightStu;//中国学生GPA权重
     private String chSatAvgLowStu;//中国学生SAT平均低位成绩
     private String chSatAvgHighStu;//中国学生SAT平均高位成绩
-    private String satWeight;//SAT权重
-    private String actAvgResults;//ACT平均成绩
-    private String actWeight;//ACT权重
-    private String apNumCourse;//AP 选课数量
-    private String apWeight;//AP 选课权重
-    private String ibAvgResults;//IB 平均成绩
-    private String ibWeight;//IB 权重
+    private String noSat;//哪些学校不需要sat
+    private int satWeight;//SAT权重
+    private int actAvgResults;//ACT平均成绩
+    private int actWeight;//ACT权重
+    private int apWeight;//AP 选课权重
+    private int ibAvgResults;//IB 平均成绩
+    private int ibWeight;//IB 权重
     private int toeflLowReq;//TOEFL 最低要求
+    private String examAp;//选考ap
     private double ieltsLowReq;//IELTS 最低要求
     private int apSat;//学生选择AP，或者不选，提供SAT成绩
     private int apAct;//学生选择AP，或者不选，提供ACT成绩
     private int ibSat;//学生选择IB，提供SAT成绩
     private int ibAct;// 学生选择IB，提供ACT成绩
-    private String addValue;//增值活动
+    private int topWeight;// top权重
+    private int activitiesWeight;// 课外活动权重
+    private int competitionWeight;// 竞赛权重
+    private int welfareWeight;// 公益权重
+
 
     public int getId() {
         return id;
@@ -50,14 +55,6 @@ public class SchoolAdmissionScores {
 
     public void setSchoolId(int schoolId) {
         this.schoolId = schoolId;
-    }
-
-    public String getFirstStudentsNum() {
-        return firstStudentsNum;
-    }
-
-    public void setFirstStudentsNum(String firstStudentsNum) {
-        this.firstStudentsNum = firstStudentsNum;
     }
 
     public String getComAdmissionRate() {
@@ -98,14 +95,6 @@ public class SchoolAdmissionScores {
 
     public void setTwenty(int twenty) {
         this.twenty = twenty;
-    }
-
-    public double getTuitionFees() {
-        return tuitionFees;
-    }
-
-    public void setTuitionFees(double tuitionFees) {
-        this.tuitionFees = tuitionFees;
     }
 
     public String getNumNationalFreshmen() {
@@ -164,62 +153,6 @@ public class SchoolAdmissionScores {
         this.chSatAvgHighStu = chSatAvgHighStu;
     }
 
-    public String getSatWeight() {
-        return satWeight;
-    }
-
-    public void setSatWeight(String satWeight) {
-        this.satWeight = satWeight;
-    }
-
-    public String getActAvgResults() {
-        return actAvgResults;
-    }
-
-    public void setActAvgResults(String actAvgResults) {
-        this.actAvgResults = actAvgResults;
-    }
-
-    public String getActWeight() {
-        return actWeight;
-    }
-
-    public void setActWeight(String actWeight) {
-        this.actWeight = actWeight;
-    }
-
-    public String getApNumCourse() {
-        return apNumCourse;
-    }
-
-    public void setApNumCourse(String apNumCourse) {
-        this.apNumCourse = apNumCourse;
-    }
-
-    public String getApWeight() {
-        return apWeight;
-    }
-
-    public void setApWeight(String apWeight) {
-        this.apWeight = apWeight;
-    }
-
-    public String getIbAvgResults() {
-        return ibAvgResults;
-    }
-
-    public void setIbAvgResults(String ibAvgResults) {
-        this.ibAvgResults = ibAvgResults;
-    }
-
-    public String getIbWeight() {
-        return ibWeight;
-    }
-
-    public void setIbWeight(String ibWeight) {
-        this.ibWeight = ibWeight;
-    }
-
     public int getToeflLowReq() {
         return toeflLowReq;
     }
@@ -268,11 +201,115 @@ public class SchoolAdmissionScores {
         this.ibAct = ibAct;
     }
 
-    public String getAddValue() {
-        return addValue;
+    public int getFirstStudentsNum() {
+        return firstStudentsNum;
     }
 
-    public void setAddValue(String addValue) {
-        this.addValue = addValue;
+    public void setFirstStudentsNum(int firstStudentsNum) {
+        this.firstStudentsNum = firstStudentsNum;
+    }
+
+    public String getTuitionFees() {
+        return tuitionFees;
+    }
+
+    public void setTuitionFees(String tuitionFees) {
+        this.tuitionFees = tuitionFees;
+    }
+
+    public String getNoSat() {
+        return noSat;
+    }
+
+    public void setNoSat(String noSat) {
+        this.noSat = noSat;
+    }
+
+    public int getSatWeight() {
+        return satWeight;
+    }
+
+    public void setSatWeight(int satWeight) {
+        this.satWeight = satWeight;
+    }
+
+    public int getActAvgResults() {
+        return actAvgResults;
+    }
+
+    public void setActAvgResults(int actAvgResults) {
+        this.actAvgResults = actAvgResults;
+    }
+
+    public int getActWeight() {
+        return actWeight;
+    }
+
+    public void setActWeight(int actWeight) {
+        this.actWeight = actWeight;
+    }
+
+    public int getApWeight() {
+        return apWeight;
+    }
+
+    public void setApWeight(int apWeight) {
+        this.apWeight = apWeight;
+    }
+
+    public int getIbAvgResults() {
+        return ibAvgResults;
+    }
+
+    public void setIbAvgResults(int ibAvgResults) {
+        this.ibAvgResults = ibAvgResults;
+    }
+
+    public int getIbWeight() {
+        return ibWeight;
+    }
+
+    public void setIbWeight(int ibWeight) {
+        this.ibWeight = ibWeight;
+    }
+
+    public String getExamAp() {
+        return examAp;
+    }
+
+    public void setExamAp(String examAp) {
+        this.examAp = examAp;
+    }
+
+    public int getTopWeight() {
+        return topWeight;
+    }
+
+    public void setTopWeight(int topWeight) {
+        this.topWeight = topWeight;
+    }
+
+    public int getActivitiesWeight() {
+        return activitiesWeight;
+    }
+
+    public void setActivitiesWeight(int activitiesWeight) {
+        this.activitiesWeight = activitiesWeight;
+    }
+
+    public int getCompetitionWeight() {
+        return competitionWeight;
+    }
+
+    public void setCompetitionWeight(int competitionWeight) {
+        this.competitionWeight = competitionWeight;
+    }
+
+    public int getWelfareWeight() {
+        return welfareWeight;
+    }
+
+    public void setWelfareWeight(int welfareWeight) {
+        this.welfareWeight = welfareWeight;
     }
 }

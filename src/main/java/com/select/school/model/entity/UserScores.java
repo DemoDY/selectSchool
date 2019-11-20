@@ -23,6 +23,8 @@ public class UserScores {
 
     private String sixQuestion;// 第六题 问题
 
+    private String noSat;//第十三题不需要sat成绩 字段为0
+
     public int getId() {
         return id;
     }
@@ -111,6 +113,14 @@ public class UserScores {
         this.sixQuestion = sixQuestion;
     }
 
+    public String getNoSat() {
+        return noSat;
+    }
+
+    public void setNoSat(String noSat) {
+        this.noSat = noSat;
+    }
+
     @Override
     public String toString() {
         return "UserScores{" +
@@ -125,6 +135,7 @@ public class UserScores {
                 ", tuitionFees='" + tuitionFees + '\'' +
                 ", required='" + required + '\'' +
                 ", sixQuestion='" + sixQuestion + '\'' +
+                ", noSat='" + noSat + '\'' +
                 '}';
     }
 }
