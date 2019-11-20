@@ -13,9 +13,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         destroy-method="close">
         <!-- 基本属性 url、user、password -->
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-        <property name="jdbcUrl" value="jdbc:mysql://139.196.193.182:8306/selectSchool?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC&amp;useSSL=false" />
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/selectSchool?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC&amp;useSSL=false" />
         <property name="username" value="root" />
-        <property name="password" value="DecentSmart2016" />
+        <property name="password" value="mm2510103" />
         <!-- 连接只读数据库时配置为true， 保证安全 -->
         <property name="readOnly" value="false" />
         <!-- 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 缺省:30秒 -->

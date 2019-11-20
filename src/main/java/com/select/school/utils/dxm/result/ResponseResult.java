@@ -7,14 +7,6 @@
  */
 package com.select.school.utils.dxm.result;
 
-
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @version: V1.0
  * @author: DongXiaoMing

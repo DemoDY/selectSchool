@@ -12,10 +12,11 @@ import java.util.Map;
  * @data: 2019-09-24
  **/
 public enum ResponseCode {
-    SUCCESS(200, "操作成功"),
+
+    NOT_AUTH(102, "无权限"),
     REQUEST_NOT(411, "参数错误"),
     LOGIN_TIMEOUT(101, "登录超时"),
-    NOT_AUTH(102, "无权限"),
+    SUCCESS(200, "操作成功"),
     OPERATE_ERROR(300, "操作不合法"),
     OPERATE_NOT_REPEAT_DATA(301, "不能重复提交数据"),
     OPERATE_DATA_TO_LANG(302, "数据长度超限, 无法继续新增数据"),

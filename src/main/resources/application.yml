@@ -16,27 +16,8 @@ spring:
 
     application:
         name: selectSchool-service
-    datasource:
-        type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:mysql://47.103.71.206:8306/selectSchool?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
-        username: root
-        password: Passw0rd!
-        hikari:
-            data-source-properties:
-                cachePrepStmts: true
-                prepStmtCacheSize: 250
-                prepStmtCacheSqlLimit: 2048
-                useServerPrepStmts: true
-    jpa:
-        show-sql: true
-        #hibernate:
-        #    ddl-auto: create
-        properties:
-            hibernate:
-                hbm2ddl:
-                    auto: update
+
 # 日志
-    
 jhipster:
     async:
         core-pool-size: 2
@@ -72,5 +53,4 @@ wechat:
     appscrect: 0ddba9f0f9ef6eb42c2e8b6e37b78fc3
     key: 123
 logging:
-    path: /school/log
-
+#    path: /school/log
