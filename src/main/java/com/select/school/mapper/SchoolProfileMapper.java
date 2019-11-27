@@ -9,6 +9,7 @@ import java.util.Map;
 public interface SchoolProfileMapper {
     SchoolProfile selectById(@Param("id") int id);
     public List<SchoolProfile> selectAll(Map<String, Object> paramMap);
+    public List<SchoolProfile> selectSchool();
     public int count(Map<String, Object> paramMap);
 
     SchoolProfile chName(@Param("chName") String chName);

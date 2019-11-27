@@ -13,14 +13,15 @@
         <result column="tuition_fees" property="tuitionFees" jdbcType="VARCHAR"/>
         <result column="required" property="required" jdbcType="VARCHAR"/>
         <result column="six_question" property="sixQuestion" jdbcType="VARCHAR"/>
+        <result column="no_sat" property="noSat" jdbcType="VARCHAR"/>
     </resultMap>
     <resultMap id="userVo" type="com.select.school.model.vo.UserScoreVo">
         <id column="id" property="id" />
     </resultMap>
     <insert id="insertList" useGeneratedKeys="true" keyProperty="id"  keyColumn="id" parameterType="com.select.school.model.entity.UserScores">
 
-        insert into d_user_scores (open_id, scores, createTime, o_tl,o_tl_score ,act_sat, ap_ib,tuition_fees,required,six_question )
-        values (#{openId}, #{scores},  #{createTime}, #{tl},#{tlScore},#{actSat}, #{apIb},#{tuitionFees},#{required},#{sixQuestion} )
+        insert into d_user_scores (open_id, scores, createTime, o_tl,o_tl_score ,act_sat, ap_ib,tuition_fees,required,six_question,no_sat )
+        values (#{openId}, #{scores},  #{createTime}, #{tl},#{tlScore},#{actSat}, #{apIb},#{tuitionFees},#{required},#{sixQuestion},#{no_sat} )
     </insert>
 
     <select id="selectOpenId" resultMap="user">
@@ -34,7 +35,8 @@
         u.ap_ib,
         u.tuition_fees,
         u.required,
-        u.six_question
+        u.six_question,
+        u.no_sat
         from d_user_scores u
         where u.id = #{id}
     </select>

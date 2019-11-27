@@ -302,14 +302,24 @@ public class UserScoresImpl implements UserScoreService {
         if (!q.equals("2") && !q.equals("1")) {
             question = userScores.getSixQuestion();
         }
-        if (tl == 0) {
-            return AjaxResult.success("因为英语成绩太低，在全美前300名的学校中无匹配梦想，目标和保底学校。");
-        }
         String noSat = userScores.getNoSat();//不需要sat的字段
         int scores = userScores.getScores();
         String tlScore = userScores.getTlScore();//托福成绩
-        int free = userScores.getTuitionFees();// 学费范围
-        int required = userScores.getRequired();// 大一入学新生数
+        if (tl == 0) {
+            return AjaxResult.success("因为英语成绩太低，在全美前300名的学校中无匹配梦想，目标和保底学校。");
+        }
+        if (noSat != null && ib_ap.equals("IB") && scores < 85) {
+            return AjaxResult.success("全美前300大学没有合适的学校。");
+        }
+        if (noSat != null && ib_ap.equals("AP") && scores < 65) {
+            return AjaxResult.success("全美前300大学没有合适的学校。");
+        }
+        if (noSat == null && ib_ap.equals("IB") && scores < 5) {
+            return AjaxResult.success("全美前300大学没有合适的学校。");
+        }
+        if (noSat == null && ib_ap.equals("AP") && scores < 15) {
+            return AjaxResult.success("全美前300大学没有合适的学校。");
+        }
         ReportFileDTO reportFileDTOS = new ReportFileDTO();
         SchoolProfileVo schoolProfileVo = new SchoolProfileVo();//学校详情
         List<SchoolAdmissionScores> schoolAdmissionScores = null;
@@ -327,1816 +337,542 @@ public class UserScoresImpl implements UserScoreService {
                 " \t \t根据您的各项指标的输入，我们分别为您提供了3所学校梦想学校，3所目标学校和3所保底学校的建议名单，指标分析和建议以及次9所大学的录取概率。");//数据模型
         reportFileDTOS.setQuestion("\t你的学校的录取概率是x%, 简单地说就是100个和你同样水平的中国学生申请，只有x个学生会被录取。" + "\n\t" + question);
         reportFileDTOS.setExplain("\n若有兴趣了解更多，可联系我们的客服 >>>>>>>>>>>>客服微信号\n");
-        if (tl == 2) {
-            if (tlScore.equals(">=100")||tlScore.equals("免考")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //梦想学校 Dream School
-                        if (scores >= 195) {
+        double score = 0;
+        if (tl == 2) {//托福成绩
+            if (tlScore.equals(">=100") || tlScore.equals("免考")) score = 100;
+            if (tlScore.equals("99----90")) score = 99;
+            if (tlScore.equals("89----79")) score = 89;
+            if (tlScore.equals("78----69")) score = 78;
+            if (tlScore.equals("68----61")) score = 68;
+            if (tlScore.equals("小于61")) score = 60;
+        }
+        if (tl == 1) {//雅思成绩
+            if (tlScore.equals("7.5") || tlScore.equals("免考")) score = 7.5;
+            if (tlScore.equals("7")) score = 7;
+            if (tlScore.equals("6.5")) score = 6.5;
+            if (tlScore.equals("6")) score = 6;
+            if (tlScore.equals("5.5")) score = 5.5;
+            if (tlScore.equals("低于5.5")) score = 5.4;
+        }
+        if (sat_act.equals("ACT")) {
+            if (ib_ap.equals("IB")) {
+                //梦想学校 Dream School
+                if (noSat != null && scores > 194) {
+                    // 如果没有选择sat成绩 并且粉数大于194 则选择固定的学校
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(76);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(84);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(86);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                }else if (scores >= 620 && noSat == null) {
+                    //如果ib分数大于710 则选择前三名学校
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(2);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(3);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
+                            .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
+                            .addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
+                        }
+                        dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                }
 
-                        }else {
-                            schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                    .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 100).addQuery("toeflLow", 0)
-                                    .addQuery("tl", tl).getMap());
-                            if (schoolAdmissionScores.size() > 0) {//如果大于0
-                                if (schoolAdmissionScores.size() >= 3) {
-                                    //如果大于3 需要截取前三所学校
-                                    schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                                }
-                                dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                            }
+                //目标学校 Target School
+                if (scores >= 650 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 240)
+                            .addQuery("ibActWeightMax", userScores.getScores() - 130).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 100).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 100).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 100).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 580 && scores <= 649 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 200)
+                            .addQuery("ibActWeightMax", userScores.getScores() - 100).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMin", userScores.getScores() - 5).addQuery("toeflHigh", 100).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (noSat != null && scores >= 300) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(121);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(122);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(125);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    targetSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 50)
+                            .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55)
-                                .addQuery("apActWeightMin", userScores.getScores() - 75).addQuery("toeflHigh", 100).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 100).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                //保底学校 Safety colleges
+                //因为ib成绩和ap成绩不一样  说一区间分数也不同（ib成绩比ap成绩高些）
+                if (scores >= 500 && scores <= 600 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
+                            .addQuery("ibActWeightMax", userScores.getScores() - 150).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 100).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 100).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校 求具体分数 得出三个学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 100).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 600 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
+                            .addQuery("ibActWeightMax", userScores.getScores() - 240).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 100).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (scores >= 700 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
+                            .addQuery("ibActWeightMax", userScores.getScores() - 260).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 100).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (noSat != null && scores > 270) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(139);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(142);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(149);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    safetyColleges(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
+                            .addQuery("ibActWeightMax", userScores.getScores() - 50).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
             }
-            if (tlScore.equals("99----90")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
+            if (ib_ap.equals("AP")) {//act ap
+                //梦想学校
+                if (noSat != null && scores > 194) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(76);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(84);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(86);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 620 && noSat == null) {
+                    //如果ap成绩大于620 则选择前三名学校
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(2);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(3);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
+                            .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
+                            .addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
+                        }
                         //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 99).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 99).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 99).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 99).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 99).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 99).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 99).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                //目标学校 Target School
+                if (scores >= 660 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 220)
+                            .addQuery("apActWeightMin", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 99).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 99).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校 求具体分数 得出三个学校 加60分 如果没有 就依次往下减10分
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(
-                                sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                        .addQuery("apSatWeightMax", userScores.getScores() + 75)
-                                        .addQuery("toeflHigh", 99).addQuery("toeflLow", 0)
-                                        .addQuery("tuitionFees", free)
-                                        .addQuery("required", required)
-                                        .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 580 && scores <= 659 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 200)
+                            .addQuery("apActWeightMin", userScores.getScores() - 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 99).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (noSat != null && scores >= 280) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(91);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(92);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(95);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    targetSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 50)
+                            .addQuery("apActWeightMin", userScores.getScores() - 5).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 99).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
-            }
-            if (tlScore.equals("89----79")) {
-                //查询小于90的学校
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //根据 查出来的权重id 去查询权重数据
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 89).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                //保底学校 Safety colleges
+                //因为ib成绩和ap成绩不一样  说一区间分数也不同（ib成绩比ap成绩高些）
+                if (scores >= 500 && scores <= 600 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
+                            .addQuery("apActWeightMin", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 89).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 89).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 89).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 600 && scores <= 650 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
+                            .addQuery("apActWeightMin", userScores.getScores() - 160).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 89).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 89).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 89).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 650 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
+                            .addQuery("apActWeightMin", userScores.getScores() - 200).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 89).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 89).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 89).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (noSat != null && scores > 270) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(106);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(114);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(115);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    safetyColleges(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
+                            .addQuery("apActWeightMin", userScores.getScores() - 50).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 89).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 89).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-            }
-            if (tlScore.equals("78----69")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //根据 查出来的权重id 去查询权重数据
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 79).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 79)
-                                .addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 79).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 79).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 79).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMin", userScores.getScores() - 75).addQuery("toeflHigh", 79).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {
-                            if (schoolAdmissionScores.size() >= 3) {
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 79).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {
-                            if (schoolAdmissionScores.size() >= 3) {
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 79).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {
-                            if (schoolAdmissionScores.size() >= 3) {
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 79).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {
-                            if (schoolAdmissionScores.size() >= 3) {
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 79).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {
-                            if (schoolAdmissionScores.size() >= 3) {
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 79).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 79).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-            }
-            if (tlScore.equals("68----61")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 69).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 69).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 69).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 69).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 69).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 69).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 69).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 69).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 69).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 69).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 69).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 69).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-            }
-            if (tlScore.equals("小于61")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 60).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 60).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 60).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 60).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 60).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 60).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 60).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 60).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 60).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 60).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 60).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 60).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
             }
         }
-        if (tl == 1) {
-            if (tlScore.equals("7.5")||tlScore.equals("免考")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
+        if (sat_act.equals("SAT")) {
+            if (ib_ap.equals("IB")) {//sat ib
+                //梦想学校
+                if (noSat != null && scores > 194) {
+                    // 如果没有选择sat成绩 并且粉数大于194 则选择固定的学校
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(76);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(84);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(86);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 620 && noSat == null) {
+                    //如果ib成绩大于710 则选择前三名学校
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(2);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(3);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
+                            .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
+                            .addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
+                        }
                         //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                //目标学校 Target School
+                if (scores >= 650 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 210)
+                            .addQuery("ibSatWeightMax", userScores.getScores() - 130).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        //目标学校
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 580 && scores <= 649 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 150)
+                            .addQuery("ibSatWeightMax", userScores.getScores() - 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                        //目标学校
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (noSat != null && scores >= 300) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(121);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(122);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(125);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    targetSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 50)
+                            .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 7.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                        //目标学校
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                }
+                //保底学校 Safety colleges
+                if (scores >= 500 && scores <= 600 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
+                            .addQuery("ibSatWeightMax", userScores.getScores() - 150).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (scores >= 600 && scores <= 700 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
+                            .addQuery("ibSatWeightMax", userScores.getScores() - 200).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
+                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (scores >= 700 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
+                            .addQuery("ibSatWeightMax", userScores.getScores() - 250).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
+                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (noSat != null && scores > 270) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(139);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(142);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(149);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    safetyColleges(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
+                            .addQuery("ibSatWeightMax", userScores.getScores() - 50).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
+                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
             }
-            if (tlScore.equals("7")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
+            if (ib_ap.equals("AP")) {//sat ap
+                //梦想学校 求具体分数 得出三个学校
+                if (noSat != null && scores > 194) {
+                    // 如果没有选择sat成绩 并且粉数大于194 则选择固定的学校
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(76);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(84);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(86);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 620 && noSat == null) {
+                    //如果ap成绩大于620 则选择前三名学校
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(2);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(3);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
+                            .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
+                            .addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
+                        }
                         //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 7).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 7).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 7).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 7).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 7).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 7).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 7).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                //目标学校 Target School
+                if (scores >= 660 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 220)
+                            .addQuery("apSatWeightMax", userScores.getScores() - 130).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 7).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 7).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        //目标学校
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 7).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 580 && scores <= 559 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 160)
+                            .addQuery("apSatWeightMax", userScores.getScores() - 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 7).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                        //目标学校
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                    }
+                } else if (noSat != null && scores >= 280) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(91);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(92);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(95);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    targetSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 60)
+                            .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 7).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        //目标学校
+                        targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
-            }
-            if (tlScore.equals("6.5")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                //保底学校 Safety colleges
+                if (scores >= 500 && scores <= 600 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
+                            .addQuery("apSatWeightMax", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 600 && scores <= 650 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
+                            .addQuery("apSatWeightMax", userScores.getScores() - 160).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (scores >= 650 && noSat == null) {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
+                            .addQuery("apSatWeightMax", userScores.getScores() - 200).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
+                } else if (noSat != null && scores >= 270) {
+                    List<SchoolAdmissionScores> scoresList = new ArrayList<>();
+                    SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(106);
+                    SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(114);
+                    SchoolAdmissionScores c = schoolAdmissionScoresMapper.selectId(115);
+                    if (s != null) scoresList.add(s);
+                    if (a != null) scoresList.add(a);
+                    if (c != null) scoresList.add(c);
+                    safetyColleges(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+                } else {
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
+                            .addQuery("apSatWeightMax", userScores.getScores() - 50).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                    if (schoolAdmissionScores.size() > 0) {//如果大于0
+                        if (schoolAdmissionScores.size() >= 3) {
+                            //如果大于3 需要截取前三所学校
+                            schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
                         }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 6.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-            }
-            if (tlScore.equals("6")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 6).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 6).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 6).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 6).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 6).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 6).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 6).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 6).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 6).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 6).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 6).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 6).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-            }
-            if (tlScore.equals("5.5")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 5.5).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-            }
-            if (tlScore.equals("低于5.5")) {
-                if (sat_act.equals("ACT")) {
-                    if (ib_ap.equals("IB")) {//act ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 55).
-                                addQuery("ibActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//act ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                                .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 54)
-                                .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 55).
-                                addQuery("apActWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                }
-                if (sat_act.equals("SAT")) {
-                    if (ib_ap.equals("IB")) {//sat ib
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        //如果大于三所学校 就取前三所。如果没有三所学校，n那么查出几所学校就取几所学校
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 55).
-                                addQuery("ibSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                    }
-                    if (ib_ap.equals("AP")) {//sat ap
-                        //梦想学校
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                                .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0)
-                                .addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //梦想学校
-                            dreamSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //目标学校 Target School
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 54)
-                                .addQuery("apSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //目标学校
-                            targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
-                        //保底学校 Safety colleges
-                        schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin",  userScores.getScores() - 55).
-                                addQuery("apSatWeightMax", userScores.getScores() - 75).addQuery("toeflHigh", 5.4).addQuery("toeflLow", 0).addQuery("tl", tl).getMap());
-                        if (schoolAdmissionScores.size() > 0) {//如果大于0
-                            if (schoolAdmissionScores.size() >= 3) {
-                                //如果大于3 需要截取前三所学校
-                                schoolAdmissionScores = schoolAdmissionScores.subList(0, 3);
-                            }
-                            //保底学校
-                            safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
-                        }
+                        safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
                 }
             }
@@ -2146,7 +882,8 @@ public class UserScoresImpl implements UserScoreService {
     }
 
     //保底学校
-    private void safetyColleges(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO reportFileDTO, UserScores userScores, SchoolProfileVo schoolVo) {
+    private void safetyColleges(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO
+            reportFileDTO, UserScores userScores, SchoolProfileVo schoolVo) {
         List<SafetySchoolDTO> safetySchoolDTOS = new ArrayList<>();
         for (SchoolAdmissionScores school : schoolAdmissionScores) {
             SchoolAdmissionScores scores = schoolAdmissionScoresMapper.selectId(school.getId());
@@ -2180,7 +917,8 @@ public class UserScoresImpl implements UserScoreService {
     }
 
     //目标学校
-    private void targetSchool(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO reportFileDTO, UserScores userScores, SchoolProfileVo schoolProfileVo) {
+    private void targetSchool(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO
+            reportFileDTO, UserScores userScores, SchoolProfileVo schoolProfileVo) {
         List<TargetSchoolDTO> targetSchoolDTOS = new ArrayList<>();
         for (SchoolAdmissionScores school : schoolAdmissionScores) {
             SchoolAdmissionScores scores = schoolAdmissionScoresMapper.selectId(school.getId());
@@ -2214,7 +952,8 @@ public class UserScoresImpl implements UserScoreService {
     }
 
     //梦想学校
-    private void dreamSchool(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO reportFileDTO, UserScores userScores, SchoolProfileVo schoolVo) {
+    private void dreamSchool(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO
+            reportFileDTO, UserScores userScores, SchoolProfileVo schoolVo) {
         List<DreamSchoolDTO> dreamSchoolDTOS = new ArrayList<>();
         for (SchoolAdmissionScores school : schoolAdmissionScores) {
             SchoolAdmissionScores scores = schoolAdmissionScoresMapper.selectId(school.getId());
@@ -2302,7 +1041,8 @@ public class UserScoresImpl implements UserScoreService {
      * @param schoolProfile
      * @return
      */
-    private String selectDetailsSafety(SchoolAdmissionScores admissionScores, UserScores userScores, SchoolProfile schoolProfile) {
+    private String selectDetailsSafety(SchoolAdmissionScores admissionScores, UserScores userScores, SchoolProfile
+            schoolProfile) {
         String schoolName = schoolProfile.getChName();//学校名称
         int userid = userScores.getId();
         Scores scores = scoresMapper.findByUserScoreId(userid);

@@ -13,7 +13,6 @@ server:
 spring:
     profiles:
         active: dev
-
     application:
         name: selectSchool-service
 

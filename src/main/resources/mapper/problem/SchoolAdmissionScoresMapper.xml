@@ -98,6 +98,9 @@
                 </if>
                 and ap_sat &gt;= #{apSatWeightMin} and ap_sat &lt;= #{apSatWeightMax}
             </if>
+            <if test="noSat != null and noSat != ''">  /*如果sat成绩没有选 则选择不需要sat成绩的学习 nosat字段如果为0则是不需要sat成绩的学习*/
+                and no_sat = #{noSat}
+            </if>
         </where>
         order by nineteen asc
     </select>
