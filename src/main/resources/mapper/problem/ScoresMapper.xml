@@ -11,15 +11,16 @@
         <result column="toefl_low" property="toeflLow"/>
         <result column="ap_course" property="apCourse"/>
         <result column="ib_avg" property="ibAvg"/>
+        <result column="ielts_low" property="ieltsLow"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_score_id,gpa_avg,rank,sat_avg_high,act_avg,toefl_low,ap_course,ib_avg
+        id,user_score_id,gpa_avg,rank,sat_avg_high,act_avg,toefl_low,ap_course,ib_avg,ielts_low
     </sql>
 
     <insert id="insertScores" parameterType="com.select.school.model.entity.UserScores">
-        insert into d_scores (user_score_id, gpa_avg, rank, sat_avg_high,act_avg ,toefl_low, ap_course,ib_avg )
-        values (#{userScoreId}, #{gpaAvg},  #{rank}, #{satAvgHigh},#{actAvg},#{toeflLow}, #{apCourse},#{ibAvg} )
+        insert into d_scores (user_score_id, gpa_avg, rank, sat_avg_high,act_avg ,toefl_low, ap_course,ib_avg,ielts_low)
+        values (#{userScoreId}, #{gpaAvg},  #{rank}, #{satAvgHigh},#{actAvg},#{toeflLow}, #{apCourse},#{ibAvg},#{ieltsLow} )
     </insert>
 
     <select id="findByUserScoreId" parameterType="com.select.school.model.entity.UserScores" resultMap="score">

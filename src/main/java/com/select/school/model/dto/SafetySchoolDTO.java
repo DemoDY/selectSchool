@@ -35,9 +35,17 @@ public class SafetySchoolDTO {
     private String tuitionFees;//学费（美元）
     private String numNationalFreshmen;//大一国际生人数
     private String safetySchool;//保底学校
-    private RadarMapVo radarMap;//雷达图
+    private List<RadarMapVo> radarMap;//雷达图
     private String details;//报告关于学校的详情
     private String acceptance;//录取率
+
+    public List<RadarMapVo> getRadarMap() {
+        return radarMap;
+    }
+
+    public void setRadarMap(List<RadarMapVo> radarMap) {
+        this.radarMap = radarMap;
+    }
 
     public String getSchoolName() {
         return schoolName;
@@ -117,14 +125,6 @@ public class SafetySchoolDTO {
 
     public void setSafetySchool(String safetySchool) {
         this.safetySchool = safetySchool;
-    }
-
-    public RadarMapVo getRadarMap() {
-        return radarMap;
-    }
-
-    public void setRadarMap(RadarMapVo radarMap) {
-        this.radarMap = radarMap;
     }
 
     public String getDetails() {

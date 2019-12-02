@@ -113,8 +113,20 @@ public class DateUtil {
         return newStr;
     }
 
-    public static int getPercentInter(int number,int maxNumber) {
-        int i = number / (maxNumber / 100);//录取率/(最高成绩/100)
-        return i;
+    public static String getPercentInter(double number,double maxNumber) {
+        double i = number/(maxNumber/100);//录取率/(最高成绩/100)
+        Double d = new Double(i);
+        int doubleToInt = d.intValue();
+        String num = String.valueOf(doubleToInt);
+        return num;
+    }
+
+
+    public static String getInter(double number,double maxNumber) {
+        double i = number / (maxNumber / 100);//录取率/(最高成绩/100)
+        NumberFormat nf = java.text.NumberFormat.getPercentInstance();
+        nf.setMinimumFractionDigits(0);// 小数点后保留几位
+        String str = nf.format(i);
+        return str;
     }
 }

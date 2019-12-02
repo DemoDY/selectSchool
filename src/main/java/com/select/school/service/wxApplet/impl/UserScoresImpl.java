@@ -56,7 +56,7 @@ public class UserScoresImpl implements UserScoreService {
         String three = "";
         int ninthing = 0;
         int twenty = 0;
-        String nosat = "";
+        String nosat = null;
         UserScores userScores = new UserScores();//学生选择问题 总数表
         logger.info("\n optionList:" + options.size());
         Scores scores = new Scores();//学校选择问题报错表
@@ -150,15 +150,24 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         if (toefl != 0 && ielts != 0) {
+            if (ielts == 7){
+                ys = "7.5";
+            }
+            if (ielts == 8){
+                ys = "0";
+            }
             // TODO 判断的数据都是绝对数值  禁止数据库有其他字 或者符号空格一类
             if (toefl == 1) {
+                tf = "100";
                 // 1 如果 托福 是大于100分 以托福为主。不管雅思多少分
                 if (ielts == 1 || ielts == 2 || ielts == 3 || ielts == 4 || ielts == 5 || ielts == 6 || ielts == 7 || ielts == 8) {
                     userScores.setTl(2); //雅思是1  托福 是2
                     userScores.setTlScore(tf);
                 }
+
             }
             if (toefl == 2) {
+                tf = "90";
                 // 2 如果 托福 是99-90分 而 雅思是 7.5以上  以雅思为主 否则以托福为主。
                 if (ielts == 1 || ielts == 7) {
                     userScores.setTl(1);
@@ -168,10 +177,12 @@ public class UserScoresImpl implements UserScoreService {
                     userScores.setTl(2);
                     userScores.setTlScore(tf);
                 }
+
             }
 
             if (toefl == 3) {
                 // 3 如果 托福 是89----79分 而雅思是 7以上 以雅思为主 否则以托福为主。
+                tf = "79";
                 if (ielts == 1 || ielts == 2 || ielts == 7) {
                     userScores.setTl(1);
                     userScores.setTlScore(ys);
@@ -180,9 +191,11 @@ public class UserScoresImpl implements UserScoreService {
                     userScores.setTl(2);
                     userScores.setTlScore(tf);
                 }
+
             }
             if (toefl == 4) {
                 // 4 如果 托福 是78----69分 而雅思是 6.5以上 以雅思为主 否则以托福为主。
+                tf = "69";
                 if (ielts == 1 || ielts == 2 || ielts == 7 || ielts == 3) {
                     userScores.setTl(1);
                     userScores.setTlScore(ys);
@@ -191,8 +204,10 @@ public class UserScoresImpl implements UserScoreService {
                     userScores.setTlScore(tf);
                     userScores.setTl(2);
                 }
+
             }
             if (toefl == 5) {
+                tf = "61";
                 // 5 如果 托福 是68----61分 而雅思是 6.5以上 以雅思为主 否则以托福为主。
                 if (ielts == 1 || ielts == 2 || ielts == 7 || ielts == 3 || ielts == 4) {
                     userScores.setTl(1);
@@ -202,8 +217,10 @@ public class UserScoresImpl implements UserScoreService {
                     userScores.setTlScore(tf);
                     userScores.setTl(2);
                 }
+
             }
             if (toefl == 6) {
+                tf = "60";
                 if (ielts == 1 || ielts == 2 || ielts == 7 || ielts == 3 || ielts == 4 || ielts == 5) {
                     userScores.setTl(1);
                     userScores.setTlScore(ys);
@@ -212,8 +229,10 @@ public class UserScoresImpl implements UserScoreService {
                     userScores.setTlScore(tf);
                     userScores.setTl(2);
                 }
+
             }
             if (toefl == 8) {
+                tf = "0";
                 if (ielts == 1 || ielts == 2 || ielts == 7 || ielts == 3 || ielts == 4 || ielts == 5 || ielts == 6) {
                     userScores.setTl(1);
                     userScores.setTlScore(ys);
@@ -222,13 +241,16 @@ public class UserScoresImpl implements UserScoreService {
                     userScores.setTlScore("0");
                     userScores.setTl(2);
                 }
+
             }
             if (toefl == 7) {
+                tf = "100";
                 if (ielts == 1 || ielts == 2 || ielts == 7 || ielts == 3 || ielts == 4 || ielts == 5 || ielts == 6 || ielts == 8) {
                     userScores.setTlScore(">=100");
                     userScores.setTl(2);
                 }
             }
+
         }
         if (sex.equals("女")) {
             //如果女生ap总成绩大于等于490 加10分
@@ -278,6 +300,7 @@ public class UserScoresImpl implements UserScoreService {
         scores.setSatAvgHigh(sat);//sat
         scores.setRank(rank);//排名
         scores.setToeflLow(tf);//toefl
+        scores.setIeltsLow(ys);
         scoresMapper.insertScores(scores);
         ajaxResult.put("userScores", userScores1);
         return ajaxResult;
@@ -338,21 +361,35 @@ public class UserScoresImpl implements UserScoreService {
         reportFileDTOS.setQuestion("\t你的学校的录取概率是x%, 简单地说就是100个和你同样水平的中国学生申请，只有x个学生会被录取。" + "\n\t" + question);
         reportFileDTOS.setExplain("\n若有兴趣了解更多，可联系我们的客服 >>>>>>>>>>>>客服微信号\n");
         double score = 0;
+       /* if (tlScore.equals(">=100") || tlScore.equals("免考")) score = 100;
+        if (tlScore.equals("99----90")) score = 99;
+        if (tlScore.equals("89----79")) score = 89;*/
         if (tl == 2) {//托福成绩
-            if (tlScore.equals(">=100") || tlScore.equals("免考")) score = 100;
-            if (tlScore.equals("99----90")) score = 99;
-            if (tlScore.equals("89----79")) score = 89;
-            if (tlScore.equals("78----69")) score = 78;
-            if (tlScore.equals("68----61")) score = 68;
-            if (tlScore.equals("小于61")) score = 60;
+            if (scores>=500){
+                score = 100;
+            }else if (scores>=400){
+                score = 99;
+            }else{
+                if (tlScore.equals("89----79")) score = 89;
+                if (tlScore.equals("78----69")) score = 78;
+                if (tlScore.equals("68----61")) score = 68;
+                if (tlScore.equals("小于61")) score = 60;
+            }
         }
         if (tl == 1) {//雅思成绩
-            if (tlScore.equals("7.5") || tlScore.equals("免考")) score = 7.5;
+            /*if (tlScore.equals("7.5") || tlScore.equals("免考")) score = 7.5;
             if (tlScore.equals("7")) score = 7;
-            if (tlScore.equals("6.5")) score = 6.5;
-            if (tlScore.equals("6")) score = 6;
-            if (tlScore.equals("5.5")) score = 5.5;
-            if (tlScore.equals("低于5.5")) score = 5.4;
+            if (tlScore.equals("6.5")) score = 6.5;*/
+            if (scores>=500){
+                score = 7.5;
+            }else if (scores>=400){
+                score = 7;
+            }else {
+                if (tlScore.equals("6.5")) score = 6.5;
+                if (tlScore.equals("6")) score = 6;
+                if (tlScore.equals("5.5")) score = 5.5;
+                if (tlScore.equals("低于5.5")) score = 5.4;
+            }
         }
         if (sat_act.equals("ACT")) {
             if (ib_ap.equals("IB")) {
@@ -367,7 +404,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (a != null) scoresList.add(a);
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
-                }else if (scores >= 620 && noSat == null) {
+                } else if (scores >= 620 && noSat == null) {
                     //如果ib分数大于710 则选择前三名学校
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
@@ -378,8 +415,8 @@ public class UserScoresImpl implements UserScoreService {
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
                 } else {
-                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 30)
-                            .addQuery("ibActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() + 20)
+                            .addQuery("ibActWeightMax", userScores.getScores() + 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
                             .addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
@@ -506,8 +543,8 @@ public class UserScoresImpl implements UserScoreService {
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
                 } else {
-                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 30)
-                            .addQuery("apActWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() + 20)
+                            .addQuery("apActWeightMax", userScores.getScores() + 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
                             .addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
@@ -521,7 +558,7 @@ public class UserScoresImpl implements UserScoreService {
                 //目标学校 Target School
                 if (scores >= 660 && noSat == null) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 220)
-                            .addQuery("apActWeightMin", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                            .addQuery("apActWeightMax", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
                             //如果大于3 需要截取前三所学校
@@ -531,7 +568,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 } else if (scores >= 580 && scores <= 659 && noSat == null) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 200)
-                            .addQuery("apActWeightMin", userScores.getScores() - 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                            .addQuery("apActWeightMax", userScores.getScores() - 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
                             //如果大于3 需要截取前三所学校
@@ -550,7 +587,7 @@ public class UserScoresImpl implements UserScoreService {
                     targetSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
                 } else {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 50)
-                            .addQuery("apActWeightMin", userScores.getScores() - 5).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                            .addQuery("apActWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
                             //如果大于3 需要截取前三所学校
@@ -563,7 +600,7 @@ public class UserScoresImpl implements UserScoreService {
                 //因为ib成绩和ap成绩不一样  说一区间分数也不同（ib成绩比ap成绩高些）
                 if (scores >= 500 && scores <= 600 && noSat == null) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
-                            .addQuery("apActWeightMin", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                            .addQuery("apActWeightMax", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
                             //如果大于3 需要截取前三所学校
@@ -573,7 +610,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 } else if (scores >= 600 && scores <= 650 && noSat == null) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
-                            .addQuery("apActWeightMin", userScores.getScores() - 160).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                            .addQuery("apActWeightMax", userScores.getScores() - 160).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
                             //如果大于3 需要截取前三所学校
@@ -583,7 +620,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 } else if (scores >= 650 && noSat == null) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
-                            .addQuery("apActWeightMin", userScores.getScores() - 200).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                            .addQuery("apActWeightMax", userScores.getScores() - 200).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
                             //如果大于3 需要截取前三所学校
@@ -602,7 +639,7 @@ public class UserScoresImpl implements UserScoreService {
                     safetyColleges(scoresList, reportFileDTOS, userScores, schoolProfileVo);
                 } else {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
-                            .addQuery("apActWeightMin", userScores.getScores() - 50).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
+                            .addQuery("apActWeightMax", userScores.getScores() - 50).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
                             //如果大于3 需要截取前三所学校
@@ -637,8 +674,8 @@ public class UserScoresImpl implements UserScoreService {
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
                 } else {
-                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 30)
-                            .addQuery("ibSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() + 20)
+                            .addQuery("ibSatWeightMax", userScores.getScores() + 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
                             .addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
@@ -681,6 +718,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (a != null) scoresList.add(a);
                     if (c != null) scoresList.add(c);
                     targetSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
+
                 } else {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 50)
                             .addQuery("ibSatWeightMax", userScores.getScores() - 5).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
@@ -768,8 +806,8 @@ public class UserScoresImpl implements UserScoreService {
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
                 } else {
-                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 30)
-                            .addQuery("apSatWeightMax", userScores.getScores() + 75).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
+                    schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() + 20)
+                            .addQuery("apSatWeightMax", userScores.getScores() + 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0)
                             .addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
                         if (schoolAdmissionScores.size() >= 3) {
@@ -890,7 +928,7 @@ public class UserScoresImpl implements UserScoreService {
             SchoolProfile schoolProfile = schoolProfileMapper.selectById(scores.getSchoolId());
             SafetySchoolDTO safetySchoolDTO = new SafetySchoolDTO();
             //雷达图数据 radarMapVo
-            RadarMapVo radarMapVo = radarMap(scores);
+            List<RadarMapVo> radarMapVo = radarMap(scores, userScores);
             String national = scores.getNationalStuAccep();
             //学校详情数据
             String detail = selectDetailsSafety(scores, userScores, schoolProfile);
@@ -925,7 +963,7 @@ public class UserScoresImpl implements UserScoreService {
             SchoolProfile schoolProfile = schoolProfileMapper.selectById(scores.getSchoolId());
             TargetSchoolDTO targetSchoolDTO = new TargetSchoolDTO();
             //雷达图数据 radarMapVo
-            RadarMapVo radarMapVo = radarMap(scores);
+            List<RadarMapVo> radarMapVo = radarMap(scores, userScores);
             String national = scores.getNationalStuAccep();
             //学校详情数据
             targetSchoolDTO.setChName(schoolProfile.getChName());
@@ -960,7 +998,7 @@ public class UserScoresImpl implements UserScoreService {
             SchoolProfile schoolProfile = schoolProfileMapper.selectById(scores.getSchoolId());
             DreamSchoolDTO dreamSchoolDTO = new DreamSchoolDTO();
             //雷达图数据 radarMapVo
-            RadarMapVo radarMapVo = radarMap(scores);
+            List<RadarMapVo> radarMapVo = radarMap(scores, userScores);
             String national = scores.getNationalStuAccep();
             //学校详情数据
             dreamSchoolDTO.setChName(schoolProfile.getChName());
@@ -992,44 +1030,114 @@ public class UserScoresImpl implements UserScoreService {
      * @param admissionScores
      * @return
      */
-    private RadarMapVo radarMap(SchoolAdmissionScores admissionScores) {
-        RadarMapVo radarMapVo = new RadarMapVo();
+    private List<RadarMapVo> radarMap(SchoolAdmissionScores admissionScores, UserScores userScores) {
+        List<RadarMapVo> radarMapVoList = new ArrayList<>();
+        Scores scores = scoresMapper.findByUserScoreId(userScores.getId());
         //雷达图数据 radarMapVo
+        RadarMapVo radarMapVoAct = new RadarMapVo();
         int act = admissionScores.getActWeight();
-        int percentInteract = DateUtil.getPercentInter(act, 200);
-        radarMapVo.setActAvgResults(percentInteract);//传给前端百分比数据
+        String mact = scores.getActAvg();
+        if (mact != null && !mact.equals("")) {
+            int iact = Integer.parseInt(mact);
+            String percentInteract = DateUtil.getPercentInter(act, 200);
+            String Interact = DateUtil.getPercentInter(iact, 200);
+            radarMapVoAct.setName("ACT");
+            radarMapVoAct.setSelfMap(Interact);
+            radarMapVoAct.setSchoolMap(percentInteract);
+            radarMapVoList.add(radarMapVoAct);
+        }
 
+        RadarMapVo radarMapVoAp = new RadarMapVo();
         int ap = admissionScores.getApWeight();
-        int percentInterap = DateUtil.getPercentInter(ap, 200);
-        radarMapVo.setApWeight(percentInterap);
+        String map = scores.getApCourse();
+        String num = String.valueOf(ap);
+        if (map != null && !map.equals("")) {
+//        int iap = Integer.parseInt(map);
+//        String percentInterap = DateUtil.getPercentInter(ap, 200);
+//        String Interap = DateUtil.getPercentInter(iap, 200);
+            radarMapVoAp.setName("AP");
+            radarMapVoAp.setSelfMap(map);
+            radarMapVoAp.setSchoolMap(num);
+            radarMapVoList.add(radarMapVoAp);
+        }
 
+        RadarMapVo radarMapVoGpa = new RadarMapVo();
         String gpa = admissionScores.getChGpaWeightStu();
-        if (!gpa.equals("") && gpa != null) {
+        String mgpa = scores.getGpaAvg();
+        if (!mgpa.equals("") && mgpa != null) {
             int i = Integer.parseInt(gpa);//把录取率转成int类型 用来计算
-            int percentInter = DateUtil.getPercentInter(i, 200);
-            radarMapVo.setChGpaAvgStu(percentInter);//去除百分号
+            int igpa = Integer.parseInt(mgpa);//把录取率转成int类型 用来计算
+            String percentInter = DateUtil.getPercentInter(i, 200);
+            String percentIntergpa = DateUtil.getPercentInter(igpa, 200);
+            radarMapVoGpa.setSchoolMap(percentInter);
+            radarMapVoGpa.setSelfMap(percentIntergpa);
+            radarMapVoGpa.setName("GPA");
+            radarMapVoList.add(radarMapVoGpa);
         }
 
+
+        RadarMapVo radarMapVoIb = new RadarMapVo();
         int ib = admissionScores.getIbWeight();
-        int percentInterib = DateUtil.getPercentInter(ib, 200);
-        radarMapVo.setIbAvgResults(percentInterib);
+        String mib = scores.getIbAvg();
+        if (mib != null && !mib.equals("")) {
+            String percentInterib = DateUtil.getPercentInter(ib, 170);
+            int iIb = Integer.parseInt(mib);
+            String interIb = DateUtil.getPercentInter(iIb, 170);
+            radarMapVoIb.setSchoolMap(percentInterib);
+            radarMapVoIb.setSelfMap(interIb);
+            radarMapVoIb.setName("IB");
+            radarMapVoList.add(radarMapVoIb);
+        }
 
+        RadarMapVo radarMapVoRank = new RadarMapVo();
         int rank = admissionScores.getNineteen();//排名
-        if (rank >= 0) {
-            int percentInter = DateUtil.getPercentInter(rank, 300);
-            radarMapVo.setSchoolRank(101 - percentInter);
+        String mRank = scores.getRank();
+        int iRank = Integer.parseInt(mRank);
+        if (mRank != null && !mRank.equals("")) {
+//            String percentInter = DateUtil.getPercentInter(rank, 200);
+            String percentRank = DateUtil.getPercentInter(iRank, 100);
+            radarMapVoRank.setSchoolMap("50");
+            radarMapVoRank.setSelfMap(percentRank);
+            radarMapVoRank.setName("排名");
+            radarMapVoList.add(radarMapVoRank);
         }
-        int tolfl = admissionScores.getToeflLowReq();//托福成绩
-        if (tolfl >= 0) {
-            int percentInter = DateUtil.getPercentInter(tolfl, 100);
-            radarMapVo.setToeflLowReq(percentInter);
-        }
-        int sat = admissionScores.getSatWeight();//sat成绩
-        int percentIntersat = DateUtil.getPercentInter(sat, 200);
-        radarMapVo.setChSatAvgHighStu(percentIntersat);
 
-        logger.info("雷达图数据：" + radarMapVo.toString());
-        return radarMapVo;
+        RadarMapVo radarMapVoys = new RadarMapVo();
+        double ielts = admissionScores.getIeltsLowReq();
+        String mIelts = scores.getIeltsLow();
+        double dIelts = Double.parseDouble(mIelts);
+            String percent = DateUtil.getPercentInter(ielts, 7.5);
+            String percentIelts = DateUtil.getPercentInter(dIelts, 7.5);
+            radarMapVoys.setSchoolMap(percent);
+            radarMapVoys.setSelfMap(percentIelts);
+            radarMapVoys.setName("雅思");
+            radarMapVoList.add(radarMapVoys);
+
+        RadarMapVo radarMapVotolfl = new RadarMapVo();
+        String mToefl = scores.getToeflLow();
+        int mt = Integer.parseInt(mToefl);
+        int tolfl = admissionScores.getToeflLowReq();//托福成绩
+        String percentInter = DateUtil.getPercentInter(tolfl, 100);
+        String percentIntermt = DateUtil.getPercentInter(mt, 100);
+        radarMapVotolfl.setSchoolMap(percentInter);
+        radarMapVotolfl.setSelfMap(percentIntermt);
+        radarMapVotolfl.setName("托福");
+        radarMapVoList.add(radarMapVotolfl);
+
+        RadarMapVo radarMapVoSat = new RadarMapVo();
+        int sat = admissionScores.getSatWeight();//sat成绩
+        String mSat = scores.getSatAvgHigh();
+        if (mSat != null && !mSat.equals("")) {
+            int iSat = Integer.parseInt(mSat);
+            String percentIntersat = DateUtil.getPercentInter(sat, 200);
+            String interSat = DateUtil.getPercentInter(iSat, 200);
+            radarMapVoSat.setSchoolMap(percentIntersat);
+            radarMapVoSat.setSelfMap(interSat);
+            radarMapVoSat.setName("SAT");
+            radarMapVoList.add(radarMapVoSat);
+        }
+
+        return radarMapVoList;
     }
 
 

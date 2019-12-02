@@ -21,7 +21,7 @@
     <insert id="insertList" useGeneratedKeys="true" keyProperty="id"  keyColumn="id" parameterType="com.select.school.model.entity.UserScores">
 
         insert into d_user_scores (open_id, scores, createTime, o_tl,o_tl_score ,act_sat, ap_ib,tuition_fees,required,six_question,no_sat )
-        values (#{openId}, #{scores},  #{createTime}, #{tl},#{tlScore},#{actSat}, #{apIb},#{tuitionFees},#{required},#{sixQuestion},#{no_sat} )
+        values (#{openId}, #{scores},  #{createTime}, #{tl},#{tlScore},#{actSat}, #{apIb},#{tuitionFees},#{required},#{sixQuestion},#{noSat} )
     </insert>
 
     <select id="selectOpenId" resultMap="user">

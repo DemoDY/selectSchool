@@ -36,15 +36,15 @@ public class DreamSchoolDTO {
     private String numNationalFreshmen;//大一国际生人数
     private String dreamSchool;//梦想学校
     private String acceptance;//录取率
-    private RadarMapVo radarMap;//雷达图
+    private List<RadarMapVo> radarMap;//雷达图
 
     private String details;//报告关于学校的详情
 
-    public RadarMapVo getRadarMap() {
+    public List<RadarMapVo> getRadarMap() {
         return radarMap;
     }
 
-    public void setRadarMap(RadarMapVo radarMap) {
+    public void setRadarMap(List<RadarMapVo> radarMap) {
         this.radarMap = radarMap;
     }
 

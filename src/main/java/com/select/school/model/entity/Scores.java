@@ -16,6 +16,7 @@ public class Scores {
     private String toeflLow;//TOEFL 最低要求
     private String apCourse;//AP 选课数量
     private String ibAvg;//IB 平均成绩
+    private String ieltsLow;//雅思成绩
 
     public Scores(){}
     public int getId() {
@@ -88,5 +89,13 @@ public class Scores {
 
     public void setIbAvg(String ibAvg) {
         this.ibAvg = ibAvg;
+    }
+
+    public String getIeltsLow() {
+        return ieltsLow;
+    }
+
+    public void setIeltsLow(String ieltsLow) {
+        this.ieltsLow = ieltsLow;
     }
 }
