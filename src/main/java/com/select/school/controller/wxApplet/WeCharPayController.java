@@ -32,8 +32,8 @@ import javax.annotation.Resource;
 @RequestMapping(value = "/wx")
 public class WeCharPayController {
 
-@Resource
-private WeCharPayService weCharPayService;
+    @Resource
+    private WeCharPayService weCharPayService;
 
 
     /**

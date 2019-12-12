@@ -38,7 +38,8 @@ import java.util.Map;
  **/
 @Service
 public class WeCharPayServiceImpl implements WeCharPayService {
-    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Resource
     private OrderMapper orderMapper;
     @Resource
@@ -79,19 +80,16 @@ public class WeCharPayServiceImpl implements WeCharPayService {
 
     /**
      * 回调通知
-     *
-     * @param request
-     * @return
      */
     @Override
     public Object affirm(HttpRequest request) {
 
-        Map<String, Object> resultMap = new HashMap<String, Object>();
+        Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("return_code", "SUCCESS");
         resultMap.put("return_msg", "OK");
         Object param = WeChatAssistantUtils.parseString2Xml(resultMap, null);
         //解析微信返回通知的xml数据
-        Map<String, String> respance = null;
+        Map<String, String> respance;
         try {
             respance = WeChatAssistantUtils.parseXml1(request.toString());
             JSONObject result = JSONObject.fromObject(respance);
@@ -116,9 +114,9 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                     wxAffirm.setOutTradeNo(result.getString("out_trade_no"));
                     wxAffirm.setTransactionId(result.getString("transaction_id"));
                     wxAffirm.setOpenid(result.getString("openid"));
-                    wxAffirm.setTotalFee(Double.valueOf(Integer.valueOf(result.getString("total_fee"))/100));
+                    wxAffirm.setTotalFee(result.getDouble("total_fee")/100);
                     wxAffirm.setBankType(result.getString("bank_type"));
-                    wxAffirm.setCashFee(Double.valueOf(Integer.valueOf(result.getString("cash_fee"))/100));
+                    wxAffirm.setCashFee(result.getDouble("cash_fee")/100);
                     wxAffirm.setIsSubscribe(result.getString("is_subscribe"));
                     wxAffirm.setTradeType(result.getString("trade_type"));
                     wxAffirm.setResultCode(result.getString("result_code"));

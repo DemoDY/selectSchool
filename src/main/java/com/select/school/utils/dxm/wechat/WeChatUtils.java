@@ -1,7 +1,7 @@
 package com.select.school.utils.dxm.wechat;
 
 
-import com.itextpdf.text.Document;
+//import com.select.school.model.vo.WxPayVo;
 import com.select.school.model.vo.WxPayVo;
 import com.select.school.model.vo.WxTradeDetail;
 import com.select.school.model.vo.WxTradeSummary;
@@ -12,12 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import javax.lang.model.element.Element;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.*;
+        import java.util.*;
 
 /**
  * @version: V1.0
@@ -65,8 +60,6 @@ public class WeChatUtils {
         // 把数据转为xml
         String param = WeChatAssistantUtils.parseString2Xml(parameter, sign);
         String url = WeChatAPIParams.WECHAR_PAY;
-//        String result = HttpUtils.httpRequest(url,"POST",param);
-//        System.out.println("--result:"+result);
         // 将解析结果存储在HashMap中
         String wxResult;
         try {
@@ -79,10 +72,14 @@ public class WeChatUtils {
         return null;
     }
 
-
+    /**
+     * 下载对账单
+     * @return
+     * @throws Exception
+     */
     public static Boolean downloadFile() throws Exception {
         String billDate = DateUtil.getYesterday("yyyyMMdd");
-        //签名 并调取微信统一下单
+        //签名
         SortedMap<String, Object> parameter = new TreeMap<String, Object>();
         parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                    // 商户号 app_id
         parameter.put("mch_id", WeChatAPIParams.WECHAR_PAY_MCH_ID);                    // 应用ID mch_id

@@ -8,7 +8,6 @@
 package com.select.school.controller.wxApplet;
 
 import com.select.school.model.entity.Order;
-import com.select.school.model.vo.WxPayVo;
 import com.select.school.service.wxApplet.WeCharPayService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseResult;
