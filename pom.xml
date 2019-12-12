@@ -65,7 +65,24 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+<!--         https://mvnrepository.com/artifact/com.itextpdf/itext-asian-->
+<!--        实现pdf打印-->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.3</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
@@ -93,6 +110,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <!-- java发邮件的jar -->
         <dependency>
             <groupId>com.sun.mail</groupId>
@@ -168,7 +186,6 @@
             <artifactId>dom4j</artifactId>
             <version>2.1.1</version>
         </dependency>
-
     </dependencies>
     <build>
         <finalName>selectSchool</finalName>

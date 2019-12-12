@@ -67,7 +67,7 @@
                     and toeft_low_req &lt;= #{toeflHigh} and toeft_low_req &gt;= #{toeflLow}
                 </if>
                 <if test="tl == 1">
-                    and sas.ielts_low_req &lt;= #{toeflHigh} and ielts_low_req &gt;= #{toeflLow}
+                    and ielts_low_req &lt;= #{toeflHigh} and ielts_low_req &gt;= #{toeflLow}
                 </if>
                 and ib_act &gt;= #{ibActWeightMin} and ib_act &lt;= #{ibActWeightMax}
             </if>

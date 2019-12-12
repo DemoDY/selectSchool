@@ -4,17 +4,18 @@
     <resultMap id="order" type="com.select.school.model.entity.Order">
         <id column="id" property="id"/>
         <result column="order_number" property="orderNumber"/>
-        <result column="sum" property="sum"/>
         <result column="user_id" property="userId"/>
+        <result column="total_fee" property="totalFee"/>
         <result column="state" property="state"/>
-        <result column="creatTime" property="creatTime"/>
-        <result column="updateTime" property="updateTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="openid" property="openid"/>
+        <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <insert id="create" parameterType="com.select.school.model.entity.Order">
         insert into d_order
-            (order_number, sum, user_id, state, creatTime, updateTime)
-        values (#{orderNumber}, #{sum}, #{userId}, #{state}, now(), now())
+            (order_number, user_id,total_fee, state, create_time, openid,update_time)
+        values (#{orderNumber}, #{userId},#{totalFee}, #{state}, #{createTime},#{openid} ,#{updateTime})
     </insert>
 
 
@@ -29,7 +30,7 @@
     </update>
 
     <select id="selectAll" resultMap="order">
-        select id,order_number,sum,user_id,state,creatTime,updateTime from d_order
+        select id,order_number,user_id,state,creatTime,updateTime from d_order
         <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
         <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>

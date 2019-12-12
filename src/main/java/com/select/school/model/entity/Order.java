@@ -21,11 +21,11 @@ public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Integer id;
-    private String orderNumber;
-    private String userId;
-    private double totalFee;
-    private Integer state;
-    private String creatTime;
+    private String orderNumber;//订单编号
+    private String userId;//用户id
+    private double totalFee;//金额
+    private Integer state;//状态 1:待支付，2：已支付，3：已完成，4：已对账，5：已取消
+    private String createTime;
     private String openid;
     private String updateTime;
 
@@ -77,12 +77,12 @@ public class Order implements Serializable {
         this.state = state;
     }
 
-    public String getCreatTime() {
-        return creatTime;
+    public String getCreateTime() {
+        return createTime;
     }
 
-    public void setCreatTime(String creatTime) {
-        this.creatTime = creatTime;
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
     }
 
     public String getUpdateTime() {

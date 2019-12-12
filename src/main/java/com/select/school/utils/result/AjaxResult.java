@@ -19,7 +19,7 @@ public class AjaxResult extends HashMap<String, Object> {
     }
 
     public static final Integer CODE_ERROR = 1;
-    public static final Integer CODE_SUCCESS = 200;
+    public static final Integer CODE_SUCCESS = 2;
     public static final Integer CODE_SERVER_ERROR = 500;
     public static final String AJAX_DATA = "data";
     public static final String AJAX_CODE = "code";
@@ -98,9 +98,9 @@ public class AjaxResult extends HashMap<String, Object> {
         return AjaxResult.success("操作成功");
     }
 
-    public static AjaxResult successData(int key, Object value) {
+    public static AjaxResult successData(int code, Object value) {
         AjaxResult json = new AjaxResult();
-        json.put(AJAX_KEY, key);
+        json.put(AJAX_CODE, code);
         json.put(AJAX_DATA, value);
         return json;
     }

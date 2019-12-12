@@ -1,23 +1,23 @@
 package com.select.school.utils.dxm.wechat;
 
 
+import com.itextpdf.text.Document;
 import com.select.school.model.vo.WxPayVo;
 import com.select.school.model.vo.WxTradeDetail;
 import com.select.school.model.vo.WxTradeSummary;
 import com.select.school.utils.DateUtil;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import javax.lang.model.element.Element;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * @version: V1.0
@@ -41,7 +41,6 @@ public class WeChatUtils {
         return result;
     }
 
-
     /**
      * 微信支付统一下单
      */
@@ -49,23 +48,26 @@ public class WeChatUtils {
 
         //签名 并调取微信统一下单
         SortedMap<String, Object> parameter = new TreeMap<String, Object>();
-        parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                    // 商户号 app_id
-        parameter.put("mch_id", WeChatAPIParams.WECHAR_PAY_MCH_ID);                    // 应用ID mch_id
+        parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                    //  app_id
+        parameter.put("mch_id", WeChatAPIParams.WECHAR_PAY_MCH_ID);                    // 商户号 mch_id
         parameter.put("device_info", wxPayVo.getDeviceInfo());                        // 设备号 device_info
         parameter.put("openid", wxPayVo.getOpenid());                                // 用户标识
-        parameter.put("body", wxPayVo.getDeviceInfo());                                // 商品描述 body
-        parameter.put("nonce_str", wxPayVo.getDeviceInfo());                        // 随机字符串 nonce_str
+        parameter.put("body", wxPayVo.getBody());                                // 商品描述 body
+        parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));       // 随机字符串 nonce_str 16位
         parameter.put("out_trade_no", wxPayVo.getDeviceInfo());                                // 商户订单号 out_trade_no
-        parameter.put("total_fee", (int) (Double.parseDouble(wxPayVo.getDeviceInfo()) * 100));    // 总金额 total_fee
-        parameter.put("spbill_create_ip", wxPayVo.getDeviceInfo());                         // 终端IP spbill_create_ip
+        parameter.put("total_fee", (int) (wxPayVo.getTotalFee() * 100));    // 总金额 total_fee
+        parameter.put("spbill_create_ip", wxPayVo.getSpbillCreateIp());                         // 终端IP spbill_create_ip
         parameter.put("trade_type", "JSAPI");                                                    // 交易类型 trade_type   APP
         parameter.put("notify_url", WeChatAPIParams.NOTIFY_URL);                            // 通知地址 notify_url
-
         // 签名 sign(MD5)
         String sign = WeChatAssistantUtils.createSign("UTF-8", WeChatAPIParams.KEY, parameter);
+        System.out.println("--sign:"+sign);
         // 把数据转为xml
         String param = WeChatAssistantUtils.parseString2Xml(parameter, sign);
         String url = WeChatAPIParams.WECHAR_PAY;
+//        String result = HttpUtils.httpRequest(url,"POST",param);
+//        System.out.println("--result:"+result);
+        // 将解析结果存储在HashMap中
         String wxResult;
         try {
             //发送请求
@@ -79,14 +81,13 @@ public class WeChatUtils {
 
 
     public static Boolean downloadFile() throws Exception {
-
         String billDate = DateUtil.getYesterday("yyyyMMdd");
         //签名 并调取微信统一下单
         SortedMap<String, Object> parameter = new TreeMap<String, Object>();
         parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                    // 商户号 app_id
         parameter.put("mch_id", WeChatAPIParams.WECHAR_PAY_MCH_ID);                    // 应用ID mch_id
-        parameter.put("nonce_str", WeChatAssistantUtils.getRandomString(32));// 随机字符串 nonce_str
-        parameter.put("bill_date", billDate);                        // 下载对账单的日期，格式：20140603
+        parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));// 随机字符串 nonce_str
+        parameter.put("bill_date", billDate);        // 下载对账单的日期，格式：20140603
 
 
         // 签名 sign(MD5)

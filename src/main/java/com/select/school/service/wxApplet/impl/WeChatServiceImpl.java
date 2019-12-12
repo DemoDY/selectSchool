@@ -51,7 +51,6 @@ public class WeChatServiceImpl implements WeChatService {
             JSONObject wexinResult = JSONObject.parseObject(result);
             // 保存用户信息到数据库
             if (result.contains("openid")){
-
                 // 查询用户是否存在
                 User userResult = userMapper.detail(SqlParameter.getParameter().addQuery("openid", wexinResult.get("openid").toString()).getMap());
                 if (userResult != null ){

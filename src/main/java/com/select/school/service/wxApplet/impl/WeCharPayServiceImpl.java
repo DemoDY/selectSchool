@@ -23,6 +23,8 @@ import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +38,7 @@ import java.util.Map;
  **/
 @Service
 public class WeCharPayServiceImpl implements WeCharPayService {
-
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Resource
     private OrderMapper orderMapper;
     @Resource
@@ -44,26 +46,23 @@ public class WeCharPayServiceImpl implements WeCharPayService {
 
     @Override
     public String wxPay(WxPayVo wxPayVo) {
-
         ResponseResult result = new ResponseResult();
         try {
             Order order = new Order();
-            order.setOrderNumber(WeChatAssistantUtils.getOrderIdByTime());
+            order.setOrderNumber(WeChatAssistantUtils.getOrderIdByTime());//订单号
             order.setState(1);
             order.setTotalFee(wxPayVo.getTotalFee());
-            order.setOrderNumber(wxPayVo.getTradeType());
+            order.setOpenid(wxPayVo.getOpenid());
+            order.setCreateTime(df.format(new Date()));
+//            order.setOrderNumber(wxPayVo.getTradeType());
             orderMapper.create(order);
-
             // 统一下单
             Object wxPay = WeChatUtils.wxPay(wxPayVo);
-
             if (wxPay != null) {
                 JSONObject payResulet = JSONObject.fromObject(wxPay);
                 if (!payResulet.get("return_code").equals("SUCCESS")) {
                     result.setCode(401);
                     result.setMsg(payResulet.getString("return_msg"));
-                    // 修改订单状态
-                    orderMapper.update(SqlParameter.getParameter().addUpdate("state", 2).addQuery("order_number",order.getOrderNumber()).getMap());
                 } else {
                     result.setCodeMsg(ResponseCode.SUCCESS);
                 }
@@ -91,27 +90,22 @@ public class WeCharPayServiceImpl implements WeCharPayService {
         resultMap.put("return_code", "SUCCESS");
         resultMap.put("return_msg", "OK");
         Object param = WeChatAssistantUtils.parseString2Xml(resultMap, null);
-
         //解析微信返回通知的xml数据
         Map<String, String> respance = null;
         try {
             respance = WeChatAssistantUtils.parseXml1(request.toString());
             JSONObject result = JSONObject.fromObject(respance);
-
             // 将数据保存至数据库
             if (result != null && result.get("return_code").equals("SUCCESS")) {
-
                 if (result.get("total_fee") != null) {
                     Double totalFee = Double.parseDouble(result.get("total_fee").toString()) / 100;
                 }
                 WxAffirm detail = wxAffirmMapper.detail(SqlParameter.getParameter()
                         .addQuery("transaction_id", result.get("transaction_id"))
                         .getMap());
-
                 // 如果存在数据 直接返回
                 if (detail != null) {
                     System.out.println("======>>>重复订单--不做插入");
-
                 } else {
                     //修改订单状态
                     orderMapper.update(SqlParameter.getParameter().addUpdate("state", 3)

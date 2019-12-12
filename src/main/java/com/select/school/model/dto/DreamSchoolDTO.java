@@ -18,10 +18,6 @@ public class DreamSchoolDTO {
      */
     private String chName;
     /**
-     * 学校排名
-     */
-    private String schoolRank;
-    /**
      * 学校简介
      */
     private String schoolProfile;
@@ -29,13 +25,15 @@ public class DreamSchoolDTO {
      * 校徽
      */
     private String crest;
-    private String nineteen;//2019 录取人数
+    /*private String nineteen;//2019 录取人数
     private String twenty;//2020 录取人数
     private String nationalStuAccep;//国际生录取率
     private String tuitionFees;//学费（美元）
     private String numNationalFreshmen;//大一国际生人数
+
+    private String acceptance;//录取率*/
     private String dreamSchool;//梦想学校
-    private String acceptance;//录取率
+    private List<SchoolDetails> schoolDetails;//学习数据详情
     private List<RadarMapVo> radarMap;//雷达图
 
     private String details;//报告关于学校的详情
@@ -56,6 +54,14 @@ public class DreamSchoolDTO {
         this.schoolName = schoolName;
     }
 
+    public String getDreamSchool() {
+        return dreamSchool;
+    }
+
+    public void setDreamSchool(String dreamSchool) {
+        this.dreamSchool = dreamSchool;
+    }
+
     public String getChName() {
         return chName;
     }
@@ -72,60 +78,12 @@ public class DreamSchoolDTO {
         this.schoolProfile = schoolProfile;
     }
 
-    public String getSchoolRank() {
-        return schoolRank;
+    public List<SchoolDetails> getSchoolDetails() {
+        return schoolDetails;
     }
 
-    public void setSchoolRank(String schoolRank) {
-        this.schoolRank = schoolRank;
-    }
-
-    public String getNineteen() {
-        return nineteen;
-    }
-
-    public void setNineteen(String nineteen) {
-        this.nineteen = nineteen;
-    }
-
-    public String getTwenty() {
-        return twenty;
-    }
-
-    public void setTwenty(String twenty) {
-        this.twenty = twenty;
-    }
-
-    public String getNationalStuAccep() {
-        return nationalStuAccep;
-    }
-
-    public void setNationalStuAccep(String nationalStuAccep) {
-        this.nationalStuAccep = nationalStuAccep;
-    }
-
-    public String getTuitionFees() {
-        return tuitionFees;
-    }
-
-    public void setTuitionFees(String tuitionFees) {
-        this.tuitionFees = tuitionFees;
-    }
-
-    public String getNumNationalFreshmen() {
-        return numNationalFreshmen;
-    }
-
-    public void setNumNationalFreshmen(String numNationalFreshmen) {
-        this.numNationalFreshmen = numNationalFreshmen;
-    }
-
-    public String getDreamSchool() {
-        return dreamSchool;
-    }
-
-    public void setDreamSchool(String dreamSchool) {
-        this.dreamSchool = dreamSchool;
+    public void setSchoolDetails(List<SchoolDetails> schoolDetails) {
+        this.schoolDetails = schoolDetails;
     }
 
     public String getDetails() {
@@ -142,13 +100,5 @@ public class DreamSchoolDTO {
 
     public void setCrest(String crest) {
         this.crest = crest;
-    }
-
-    public String getAcceptance() {
-        return acceptance;
-    }
-
-    public void setAcceptance(String acceptance) {
-        this.acceptance = acceptance;
     }
 }

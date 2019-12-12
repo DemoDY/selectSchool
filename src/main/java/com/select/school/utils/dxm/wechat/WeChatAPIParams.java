@@ -38,9 +38,9 @@ public class WeChatAPIParams {
 	/**
 	 * WeCharPay
 	 */
-	public static String WECHAR_PAY_APPID = "11111111111111"; 		// appid
-	public static String WECHAR_PAY_MCH_ID = "222222222222222222"; 		// appid
-	public static String KEY = "222222222222222222"; 		// KEY
+	public static String WECHAR_PAY_APPID = "wx1330df3ec7f2cac0"; 		// appid
+	public static String WECHAR_PAY_MCH_ID = "1567863911"; 		// 商户号
+	public static String KEY = "4a9f2c433adcc2698ba7704faedeaf82"; 		// API密钥
 
 	public static String WECHAR_PAY = "https://api.mch.weixin.qq.com/pay/unifiedorder";				// 统一下单url
 	public static String NOTIFY_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";				// 回调url

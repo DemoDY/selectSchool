@@ -8,8 +8,6 @@ server:
     compression:
         enabled: true
         mime-types: text/plain,application/javascript,application/x-javascript,text/css,application/xml,text/javascript,application/x-httpd-php,image/jpeg,image/gif,image/png
-
-
 spring:
     profiles:
         active: dev
@@ -53,3 +51,11 @@ wechat:
     key: 123
 logging:
 #    path: /school/log
+
+# 微信支付配置参数 按顺序注释：appID/商户号/API密钥/操作密码
+business:
+    enterpriseWeChat:
+        appID: wx1330df3ec7f2cac0
+        mchID: 1567863911
+        key: 4a9f2c433adcc2698ba7704faedeaf82
+#        secret：Liuxue2019@@

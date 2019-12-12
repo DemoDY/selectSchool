@@ -44,7 +44,6 @@ private WeCharPayService weCharPayService;
 
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
     public Object wxpay(@RequestBody WxPayVo wxPayVo){
-
         ResponseResult result = new ResponseResult();
         if (wxPayVo ==null || wxPayVo.getTotalFee() == 0 || wxPayVo.getTradeType() == null){
             return result.setCodeMsg(ResponseCode.REQUEST_NOT);
@@ -53,14 +52,13 @@ private WeCharPayService weCharPayService;
     }
 
     /**
-     * 微信支付统一下单
+     * 支付回调接口
      * @param request
      * @return Object
      */
 
-    @RequestMapping(value = "/feedback", method = {RequestMethod.POST,RequestMethod.GET})
+    @RequestMapping(value = "/feedback", method = {RequestMethod.POST})
     public Object affirm(HttpRequest request){
-
         return weCharPayService.affirm(request);
     }
 

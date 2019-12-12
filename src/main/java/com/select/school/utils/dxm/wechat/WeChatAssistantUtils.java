@@ -7,11 +7,13 @@
  */
 package com.select.school.utils.dxm.wechat;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -113,7 +115,9 @@ public class WeChatAssistantUtils {
         }
         Map<String, String> map = new HashMap<String, String>();
         SAXReader reader = new SAXReader();
-        Document document = reader.read(param);
+//        Document document = reader.read(param);
+        //传递的应该是一个URL或者是文件路径(不应该是文件内容)
+        Document document = reader.read(new ByteArrayInputStream(param.getBytes("UTF-8")));
         Element root = document.getRootElement();
         List<Element> elementList = root.elements();
         for (Element e : elementList) {
@@ -153,6 +157,7 @@ public class WeChatAssistantUtils {
      * @return
      */
     public static String getRandomString(int length){
+//        String nonceStr = RandomStringUtils.randomAlphanumeric(16);//随机字符串 16位
         String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random=new Random();
         StringBuffer sb=new StringBuffer();
