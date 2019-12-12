@@ -10,6 +10,8 @@ package com.select.school.service.wxApplet;
 import com.select.school.model.vo.WxPayVo;
 import org.springframework.http.HttpRequest;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @version: V1.0
  * @author: DongXiaoMing
@@ -22,5 +24,5 @@ public interface WeCharPayService {
 
     String wxPay(WxPayVo wxPayVo);
 
-    Object affirm(HttpRequest request);
+    Object affirm(HttpServletRequest request);
 }

@@ -2,6 +2,7 @@ package com.select.school.utils.dxm.wechat;
 
 
 //import com.select.school.model.vo.WxPayVo;
+
 import com.select.school.model.vo.WxPayVo;
 import com.select.school.model.vo.WxTradeDetail;
 import com.select.school.model.vo.WxTradeSummary;
@@ -12,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-        import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * @version: V1.0
@@ -55,8 +59,8 @@ public class WeChatUtils {
         parameter.put("trade_type", "JSAPI");                                                    // 交易类型 trade_type   APP
         parameter.put("notify_url", WeChatAPIParams.NOTIFY_URL);                            // 通知地址 notify_url
         // 签名 sign(MD5)
-        String sign = WeChatAssistantUtils.createSign("UTF-8", WeChatAPIParams.KEY, parameter);
-        System.out.println("--sign:"+sign);
+        String sign = WeChatAssistantUtils.createSign(WeChatAPIParams.KEY, parameter);
+        System.out.println("--sign:" + sign);
         // 把数据转为xml
         String param = WeChatAssistantUtils.parseString2Xml(parameter, sign);
         String url = WeChatAPIParams.WECHAR_PAY;
@@ -65,15 +69,17 @@ public class WeChatUtils {
         try {
             //发送请求
             wxResult = HttpUtils.doPost(url, param);
-            return JSONObject.fromObject(WeChatAssistantUtils.parseXml(wxResult));
+            return JSONObject.fromObject(WeChatAssistantUtils.doXMLParse(wxResult));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
+
     /**
      * 下载对账单
+     *
      * @return
      * @throws Exception
      */
@@ -88,7 +94,7 @@ public class WeChatUtils {
 
 
         // 签名 sign(MD5)
-        String sign = WeChatAssistantUtils.createSign("UTF-8", WeChatAPIParams.KEY, parameter);
+        String sign = WeChatAssistantUtils.createSign(WeChatAPIParams.KEY, parameter);
         // 把数据转为xml
         String param = WeChatAssistantUtils.parseString2Xml(parameter, sign);
         String billUrl = WeChatAPIParams.DOWNLOAD_BILL_URL;
@@ -150,6 +156,34 @@ public class WeChatUtils {
         return false;
     }
 
+
+    /**
+     * 回调通知
+     *
+     * @return
+     * @throws Exception
+     */
+    public static Map<String, Object> getXML(HttpServletRequest request) {
+        try {
+            InputStream inStream = request.getInputStream();
+            ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len = 0;
+            while ((len = inStream.read(buffer)) != -1) {
+                outSteam.write(buffer, 0, len);
+            }
+            String resultxml = new String(outSteam.toByteArray(), "utf-8");
+            Map<String, Object> params = WeChatAssistantUtils.doXMLParse(resultxml);
+            outSteam.close();
+            inStream.close();
+            return params;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     public static String getArrayValue(String[] tradeDetailArray, int index) {
         try {
             return tradeDetailArray[index];
@@ -157,4 +191,6 @@ public class WeChatUtils {
             return "";
         }
     }
+
+
 }

@@ -109,4 +109,21 @@ public class WxAffirm implements Serializable {
     public void setTimeEnd(String timeEnd) {
         this.timeEnd = timeEnd;
     }
+
+
+    @Override
+    public String toString() {
+        return "WxAffirm{" +
+                "transactionId='" + transactionId + '\'' +
+                ", outTradeNo='" + outTradeNo + '\'' +
+                ", resultCode='" + resultCode + '\'' +
+                ", openid='" + openid + '\'' +
+                ", isSubscribe='" + isSubscribe + '\'' +
+                ", tradeType='" + tradeType + '\'' +
+                ", bankType='" + bankType + '\'' +
+                ", totalFee=" + totalFee +
+                ", cashFee=" + cashFee +
+                ", timeEnd='" + timeEnd + '\'' +
+                '}';
+    }
 }

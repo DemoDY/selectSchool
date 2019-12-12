@@ -23,6 +23,9 @@ import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,25 +85,25 @@ public class WeCharPayServiceImpl implements WeCharPayService {
      * 回调通知
      */
     @Override
-    public Object affirm(HttpRequest request) {
+    public Object affirm(HttpServletRequest request) {
 
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("return_code", "SUCCESS");
         resultMap.put("return_msg", "OK");
         Object param = WeChatAssistantUtils.parseString2Xml(resultMap, null);
+
         //解析微信返回通知的xml数据
         Map<String, String> respance;
         try {
-            respance = WeChatAssistantUtils.parseXml1(request.toString());
-            JSONObject result = JSONObject.fromObject(respance);
+            Map<String, Object> map = WeChatUtils.getXML(request);
+            JSONObject result = JSONObject.fromObject(map);
             // 将数据保存至数据库
             if (result != null && result.get("return_code").equals("SUCCESS")) {
-                if (result.get("total_fee") != null) {
-                    Double totalFee = Double.parseDouble(result.get("total_fee").toString()) / 100;
-                }
+
                 WxAffirm detail = wxAffirmMapper.detail(SqlParameter.getParameter()
                         .addQuery("transaction_id", result.get("transaction_id"))
                         .getMap());
+
                 // 如果存在数据 直接返回
                 if (detail != null) {
                     System.out.println("======>>>重复订单--不做插入");
@@ -121,7 +124,8 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                     wxAffirm.setTradeType(result.getString("trade_type"));
                     wxAffirm.setResultCode(result.getString("result_code"));
                     wxAffirm.setTimeEnd(result.getString("time_end"));
-                    wxAffirmMapper.create(wxAffirm);
+                    System.out.println(wxAffirm);
+//                    wxAffirmMapper.create(wxAffirm);
                 }
             }
         } catch (Exception e) {

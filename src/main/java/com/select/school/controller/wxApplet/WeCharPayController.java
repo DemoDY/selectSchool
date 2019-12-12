@@ -12,12 +12,14 @@ import com.select.school.service.wxApplet.WeCharPayService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseResult;
 import org.springframework.http.HttpRequest;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @version: V1.0
@@ -57,8 +59,8 @@ public class WeCharPayController {
      * @return Object
      */
 
-    @RequestMapping(value = "/feedback", method = {RequestMethod.POST})
-    public Object affirm(HttpRequest request){
+    @RequestMapping(value = "/feedback", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object affirm(HttpServletRequest request){
         return weCharPayService.affirm(request);
     }
 

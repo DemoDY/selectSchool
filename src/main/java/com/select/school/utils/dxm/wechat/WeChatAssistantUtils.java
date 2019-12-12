@@ -7,13 +7,13 @@
  */
 package com.select.school.utils.dxm.wechat;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -26,119 +26,135 @@ import java.util.*;
  * @data: 2019-11-13
  **/
 public class WeChatAssistantUtils {
+
+    /**
+     * 获取时间戳
+     */
     public static String getTimestamp() {
         long timestampLong = System.currentTimeMillis();
-
-        String timestampStr = String.valueOf(timestampLong);
-
-        return timestampStr;
+        return String.valueOf(timestampLong);
     }
 
+    /**
+     * 获取随机字符串
+     *
+     */
     public static String getNonceStr(int length) {
         String str = "zxcvbnmlkjhgfdsaqwertyuiopQWERTYUIOPASDFGHJKLZXCVBNM1234567890";
-
         Random random = new Random();
-
-        StringBuffer randomStr = new StringBuffer();
-
-
+        StringBuilder randomStr = new StringBuilder();
         for (int i = 0; i < length; i++) {
-
-
             int number = random.nextInt(62);
-
-
             randomStr.append(str.charAt(number));
         }
-
-
         return randomStr.toString();
     }
 
 
     /**
      * Sign加密
-     *
-     * @param characterEncoding
-     * @param key
-     * @param parameters
-     * @return
      */
-    public static String createSign(String characterEncoding, String key, SortedMap<String, Object> parameters) {
-        StringBuffer sb = new StringBuffer();
+    static String createSign(String key, SortedMap<String, Object> parameters) {
+        StringBuilder sb = new StringBuilder();
         Set<Map.Entry<String, Object>> es = parameters.entrySet();
-        Iterator<Map.Entry<String, Object>> it = es.iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = it.next();
-            String k = (String) entry.getKey();
+        for (Map.Entry<String, Object> entry : es) {
+            String k = entry.getKey();
             Object v = entry.getValue();
             if (v != null && !"".equals(v) &&
                     !"sign".equals(k) && !"key".equals(k)) {
-                sb.append(String.valueOf(k) + "=" + v + "&");
+                sb.append(String.valueOf(k)).append("=").append(v).append("&");
             }
         }
-        sb.append("key=" + key);
-        String sign = MD5Util.MD5Encode(sb.toString(), characterEncoding).toUpperCase();
-        return sign;
+        sb.append("key=").append(key);
+        return MD5Util.MD5Encode(sb.toString(), "UTF-8").toUpperCase();
     }
 
 
     /**
      * 转XML
-     *
-     * @param map
-     * @param sign
-     * @return
      */
     public static String parseString2Xml(Map<String, Object> map, String sign) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("<xml>");
         Set<Map.Entry<String, Object>> es = map.entrySet();
-        Iterator<Map.Entry<String, Object>> iterator = es.iterator();
-        while (iterator.hasNext()) {
-            Map.Entry entry = iterator.next();
-            String k = (String) entry.getKey();
+        for (Map.Entry<String, Object> entry : es) {
+            String k = entry.getKey();
             Object object = entry.getValue();
-            sb.append("<" + k + ">" + object + "</" + k + ">");
+            sb.append("<").append(k).append(">").append(object).append("</").append(k).append(">");
         }
         if (sign != null) {
-            sb.append("<sign>" + sign + "</sign>");
+            sb.append("<sign>").append(sign).append("</sign>");
         }
         sb.append("</xml>");
         return sb.toString();
     }
 
-
-    public static Map<String, String> parseXml(String param) throws Exception {
-        if (param == null) {
+    /**
+     * 解析XML
+     */
+    static Map<String,Object> doXMLParse(String strxml) throws JDOMException, IOException {
+        strxml = strxml.replaceFirst("encoding=\".*\"", "encoding=\"UTF-8\"");
+        if ("".equals(strxml)) {
             return null;
         }
-        Map<String, String> map = new HashMap<String, String>();
-        SAXReader reader = new SAXReader();
-//        Document document = reader.read(param);
-        //传递的应该是一个URL或者是文件路径(不应该是文件内容)
-        Document document = reader.read(new ByteArrayInputStream(param.getBytes("UTF-8")));
-        Element root = document.getRootElement();
-        List<Element> elementList = root.elements();
-        for (Element e : elementList) {
-            map.put(e.getName(), e.getText());
+        Map<String, Object> m = new HashMap<>();
+        InputStream in = new ByteArrayInputStream(strxml.getBytes(StandardCharsets.UTF_8));
+        SAXBuilder builder = new SAXBuilder();
+        org.jdom.Document doc = builder.build(in);
+        org.jdom.Element root = doc.getRootElement();
+        List list = root.getChildren();
+        for (Object o : list) {
+            org.jdom.Element e = (org.jdom.Element) o;
+            String k = e.getName();
+            String v = "";
+            List children = e.getChildren();
+            if (children.isEmpty()) {
+                v = e.getTextNormalize();
+            } else {
+                v = getChildrenText(children);
+            }
+            m.put(k, v);
         }
-        return map;
+        //关闭流
+        in.close();
+        return m;
+    }
+
+    /**
+     * List
+     */
+    private static String getChildrenText(List children) {
+        StringBuilder sb = new StringBuilder();
+        if (!children.isEmpty()) {
+            for (Object child : children) {
+                org.jdom.Element e = (org.jdom.Element) child;
+                String name = e.getName();
+                String value = e.getTextNormalize();
+                List list = e.getChildren();
+                sb.append("<").append(name).append(">");
+                if (!list.isEmpty()) {
+                    sb.append(getChildrenText(list));
+                }
+                sb.append(value);
+                sb.append("</").append(name).append(">");
+            }
+        }
+        return sb.toString();
     }
 
 
-    public static Map<String, String> parseXml1(String xml) throws Exception {
-        Document doc = DocumentHelper.parseText(xml);
-        Element rootElement = doc.getRootElement();
-
-        Iterator<Element> elements = rootElement.elementIterator();
-        Map<String, String> map = new HashMap<String, String>();
-        while (elements.hasNext()) {
-            Element element = elements.next();
-            map.put(element.getName(), element.getText());
-        }
-        return map;
-    }
+//    public static Map<String, String> parseXml(String xml) throws Exception {
+//        Document doc = DocumentHelper.parseText(xml);
+//        Element rootElement = doc.getRootElement();
+//
+//        Iterator<Element> elements = rootElement.elementIterator();
+//        Map<String, String> map = new HashMap<String, String>();
+//        while (elements.hasNext()) {
+//            Element element = elements.next();
+//            map.put(element.getName(), element.getText());
+//        }
+//        return map;
+//    }
 
     public static String getOrderIdByTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -149,22 +165,5 @@ public class WeChatAssistantUtils {
             result += random.nextInt(10);
         }
         return newDate + result;
-    }
-
-    /**
-     * 根据长度生成随机字符串
-     * @param length
-     * @return
-     */
-    public static String getRandomString(int length){
-//        String nonceStr = RandomStringUtils.randomAlphanumeric(16);//随机字符串 16位
-        String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        Random random=new Random();
-        StringBuffer sb=new StringBuffer();
-        for(int i=0;i<length;i++){
-            int number=random.nextInt(62);
-            sb.append(str.charAt(number));
-        }
-        return sb.toString();
     }
 }
