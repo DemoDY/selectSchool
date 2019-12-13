@@ -125,7 +125,7 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                     wxAffirm.setResultCode(result.getString("result_code"));
                     wxAffirm.setTimeEnd(result.getString("time_end"));
                     System.out.println(wxAffirm);
-//                    wxAffirmMapper.create(wxAffirm);
+                    wxAffirmMapper.create(wxAffirm);
                 }
             }
         } catch (Exception e) {
