@@ -26,6 +26,7 @@ public class WxPayVo {
     private String spbillCreateIp;  // 终端IP
     private String timeStart;       // 交易起始时间1
     private String tradeType;       // 交易类型 	JSAPI
+
     private String orderNumber;     //订单号
 
     public String getOrderNumber() {

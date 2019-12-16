@@ -63,6 +63,8 @@ public class WeCharPayServiceImpl implements WeCharPayService {
             Object wxPay = WeChatUtils.wxPay(wxPayVo);
             if (wxPay != null) {
                 JSONObject payResulet = JSONObject.fromObject(wxPay);
+                long timeStamp = System.currentTimeMillis();
+                payResulet.put("timeStamp",timeStamp);
                 if (!payResulet.get("return_code").equals("SUCCESS")) {
                     result.setCode(401);
                     result.setMsg(payResulet.getString("return_msg"));
@@ -111,7 +113,6 @@ public class WeCharPayServiceImpl implements WeCharPayService {
         Object param = WeChatAssistantUtils.parseString2Xml(resultMap, null);
 
         //解析微信返回通知的xml数据
-        Map<String, String> respance;
         try {
             Map<String, Object> map = WeChatUtils.getXML(request);
             JSONObject result = JSONObject.fromObject(map);
