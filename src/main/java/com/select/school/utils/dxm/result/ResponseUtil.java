@@ -38,7 +38,8 @@ public class ResponseUtil {
     public static String setResult(ResponseCode responseCode,Object data){
         ResponseResult response = new ResponseResult();
         response.setCodeMsg(responseCode);
-        response.setData(JSONArray.fromObject(data));
+//        response.setData(JSONArray.fromObject(data));
+        response.setData(data);
         return JSONObject.fromObject(response).toString();
     }
 

@@ -1,6 +1,9 @@
 package com.select.school.service.wxApplet.impl;
 
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.select.school.mapper.*;
@@ -351,6 +354,7 @@ public class UserScoresImpl implements UserScoreService {
         }
     }
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     private void payDate(AjaxResult ajaxResult,String openid){
         WxPayVo wxPayVo = new WxPayVo();
         wxPayVo.setProductId(RandomStringUtils.randomAlphanumeric(10));
@@ -958,11 +962,11 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         ajaxResult.put("school", reportFileDTOS);
-//        try {
-//            templetTicket(reportFileDTOS);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+     /*   try {
+            templetTicket(reportFileDTOS);
+        }catch (Exception e){
+            e.printStackTrace();
+        }*/
         return ajaxResult;
     }
 
@@ -977,36 +981,136 @@ public class UserScoresImpl implements UserScoreService {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         //创建pdf模板，参数reader  bos
         PdfStamper ps = new PdfStamper(reader, bos);
+
         //封装数据
         AcroFields s = ps.getAcroFields();
         s.setField("preface", reportFileDTO.getPreface());
         s.setField("dataModel", reportFileDTO.getDataModel());
+        //添加图片
+//        String imgpath="E:/导出PDF/美女.png";
+//        int pageNo = s.getFieldPositions("pd1").get(0).page;
+//        Rectangle signRect = s.getFieldPositions("img").get(0).position;
+//        float x = signRect.getLeft();
+//        float y = signRect.getBottom();
+        // 读图片
+//        Image image = Image.getInstance(imgpath);
+        //若图片路径不是本地，而是从服务器上获取的，此时new image对象的方式为如下：
+//            Image image = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest());
+
+        // 根据域的大小缩放图片
+//        image.scaleToFit(signRect.getWidth(), signRect.getHeight());
+        // 添加图片
+//        image.setAbsolutePosition(x, y);
+//        under.addImage(image);
+        // 获取操作的页面
+            PdfContentByte under = null;
+            Image pd1 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest());
+            ps.getOverContent(s.getFieldPositions("pd1").get(0).page);
+            under.addImage(pd1);
+
+//        s.setField("pd1",);
+            Image pd2 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
+            ps.getOverContent(s.getFieldPositions("pd2").get(0).page);
+            under.addImage(pd2);
+
+            Image pd3 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
+            ps.getOverContent(s.getFieldPositions("pd3").get(0).page);
+            under.addImage(pd3);
+//        s.setField("pd2",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
+//        s.setField("pd3",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
+
         s.setField("dSchoolProfileO", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolProfile());
         s.setField("dChNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getChName());
         s.setField("dSchoolNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolName());
         s.setField("dNineteenO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getNineteen());
-        s.setField("dphT",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
-        s.setField("dphO",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest());
-        s.setField("dphS",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
         s.setField("dTwentyO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getTwenty());
         s.setField("dTuitionFeesO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getTuitionFees());
         s.setField("dNationalStuAccepO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getNationalStuAccep());
         s.setField("dDetailsO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getDetails());
 
-            s.setField("dSchoolProfileT", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getSchoolProfile());
+        s.setField("dSchoolProfileT", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getSchoolProfile());
         s.setField("dChNameT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getChName());
         s.setField("dSchoolNameT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getSchoolName());
-        s.setField("dNineteenOT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getNineteen());
+        s.setField("dNineteenT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getNineteen());
         s.setField("dTwentyT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getTwenty());
         s.setField("dTuitionFeesT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getTuitionFees());
         s.setField("dNationalStuAccepT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getNationalStuAccep());
         s.setField("dDetailsT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getDetails());
 
         s.setField("dSchoolProfileS", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getSchoolProfile());
+        s.setField("dChNameS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getChName());
+        s.setField("dSchoolNameS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getSchoolName());
+        s.setField("dNineteenS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getNineteen());
+        s.setField("dTwentyS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getTwenty());
+        s.setField("dTuitionFeesS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getTuitionFees());
+        s.setField("dNationalStuAccepS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getNationalStuAccep());
         s.setField("dDetailsS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getDetails());
+
+        s.setField("pd4",reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getCrest());
+        s.setField("pd5",reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getCrest());
+        s.setField("pd6",reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getCrest());
+
+        s.setField("dSchoolProfileFo", reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getSchoolProfile());
+        s.setField("dChNameFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getChName());
+        s.setField("dSchoolNameFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getSchoolName());
+        s.setField("dNineteenFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getNineteen());
+        s.setField("dTwentyFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getTwenty());
+        s.setField("dTuitionFeesFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getTuitionFees());
+        s.setField("dNationalStuAccepFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getNationalStuAccep());
+        s.setField("dDetailsFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getDetails());
+
+        s.setField("dSchoolProfileFi", reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getSchoolProfile());
+        s.setField("dChNameFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getChName());
+        s.setField("dSchoolNameFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getSchoolName());
+        s.setField("dNineteenFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getNineteen());
+        s.setField("dTwentyFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getTwenty());
+        s.setField("dTuitionFeesFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getTuitionFees());
+        s.setField("dNationalStuAccepFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getNationalStuAccep());
+        s.setField("dDetailsFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getDetails());
+
+        s.setField("dSchoolProfileSix", reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getSchoolProfile());
+        s.setField("dChNameSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getChName());
+        s.setField("dSchoolNameSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getSchoolName());
+        s.setField("dNineteenSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getNineteen());
+        s.setField("dTwentySix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getTwenty());
+        s.setField("dTuitionFeesSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getTuitionFees());
+        s.setField("dNationalStuAccepSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getNationalStuAccep());
+        s.setField("dDetailsSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getDetails());
+
+        s.setField("pd7",reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getCrest());
+        s.setField("pd8",reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getCrest());
+        s.setField("pd9",reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getCrest());
+
+        s.setField("dSchoolProfileSe", reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getSchoolProfile());
+        s.setField("dChNameSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getChName());
+        s.setField("dSchoolNameSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getSchoolName());
+        s.setField("dNineteenSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getNineteen());
+        s.setField("dTwentySe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getTwenty());
+        s.setField("dTuitionFeesSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getTuitionFees());
+        s.setField("dNationalStuAccepSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getNationalStuAccep());
+        s.setField("dDetailsSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getDetails());
+
+        s.setField("dSchoolProfileE", reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getSchoolProfile());
+        s.setField("dChNameE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getChName());
+        s.setField("dSchoolNameE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getSchoolName());
+        s.setField("dNineteenE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getNineteen());
+        s.setField("dTwentyE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getTwenty());
+        s.setField("dTuitionFeesE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getTuitionFees());
+        s.setField("dNationalStuAccepE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getNationalStuAccep());
+        s.setField("dDetailsE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getDetails());
+
+        s.setField("dSchoolProfileN", reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getSchoolProfile());
+        s.setField("dChNameN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getChName());
+        s.setField("dSchoolNameN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getSchoolName());
+        s.setField("dNineteenN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getNineteen());
+        s.setField("dTwentyN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getTwenty());
+        s.setField("dTuitionFeesN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getTuitionFees());
+        s.setField("dNationalStuAccepN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getNationalStuAccep());
+        s.setField("dDetailsN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getDetails());
 
         s.setField("question", reportFileDTO.getQuestion());
         s.setField("explain",  reportFileDTO.getExplain());
+        s.setField("weChat",  "http://www.desmart.com.cn/schoolLogo/ererima.png");
 
         ps.setFormFlattening(true);//这里true表示pdf可编辑
         ps.close();//关闭PdfStamper

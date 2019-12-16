@@ -46,7 +46,6 @@ public class WeChatServiceImpl implements WeChatService {
 
             // 调取微信登录接口获取openid
             String result = WeChatUtils.login( appid, appscrect,login.getCode());
-
             System.out.println(result);
             JSONObject wexinResult = JSONObject.parseObject(result);
             // 保存用户信息到数据库
