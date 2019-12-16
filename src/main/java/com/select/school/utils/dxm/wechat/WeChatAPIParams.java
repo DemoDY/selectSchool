@@ -41,9 +41,9 @@ public class WeChatAPIParams {
 	public static String WECHAR_PAY_APPID = "wx1330df3ec7f2cac0"; 		// appid
 	public static String WECHAR_PAY_MCH_ID = "1567863911"; 		// 商户号
 	public static String KEY = "4a9f2c433adcc2698ba7704faedeaf82"; 		// API密钥
+	public static String NOTIFY_URL = "https://www.desmart.com.cn/selectSchool/wx/feedback";		// 回调url
 
 	public static String WECHAR_PAY = "https://api.mch.weixin.qq.com/pay/unifiedorder";				// 统一下单url
-	public static String NOTIFY_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";				// 回调url
 	public static String DOWNLOAD_BILL_URL = "https://api.mch.weixin.qq.com/pay/downloadbill";		// 下载账单
 
 }

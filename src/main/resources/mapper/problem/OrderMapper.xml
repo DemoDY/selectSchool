@@ -42,12 +42,14 @@
         <include refid="FindCriteria"/>
     </select>
 
+
     <sql id="UpdateCriteria">
         <set>
             <if test="updateState != 0">state = #{updateState},</if>
             <if test="1 == 1">update_time = now(),</if>
         </set>
     </sql>
+
 
     <sql id="FindCriteria">
         <where>
