@@ -15,6 +15,7 @@ package com.select.school.model.vo;
  * @description:
  * @data: 2019-11-12
  **/
+
 public class WxPayVo {
 
     private String productId;       // 商品ID
@@ -26,6 +27,15 @@ public class WxPayVo {
     private String timeStart;       // 交易起始时间
     private String tradeType;       // 交易类型 	JSAPI
 
+    private String orderNumber;     //订单号
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
 
     public String getOpenid() {
         return openid;

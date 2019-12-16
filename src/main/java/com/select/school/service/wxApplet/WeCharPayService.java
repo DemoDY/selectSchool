@@ -24,5 +24,7 @@ public interface WeCharPayService {
 
     String wxPay(WxPayVo wxPayVo);
 
+    String payEnd(WxPayVo wxPayVo);
+
     Object affirm(HttpServletRequest request);
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.crypto.interfaces.PBEKey;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -51,6 +52,20 @@ public class WeCharPayController {
         }
         return weCharPayService.wxPay(wxPayVo);
     }
+
+    /**
+     * 支付成功回调
+     * @return
+     */
+    @RequestMapping(value = "/payEnd", method = {RequestMethod.POST})
+    public Object payEnd(@RequestBody WxPayVo wxPayVo){
+        ResponseResult result = new ResponseResult();
+        if (wxPayVo ==null || wxPayVo.getOpenid() == null || wxPayVo.getOrderNumber() == null){
+            return result.setCodeMsg(ResponseCode.REQUEST_NOT);
+        }
+        return weCharPayService.payEnd(wxPayVo);
+    }
+
 
     /**
      * 支付回调接口

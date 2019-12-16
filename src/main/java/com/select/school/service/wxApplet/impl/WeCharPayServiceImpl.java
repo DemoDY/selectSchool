@@ -68,6 +68,7 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                     result.setCode(401);
                     result.setMsg(payResulet.getString("return_msg"));
                 } else {
+                    result.setData(payResulet);
                     result.setCodeMsg(ResponseCode.SUCCESS);
                 }
             } else {
@@ -77,6 +78,24 @@ public class WeCharPayServiceImpl implements WeCharPayService {
             e.printStackTrace();
             result.setCodeMsg(ResponseCode.ERROR);
         }
+        return JSONObject.fromObject(result).toString();
+    }
+
+    /**
+     * 本地支付回调
+     *
+     * @param wxPayVo
+     * @return
+     */
+    @Override
+    public String payEnd(WxPayVo wxPayVo) {
+        // 修改订单状态  2:已支付
+        orderMapper.update(SqlParameter.getParameter().addUpdate("state", 2)
+                .addQuery("orderNumber", wxPayVo.getOrderNumber())
+                .addQuery("openid", wxPayVo.getOpenid())
+                .getMap());
+        ResponseResult result = new ResponseResult();
+        result.setCodeMsg(ResponseCode.SUCCESS);
         return JSONObject.fromObject(result).toString();
     }
 
@@ -92,8 +111,7 @@ public class WeCharPayServiceImpl implements WeCharPayService {
         resultMap.put("return_msg", "OK");
         Object param = WeChatAssistantUtils.parseString2Xml(resultMap, null);
 
-        //解析微信返回通知的xml数据
-        Map<String, String> respance;
+        // 解析微信返回通知的xml数据
         try {
             Map<String, Object> map = WeChatUtils.getXML(request);
             JSONObject result = JSONObject.fromObject(map);
@@ -101,25 +119,25 @@ public class WeCharPayServiceImpl implements WeCharPayService {
             if (result != null && result.get("return_code").equals("SUCCESS")) {
 
                 WxAffirm detail = wxAffirmMapper.detail(SqlParameter.getParameter()
-                        .addQuery("transaction_id", result.get("transaction_id"))
+                        .addQuery("transactionId", result.get("transaction_id"))
                         .getMap());
 
                 // 如果存在数据 直接返回
                 if (detail != null) {
                     System.out.println("======>>>重复订单--不做插入");
                 } else {
-                    //修改订单状态
+                    // 修改订单状态
                     orderMapper.update(SqlParameter.getParameter().addUpdate("state", 3)
-                            .addQuery("transaction_id",result.get("transaction_id"))
+                            .addQuery("orderNumber", result.get("out_trade_no"))
                             .getMap());
-                    //插入回调记录
+                    // 插入回调记录
                     WxAffirm wxAffirm = new WxAffirm();
                     wxAffirm.setOutTradeNo(result.getString("out_trade_no"));
                     wxAffirm.setTransactionId(result.getString("transaction_id"));
                     wxAffirm.setOpenid(result.getString("openid"));
-                    wxAffirm.setTotalFee(result.getDouble("total_fee")/100);
+                    wxAffirm.setTotalFee(result.getDouble("total_fee") / 100);
                     wxAffirm.setBankType(result.getString("bank_type"));
-                    wxAffirm.setCashFee(result.getDouble("cash_fee")/100);
+                    wxAffirm.setCashFee(result.getDouble("cash_fee") / 100);
                     wxAffirm.setIsSubscribe(result.getString("is_subscribe"));
                     wxAffirm.setTradeType(result.getString("trade_type"));
                     wxAffirm.setResultCode(result.getString("result_code"));

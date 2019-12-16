@@ -22,6 +22,7 @@
     <update id="update" parameterType="com.select.school.model.entity.Order">
         update d_order
         <include refid="UpdateCriteria"/>
+        <include refid="FindCriteria"/>
     </update>
 
     <update id="delete" parameterType="com.select.school.model.entity.Order">
@@ -47,14 +48,15 @@
 
     <sql id="UpdateCriteria">
         <set>
-            <if test="state != 0">state = #{state},</if>
-            <if test="1 == 1">update_time = #{updateTime},</if>
+            <if test="updateState != 0">state = #{updateState},</if>
+            <if test="1 == 1">update_time = now(),</if>
         </set>
     </sql>
 
     <sql id="FindCriteria">
         <where>
             <if test="orderNumber != null">and order_number = #{orderNumber}</if>
+            <if test="openid != null">and openid = #{openid}</if>
         </where>
     </sql>
 

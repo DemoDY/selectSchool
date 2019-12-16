@@ -58,14 +58,14 @@
 
     <sql id="UpdateCriteria">
         <set>
-            <if test="state != 0">state = #{state},</if>
+            <if test="updateState != 0">state = #{updateState},</if>
             <if test="1 == 1">update_time = #{updateTime},</if>
         </set>
     </sql>
 
     <sql id="FindCriteria">
         <where>
-            <if test="orderNumber != null">and order_number = #{orderNumber}</if>
+            <if test="transactionId != null">and transaction_id = #{transactionId}</if>
         </where>
     </sql>
 
