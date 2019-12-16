@@ -54,7 +54,7 @@ public class WeChatUtils {
         parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));    // 随机字符串 nonce_str 16位
         parameter.put("out_trade_no", wxPayVo.getOrderNumber());                        // 商户订单号 out_trade_no
         parameter.put("total_fee", (int) (wxPayVo.getTotalFee() * 100));                // 总金额 total_fee
-        parameter.put("spbill_create_ip", wxPayVo.getSpbillCreateIp());                 // 终端IP spbill_create_ip
+        parameter.put("spbill_create_ip", "127.0.0.1");                 // 终端IP spbill_create_ip
         parameter.put("trade_type", "JSAPI");                                           // 交易类型 trade_type   APP
         parameter.put("notify_url", WeChatAPIParams.NOTIFY_URL);                        // 通知地址 notify_url
         // 签名 sign(MD5)

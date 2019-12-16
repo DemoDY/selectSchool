@@ -58,7 +58,6 @@ public class WeCharPayServiceImpl implements WeCharPayService {
             order.setTotalFee(wxPayVo.getTotalFee());
             order.setOpenid(wxPayVo.getOpenid());
             order.setCreateTime(df.format(new Date()));
-//            order.setOrderNumber(wxPayVo.getTradeType());
             orderMapper.create(order);
             // 统一下单
             Object wxPay = WeChatUtils.wxPay(wxPayVo);
