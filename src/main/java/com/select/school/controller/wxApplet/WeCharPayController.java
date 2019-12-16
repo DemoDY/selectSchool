@@ -1,10 +1,3 @@
-/**
- * projectName: selectSchool
- * fileName: WeCharPayController.java
- * packageName: com.select.school.controller.wxApplet
- * date: 2019-11-12
- * copyright(c) 2017-2020 德慧公司
- */
 package com.select.school.controller.wxApplet;
 
 import com.select.school.model.vo.WxPayVo;
@@ -47,7 +40,7 @@ public class WeCharPayController {
     @RequestMapping(value = "/pay", method = {RequestMethod.POST})
     public Object wxpay(@RequestBody WxPayVo wxPayVo){
         ResponseResult result = new ResponseResult();
-        if (wxPayVo ==null || wxPayVo.getTotalFee() == 0 || wxPayVo.getTradeType() == null){
+        if (wxPayVo ==null || wxPayVo.getTotalFee() < 0 || wxPayVo.getTradeType() == null){
             return result.setCodeMsg(ResponseCode.REQUEST_NOT);
         }
         return weCharPayService.wxPay(wxPayVo);
@@ -77,7 +70,4 @@ public class WeCharPayController {
     public Object affirm(HttpServletRequest request){
         return weCharPayService.affirm(request);
     }
-
-
-
 }

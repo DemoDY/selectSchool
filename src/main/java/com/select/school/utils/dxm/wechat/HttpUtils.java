@@ -149,7 +149,6 @@ public class HttpUtils {
         // 设置请求头
         httpPost.addHeader("Content-Type", "application/json");
         // httpPost.addHeader("Authorization", BASIC);
-
         try {
             StringEntity strEntity = new StringEntity(params, "UTF-8");
             httpPost.setEntity(strEntity);

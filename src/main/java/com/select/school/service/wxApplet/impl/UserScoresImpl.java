@@ -1,19 +1,28 @@
 package com.select.school.service.wxApplet.impl;
 
+import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
 import com.select.school.mapper.*;
 import com.select.school.model.dto.*;
 import com.select.school.model.entity.*;
 import com.select.school.model.vo.*;
 import com.select.school.utils.DateUtil;
 import com.select.school.utils.dxm.sqlUtils.SqlParameter;
+import com.select.school.utils.dxm.wechat.WeChatAssistantUtils;
 import com.select.school.utils.result.AjaxResult;
 import com.select.school.service.wxApplet.UserScoreService;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -35,7 +44,7 @@ public class UserScoresImpl implements UserScoreService {
      * @param options
      * @return
      */
-    public AjaxResult insertOption(List<OptionDTO> options, String openid) {
+    public AjaxResult insertOption(List<OptionDTO> options, String openid,String version) {
         AjaxResult ajaxResult = new AjaxResult();
         int num = 0;
         int ielts = 0;
@@ -56,6 +65,8 @@ public class UserScoresImpl implements UserScoreService {
         String three = "";
         int ninthing = 0;
         int twenty = 0;
+        logger.info("version=="+version);
+        logger.info("openid=="+openid);
         String nosat = null;
         UserScores userScores = new UserScores();//学生选择问题 总数表
         logger.info("\n optionList:" + options.size());
@@ -317,6 +328,7 @@ public class UserScoresImpl implements UserScoreService {
         userScores.setOpenId(openid);
         userScores.setTuitionFees(ninthing);
         userScores.setRequired(twenty);
+        userScores.setOpenId(openid);
         userScoresMapper.insertList(userScores);
         //根据id 查询数据库 返回一个id 给小程序
         UserScoreVo userScores1 = userScoresMapper.selectId(userScores.getId());
@@ -331,8 +343,24 @@ public class UserScoresImpl implements UserScoreService {
         scores.setIeltsLow(ys);
         scoresMapper.insertScores(scores);
         ajaxResult.put("userScores", userScores1);
-//        return AjaxResult.successData(200, ajaxResult);
-        return AjaxResult.error(400, "此功能未开通，请稍后再试");
+        if (version!=null) {
+            payDate(ajaxResult,openid);
+            return AjaxResult.successData(200, ajaxResult);
+        }else {
+            return AjaxResult.error(400, "此功能未开通，请稍后再试");
+        }
+    }
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private void payDate(AjaxResult ajaxResult,String openid){
+        WxPayVo wxPayVo = new WxPayVo();
+        wxPayVo.setProductId(RandomStringUtils.randomAlphanumeric(10));
+        wxPayVo.setTotalFee(0.01);
+        wxPayVo.setOpenid(openid);
+        wxPayVo.setTradeType("JSAPI");
+        wxPayVo.setBody("查看详细学校详情");
+        wxPayVo.setTimeStart(df.format(new Date()));
+        wxPayVo.setOrderNumber(WeChatAssistantUtils.getOrderIdByTime());
+        ajaxResult.put("wxPayVo",wxPayVo);
     }
 
     /**
@@ -377,15 +405,14 @@ public class UserScoresImpl implements UserScoreService {
         reportFileDTOS.setExplain("\n若有兴趣了解更多，可联系我们的客服 >>>>>>>>>>>>客服微信号\n");
 //        reportFileDTOS.setKefuweChat("http://www.desmart.com.cn/schoolLogo/ererima.png");//微信二维码
         double score = 0;
-       /* if (tlScore.equals(">=100") || tlScore.equals("免考")) score = 100;
-        if (tlScore.equals("99----90")) score = 99;
-        if (tlScore.equals("89----79")) score = 89;*/
         if (tl == 2) {//托福成绩
             if (scores >= 500) {
                 score = 100;
             } else if (scores >= 400) {
                 score = 99;
             } else {
+                if (tlScore.equals(">=100") || tlScore.equals("免考")) score = 100;
+                if(tlScore.equals("99----90")) score = 99;
                 if (tlScore.equals("89----79")) score = 89;
                 if (tlScore.equals("78----69")) score = 78;
                 if (tlScore.equals("68----61")) score = 68;
@@ -393,14 +420,13 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         if (tl == 1) {//雅思成绩
-            /*if (tlScore.equals("7.5") || tlScore.equals("免考")) score = 7.5;
-            if (tlScore.equals("7")) score = 7;
-            if (tlScore.equals("6.5")) score = 6.5;*/
             if (scores >= 500) {
                 score = 7.5;
             } else if (scores >= 400) {
                 score = 7;
             } else {
+                if (tlScore.equals("7.5") || tlScore.equals("免考")) score = 7.5;
+                if (tlScore.equals("7")) score = 7;
                 if (tlScore.equals("6.5")) score = 6.5;
                 if (tlScore.equals("6")) score = 6;
                 if (tlScore.equals("5.5")) score = 5.5;
@@ -932,9 +958,62 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         ajaxResult.put("school", reportFileDTOS);
+//        try {
+//            templetTicket(reportFileDTOS);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
         return ajaxResult;
     }
 
+    //pdf文件生成
+    public void templetTicket(ReportFileDTO reportFileDTO) throws Exception {
+        //创建一个pdf读取对象
+        PdfReader reader = new PdfReader("E:/reporttemplate.pdf");
+        File file = new File("E:/newReporttemplate.pdf");
+        //创建文件
+        file.createNewFile();
+        //创建一个输出流
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        //创建pdf模板，参数reader  bos
+        PdfStamper ps = new PdfStamper(reader, bos);
+        //封装数据
+        AcroFields s = ps.getAcroFields();
+        s.setField("preface", reportFileDTO.getPreface());
+        s.setField("dataModel", reportFileDTO.getDataModel());
+        s.setField("dSchoolProfileO", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolProfile());
+        s.setField("dChNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getChName());
+        s.setField("dSchoolNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolName());
+        s.setField("dNineteenO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getNineteen());
+        s.setField("dphT",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
+        s.setField("dphO",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest());
+        s.setField("dphS",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
+        s.setField("dTwentyO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getTwenty());
+        s.setField("dTuitionFeesO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getTuitionFees());
+        s.setField("dNationalStuAccepO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getNationalStuAccep());
+        s.setField("dDetailsO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getDetails());
+
+            s.setField("dSchoolProfileT", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getSchoolProfile());
+        s.setField("dChNameT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getChName());
+        s.setField("dSchoolNameT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getSchoolName());
+        s.setField("dNineteenOT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getNineteen());
+        s.setField("dTwentyT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getTwenty());
+        s.setField("dTuitionFeesT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getTuitionFees());
+        s.setField("dNationalStuAccepT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getNationalStuAccep());
+        s.setField("dDetailsT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getDetails());
+
+        s.setField("dSchoolProfileS", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getSchoolProfile());
+        s.setField("dDetailsS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getDetails());
+
+        s.setField("question", reportFileDTO.getQuestion());
+        s.setField("explain",  reportFileDTO.getExplain());
+
+        ps.setFormFlattening(true);//这里true表示pdf可编辑
+        ps.close();//关闭PdfStamper
+        FileOutputStream fos = new FileOutputStream(file);//创建文件输出流
+        fos.write(bos.toByteArray());//写入数据
+        fos.close();//关闭输出流
+    }
     //保底学校
     private void safetyColleges(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO
             reportFileDTO, UserScores userScores, SchoolProfileVo schoolVo) {
@@ -951,6 +1030,10 @@ public class UserScoresImpl implements UserScoreService {
             safetySchoolDTO.setDetails(detail);
             safetySchoolDTO.setChName(schoolProfile.getChName());//学校中文名
             safetySchoolDTO.setSchoolName(schoolProfile.getSchoolName());//学校英文名
+            safetySchoolDTO.setNineteen(String.valueOf(scores.getNineteen()));
+            safetySchoolDTO.setTwenty(String.valueOf(scores.getTwenty()));
+            safetySchoolDTO.setNationalStuAccep(scores.getNationalStuAccep());
+            safetySchoolDTO.setTuitionFees(scores.getTuitionFees());//学费
             safetySchoolDTO.setSchoolProfile("\t" + schoolProfile.getSchoolProfile());//学校简介
             safetySchoolDTO.setCrest(schoolProfile.getCrest());
             safetySchoolDTO.setSafetySchool("Safety School 保底学校：\n");
@@ -976,6 +1059,10 @@ public class UserScoresImpl implements UserScoreService {
             //学校详情数据
             targetSchoolDTO.setChName(schoolProfile.getChName());
             targetSchoolDTO.setSchoolName(schoolProfile.getSchoolName());
+            targetSchoolDTO.setNineteen(String.valueOf(scores.getNineteen()));
+            targetSchoolDTO.setTwenty(String.valueOf(scores.getTwenty()));
+            targetSchoolDTO.setNationalStuAccep(scores.getNationalStuAccep());
+            targetSchoolDTO.setTuitionFees(scores.getTuitionFees());//学费
             String detail = selectDetailsSafety(scores, userScores, schoolProfile);
             targetSchoolDTO.setDetails(detail);
             targetSchoolDTO.setSchoolProfile("\t" + schoolProfile.getSchoolProfile());
@@ -1003,6 +1090,10 @@ public class UserScoresImpl implements UserScoreService {
             //学校详情数据
             dreamSchoolDTO.setChName(schoolProfile.getChName());
             dreamSchoolDTO.setSchoolName(schoolProfile.getSchoolName());
+            dreamSchoolDTO.setNineteen(String.valueOf(scores.getNineteen()));
+            dreamSchoolDTO.setTwenty(String.valueOf(scores.getTwenty()));
+            dreamSchoolDTO.setNationalStuAccep(scores.getNationalStuAccep());
+            dreamSchoolDTO.setTuitionFees(scores.getTuitionFees());//学费
             dreamSchoolDTO.setSchoolProfile("\t" + schoolProfile.getSchoolProfile());
             String detail = selectDetailsSafety(scores, userScores, schoolProfile);
             dreamSchoolDTO.setDetails(detail);
@@ -1015,6 +1106,7 @@ public class UserScoresImpl implements UserScoreService {
         schoolVo.setDreamSchoolDTOS(dreamSchoolDTOS);
         reportFileDTO.setSchoolProfileVos(schoolVo);//保存学校详情
     }
+
 
     //获取学校详情数据信息
     private List<SchoolDetails> schoolDetails(SchoolAdmissionScores admissionScores,SchoolProfile schoolProfile) {

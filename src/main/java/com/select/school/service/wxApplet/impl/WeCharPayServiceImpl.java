@@ -53,7 +53,7 @@ public class WeCharPayServiceImpl implements WeCharPayService {
         ResponseResult result = new ResponseResult();
         try {
             Order order = new Order();
-            order.setOrderNumber(WeChatAssistantUtils.getOrderIdByTime());//订单号
+            order.setOrderNumber(wxPayVo.getOrderNumber());//订单号
             order.setState(1);
             order.setTotalFee(wxPayVo.getTotalFee());
             order.setOpenid(wxPayVo.getOpenid());
@@ -111,26 +111,26 @@ public class WeCharPayServiceImpl implements WeCharPayService {
         resultMap.put("return_msg", "OK");
         Object param = WeChatAssistantUtils.parseString2Xml(resultMap, null);
 
-        // 解析微信返回通知的xml数据
+        //解析微信返回通知的xml数据
+        Map<String, String> respance;
         try {
             Map<String, Object> map = WeChatUtils.getXML(request);
             JSONObject result = JSONObject.fromObject(map);
+            String re = result.getString("out_trade_no");
+            System.out.println(re);
             // 将数据保存至数据库
             if (result != null && result.get("return_code").equals("SUCCESS")) {
-
                 WxAffirm detail = wxAffirmMapper.detail(SqlParameter.getParameter()
-                        .addQuery("transactionId", result.get("transaction_id"))
+                        .addQuery("orderNumber", re)
                         .getMap());
-
                 // 如果存在数据 直接返回
                 if (detail != null) {
                     System.out.println("======>>>重复订单--不做插入");
                 } else {
-                    // 修改订单状态
-                    orderMapper.update(SqlParameter.getParameter().addUpdate("state", 3)
-                            .addQuery("orderNumber", result.get("out_trade_no"))
-                            .getMap());
-                    // 插入回调记录
+                    //修改订单状态
+                    orderMapper.update(SqlParameter.getParameter().addQuery("updateState", 3).addQuery("updateTime",df.format(new Date()))
+                            .addQuery("orderNumber",re).getMap());
+                    //插入回调记录
                     WxAffirm wxAffirm = new WxAffirm();
                     wxAffirm.setOutTradeNo(result.getString("out_trade_no"));
                     wxAffirm.setTransactionId(result.getString("transaction_id"));

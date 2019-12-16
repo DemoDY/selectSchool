@@ -104,10 +104,6 @@ public class GeneratePdf {
         this.targetPdfpath = targetPdfpath;
         this.teset = teset;
     }
-    // 使用中文字体
-//    BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-//    BaseFont bf = BaseFont.createFont(PDFTa.class.getResource("/") + "org/csun/ns/util/simsun.ttc,1",BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-    Font f1 = FontFactory.getFont(FONT, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
     //获取
     public void templetTicket(File file) throws Exception {
         //创建一个pdf读取对象

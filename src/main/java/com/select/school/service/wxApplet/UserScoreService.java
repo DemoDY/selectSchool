@@ -9,7 +9,7 @@ import java.util.List;
 public interface UserScoreService {
 
     //插入数据
-    public AjaxResult insertOption(List<OptionDTO> options,String openid);
+    public AjaxResult insertOption(List<OptionDTO> options,String openid,String version);
     //查询数据
     public AjaxResult selectSchool(int id);
 }

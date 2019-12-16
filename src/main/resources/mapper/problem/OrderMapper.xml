@@ -17,19 +17,15 @@
             (order_number, user_id,total_fee, state, create_time, openid,update_time)
         values (#{orderNumber}, #{userId},#{totalFee}, #{state}, #{createTime},#{openid} ,#{updateTime})
     </insert>
-
-
     <update id="update" parameterType="com.select.school.model.entity.Order">
         update d_order
         <include refid="UpdateCriteria"/>
         <include refid="FindCriteria"/>
     </update>
-
     <update id="delete" parameterType="com.select.school.model.entity.Order">
         update d_order
         <include refid="UpdateCriteria"/>
     </update>
-
     <select id="selectAll" resultMap="order">
         select id,order_number,user_id,state,creatTime,updateTime from d_order
         <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
@@ -59,5 +55,4 @@
             <if test="openid != null">and openid = #{openid}</if>
         </where>
     </sql>
-
 </mapper>

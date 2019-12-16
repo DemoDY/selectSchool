@@ -44,18 +44,17 @@ public class WeChatUtils {
      * 微信支付统一下单
      */
     public static Object wxPay(WxPayVo wxPayVo) {
-
         //签名 并调取微信统一下单
         SortedMap<String, Object> parameter = new TreeMap<String, Object>();
         parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                    //  app_id
         parameter.put("mch_id", WeChatAPIParams.WECHAR_PAY_MCH_ID);                    // 商户号 mch_id
-        parameter.put("device_info", wxPayVo.getDeviceInfo());                        // 设备号 device_info
+//        parameter.put("device_info", wxPayVo.getDeviceInfo());                        // 设备号 device_info
         parameter.put("openid", wxPayVo.getOpenid());                                // 用户标识
         parameter.put("body", wxPayVo.getBody());                                // 商品描述 body
         parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));       // 随机字符串 nonce_str 16位
-        parameter.put("out_trade_no", wxPayVo.getDeviceInfo());                                // 商户订单号 out_trade_no
+        parameter.put("out_trade_no", wxPayVo.getOrderNumber());                                // 商户订单号 out_trade_no
         parameter.put("total_fee", (int) (wxPayVo.getTotalFee() * 100));    // 总金额 total_fee
-        parameter.put("spbill_create_ip", wxPayVo.getSpbillCreateIp());                         // 终端IP spbill_create_ip
+//        parameter.put("spbill_create_ip", wxPayVo.getSpbillCreateIp());                         // 终端IP spbill_create_ip
         parameter.put("trade_type", "JSAPI");                                                    // 交易类型 trade_type   APP
         parameter.put("notify_url", WeChatAPIParams.NOTIFY_URL);                            // 通知地址 notify_url
         // 签名 sign(MD5)
@@ -91,7 +90,6 @@ public class WeChatUtils {
         parameter.put("mch_id", WeChatAPIParams.WECHAR_PAY_MCH_ID);                    // 应用ID mch_id
         parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));// 随机字符串 nonce_str
         parameter.put("bill_date", billDate);        // 下载对账单的日期，格式：20140603
-
 
         // 签名 sign(MD5)
         String sign = WeChatAssistantUtils.createSign(WeChatAPIParams.KEY, parameter);

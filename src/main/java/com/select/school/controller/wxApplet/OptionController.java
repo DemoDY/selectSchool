@@ -47,8 +47,9 @@ public class OptionController {
         try {
             List<OptionDTO> options = optionVo.getOptionList();
             String openid = optionVo.getOpenid();
+            String version = optionVo.getVersion();
             // 执行批量保存
-            ajaxResult = userScoreService.insertOption(options, openid);
+            ajaxResult = userScoreService.insertOption(options, openid,version);
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResult.error(900, "操作失败：系统错误");
