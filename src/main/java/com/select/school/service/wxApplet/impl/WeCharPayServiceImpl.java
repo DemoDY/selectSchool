@@ -73,7 +73,7 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                     SortedMap<String, Object> parameter = new TreeMap<String, Object>();
                     parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                      //  app_id
                     parameter.put("timeStamp",timeStamp);
-                    parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));    // 随机字符串 nonce_str 16位
+                    parameter.put("nonceStr", RandomStringUtils.randomAlphanumeric(16));    // 随机字符串 nonce_str 16位
                     parameter.put("package",payResulet.get("prepay_id"));
                     parameter.put("signType","MD5");
                     // 签名 sign(MD5)
