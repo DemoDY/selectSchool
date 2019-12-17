@@ -63,8 +63,8 @@ public class WeCharPayServiceImpl implements WeCharPayService {
             Object wxPay = WeChatUtils.wxPay(wxPayVo);
             if (wxPay != null) {
                 JSONObject payResulet = JSONObject.fromObject(wxPay);
-                long timeStamp = System.currentTimeMillis()/1000;
-                payResulet.put("timeStamp",timeStamp);
+                String timeStamp = String.valueOf(System.currentTimeMillis()/1000);
+
                 if (!payResulet.get("return_code").equals("SUCCESS")) {
                     result.setCode(401);
                     result.setMsg(payResulet.getString("return_msg"));
@@ -79,7 +79,7 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                     // 签名 sign(MD5)
                     String sign = WeChatAssistantUtils.createSign(WeChatAPIParams.KEY, parameter);
 
-                    parameter.put("sign",sign);
+                    parameter.put("paySign",sign);
                     result.setData(parameter);
                     result.setCodeMsg(ResponseCode.SUCCESS);
                 }
