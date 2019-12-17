@@ -71,7 +71,7 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                 } else {
                     //小程序二次签名
                     SortedMap<String, Object> parameter = new TreeMap<String, Object>();
-                    parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                      //  app_id
+                    parameter.put("appId", WeChatAPIParams.WECHAR_PAY_APPID);                      //  app_id
                     parameter.put("timeStamp",timeStamp);
                     parameter.put("nonceStr", RandomStringUtils.randomAlphanumeric(16));    // 随机字符串 nonce_str 16位
                     parameter.put("package",payResulet.get("prepay_id"));
