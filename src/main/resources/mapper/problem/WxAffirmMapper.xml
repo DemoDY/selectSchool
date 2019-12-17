@@ -66,6 +66,7 @@
     <sql id="FindCriteria">
         <where>
             <if test="transactionId != null">and transaction_id = #{transactionId}</if>
+            <if test="orderNumber != null">and order_number = #{orderNumber}</if>
         </where>
     </sql>
 
