@@ -63,7 +63,7 @@ public class WeCharPayServiceImpl implements WeCharPayService {
             Object wxPay = WeChatUtils.wxPay(wxPayVo);
             if (wxPay != null) {
                 JSONObject payResulet = JSONObject.fromObject(wxPay);
-                long timeStamp = System.currentTimeMillis();
+                long timeStamp = System.currentTimeMillis()/1000;
                 payResulet.put("timeStamp",timeStamp);
                 if (!payResulet.get("return_code").equals("SUCCESS")) {
                     result.setCode(401);
