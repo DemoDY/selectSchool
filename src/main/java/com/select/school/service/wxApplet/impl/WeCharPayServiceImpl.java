@@ -16,9 +16,11 @@ import com.select.school.service.wxApplet.WeCharPayService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseResult;
 import com.select.school.utils.dxm.sqlUtils.SqlParameter;
+import com.select.school.utils.dxm.wechat.WeChatAPIParams;
 import com.select.school.utils.dxm.wechat.WeChatAssistantUtils;
 import com.select.school.utils.dxm.wechat.WeChatUtils;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @version: V1.0
@@ -69,7 +69,25 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                     result.setCode(401);
                     result.setMsg(payResulet.getString("return_msg"));
                 } else {
-                    result.setData(payResulet);
+                    //签名 并调取微信统一下单
+                    SortedMap<String, Object> parameter = new TreeMap<String, Object>();
+                    parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                      //  app_id
+                    parameter.put("mch_id", WeChatAPIParams.WECHAR_PAY_MCH_ID);                    // 商户号 mch_id
+                    parameter.put("device_info", "WEB");                                           // 设备号 device_info
+                    parameter.put("openid", wxPayVo.getOpenid());                                  // 用户标识
+                    parameter.put("body", wxPayVo.getBody());                                      // 商品描述 body
+                    parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));    // 随机字符串 nonce_str 16位
+                    parameter.put("out_trade_no", wxPayVo.getOrderNumber());                        // 商户订单号 out_trade_no
+                    parameter.put("total_fee", (int) (wxPayVo.getTotalFee() * 100));                // 总金额 total_fee
+                    parameter.put("spbill_create_ip", "127.0.0.1");                                 // 终端IP spbill_create_ip
+                    parameter.put("trade_type", "JSAPI");                                           // 交易类型 trade_type   APP
+                    parameter.put("notify_url", WeChatAPIParams.NOTIFY_URL);                        // 通知地址 notify_url
+                    // 签名 sign(MD5)
+                    String sign = WeChatAssistantUtils.createSign(WeChatAPIParams.KEY, parameter);
+                    parameter.put("sign",sign);
+                    parameter.put("prepay_id",payResulet.get("prepay_id"));
+                    parameter.put("timeStamp",timeStamp);
+                    result.setData(parameter);
                     result.setCodeMsg(ResponseCode.SUCCESS);
                 }
             } else {

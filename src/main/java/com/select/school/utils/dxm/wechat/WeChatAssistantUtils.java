@@ -54,7 +54,7 @@ public class WeChatAssistantUtils {
     /**
      * Sign加密
      */
-    static String createSign(String key, SortedMap<String, Object> parameters) {
+    public static String createSign(String key, SortedMap<String, Object> parameters) {
         StringBuilder sb = new StringBuilder();
         Set<Map.Entry<String, Object>> es = parameters.entrySet();
         for (Map.Entry<String, Object> entry : es) {
