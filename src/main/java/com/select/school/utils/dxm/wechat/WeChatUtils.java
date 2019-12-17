@@ -54,6 +54,7 @@ public class WeChatUtils {
         parameter.put("spbill_create_ip", "127.0.0.1");                                 // 终端IP spbill_create_ip
         parameter.put("trade_type", "JSAPI");                                           // 交易类型 trade_type   APP
         parameter.put("notify_url", WeChatAPIParams.NOTIFY_URL);                        // 通知地址 notify_url
+
         // 签名 sign(MD5)
         String sign = WeChatAssistantUtils.createSign(WeChatAPIParams.KEY, parameter);
 
