@@ -8,7 +8,9 @@ import java.util.Map;
 public interface SchoolAdmissionScoresMapper {
     SchoolAdmissionScores selectById(int schoolId);
     SchoolAdmissionScores selectId(int id);
+    int update(int schoolId);
 
+    int insertSchoolDate(SchoolAdmissionScores admissionScores);
     /**
      * 查询 Ib Act 权重数据
      * @param

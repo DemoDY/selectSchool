@@ -70,7 +70,7 @@ public class UserScoresImpl implements UserScoreService {
         int twenty = 0;
         logger.info("version=="+version);
         logger.info("openid=="+openid);
-        String nosat = null;
+        String nosat = "1";
         UserScores userScores = new UserScores();//学生选择问题 总数表
         logger.info("\n optionList:" + options.size());
         Scores scores = new Scores();//学校选择问题报错表
@@ -311,17 +311,17 @@ public class UserScoresImpl implements UserScoreService {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
         //nosat不为null则没有选择sat成绩
-        if (nosat != null && ib_ap.equals("IB") && num < 85) {
+        if (nosat.equals("0") && ib_ap.equals("IB") && num < 85) {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
-        if (nosat != null && ib_ap.equals("AP") && num < 65) {
+        if (nosat.equals("0") && ib_ap.equals("AP") && num < 65) {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
         //nosat为null则选择了sat成绩
-        if (nosat == null && ib_ap.equals("IB") && num < 5) {
+        if (!nosat.equals("0") && ib_ap.equals("IB") && num < 5) {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
-        if (nosat == null && ib_ap.equals("AP") && num < 15) {
+        if (!nosat.equals("0") && ib_ap.equals("AP") && num < 15) {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
         userScores.setCreateTime(new Date());
@@ -369,7 +369,6 @@ public class UserScoresImpl implements UserScoreService {
 
     /**
      * 根据学生成绩查询 九所学校
-     *
      *
      * @param id
      * @return
@@ -440,7 +439,7 @@ public class UserScoresImpl implements UserScoreService {
         if (sat_act.equals("ACT")) {
             if (ib_ap.equals("IB")) {
                 //梦想学校 Dream School
-                if (noSat != null && scores > 194) {
+                if (noSat.equals("0") && scores > 194) {
                     // 如果没有选择sat成绩 并且粉数大于194 则选择固定的学校
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(76);
@@ -450,7 +449,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (a != null) scoresList.add(a);
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
-                } else if (scores >= 620 && noSat == null) {
+                } else if (scores >= 620 && !noSat.equals("0")) {
                     //如果ib分数大于710 则选择前三名学校
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
@@ -474,7 +473,7 @@ public class UserScoresImpl implements UserScoreService {
                 }
 
                 //目标学校 Target School
-                if (scores >= 650 && noSat == null) {
+                if (scores >= 650 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 240)
                             .addQuery("ibActWeightMax", userScores.getScores() - 130).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -484,7 +483,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 580 && scores <= 649 && noSat == null) {
+                } else if (scores >= 580 && scores <= 649 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", userScores.getScores() - 200)
                             .addQuery("ibActWeightMax", userScores.getScores() - 100).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -494,7 +493,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (noSat != null && scores >= 300) {
+                } else if (noSat.equals("0") && scores >= 300) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(121);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(122);
@@ -516,7 +515,7 @@ public class UserScoresImpl implements UserScoreService {
                 }
                 //保底学校 Safety colleges
                 //因为ib成绩和ap成绩不一样  说一区间分数也不同（ib成绩比ap成绩高些）
-                if (scores >= 500 && scores <= 600 && noSat == null) {
+                if (scores >= 500 && scores <= 600 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
                             .addQuery("ibActWeightMax", userScores.getScores() - 150).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -526,7 +525,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 600 && noSat == null) {
+                } else if (scores >= 600 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
                             .addQuery("ibActWeightMax", userScores.getScores() - 240).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -536,7 +535,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 700 && noSat == null) {
+                } else if (scores >= 700 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
                             .addQuery("ibActWeightMax", userScores.getScores() - 260).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -546,7 +545,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (noSat != null && scores > 270) {
+                } else if (noSat.equals("0") && scores > 270) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(139);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(142);
@@ -569,7 +568,7 @@ public class UserScoresImpl implements UserScoreService {
             }
             if (ib_ap.equals("AP")) {//act ap
                 //梦想学校
-                if (noSat != null && scores > 194) {
+                if (noSat.equals("0") && scores > 194) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(76);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(84);
@@ -578,7 +577,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (a != null) scoresList.add(a);
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
-                } else if (scores >= 620 && noSat == null) {
+                } else if (scores >= 620 && !noSat.equals("0")) {
                     //如果ap成绩大于620 则选择前三名学校
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
@@ -602,7 +601,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 }
                 //目标学校 Target School
-                if (scores >= 660 && noSat == null) {
+                if (scores >= 660 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 220)
                             .addQuery("apActWeightMax", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -612,7 +611,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 580 && scores <= 659 && noSat == null) {
+                } else if (scores >= 580 && scores <= 659 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", userScores.getScores() - 200)
                             .addQuery("apActWeightMax", userScores.getScores() - 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -622,7 +621,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (noSat != null && scores >= 280) {
+                } else if (noSat.equals("0") && scores >= 280) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(91);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(92);
@@ -644,7 +643,7 @@ public class UserScoresImpl implements UserScoreService {
                 }
                 //保底学校 Safety colleges
                 //因为ib成绩和ap成绩不一样  说一区间分数也不同（ib成绩比ap成绩高些）
-                if (scores >= 500 && scores <= 600 && noSat == null) {
+                if (scores >= 500 && scores <= 600 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
                             .addQuery("apActWeightMax", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -654,7 +653,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 600 && scores <= 650 && noSat == null) {
+                } else if (scores >= 600 && scores <= 650 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
                             .addQuery("apActWeightMax", userScores.getScores() - 160).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -664,7 +663,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 650 && noSat == null) {
+                } else if (scores >= 650 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apActWeightMin", 0)
                             .addQuery("apActWeightMax", userScores.getScores() - 200).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -674,7 +673,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (noSat != null && scores > 270) {
+                } else if (noSat.equals("0") && scores > 270) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(106);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(114);
@@ -699,7 +698,7 @@ public class UserScoresImpl implements UserScoreService {
         if (sat_act.equals("SAT")) {
             if (ib_ap.equals("IB")) {//sat ib
                 //梦想学校
-                if (noSat != null && scores > 194) {
+                if (noSat.equals("0") && scores > 194) {
                     // 如果没有选择sat成绩 并且粉数大于194 则选择固定的学校
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(76);
@@ -709,7 +708,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (a != null) scoresList.add(a);
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
-                } else if (scores >= 620 && noSat == null) {
+                } else if (scores >= 620 && !noSat.equals("0")) {
                     //如果ib成绩大于710 则选择前三名学校
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
@@ -733,7 +732,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 }
                 //目标学校 Target School
-                if (scores >= 650 && noSat == null) {
+                if (scores >= 650 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 210)
                             .addQuery("ibSatWeightMax", userScores.getScores() - 130).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -744,7 +743,7 @@ public class UserScoresImpl implements UserScoreService {
                         //目标学校
                         targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 580 && scores <= 649 && noSat == null) {
+                } else if (scores >= 580 && scores <= 649 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", userScores.getScores() - 150)
                             .addQuery("ibSatWeightMax", userScores.getScores() - 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -755,7 +754,7 @@ public class UserScoresImpl implements UserScoreService {
                         //目标学校
                         targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (noSat != null && scores >= 300) {
+                } else if (noSat.equals("0") && scores >= 300) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(121);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(122);
@@ -778,7 +777,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 }
                 //保底学校 Safety colleges
-                if (scores >= 500 && scores <= 600 && noSat == null) {
+                if (scores >= 500 && scores <= 600 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
                             .addQuery("ibSatWeightMax", userScores.getScores() - 150).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -788,7 +787,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 600 && scores <= 700 && noSat == null) {
+                } else if (scores >= 600 && scores <= 700 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
                             .addQuery("ibSatWeightMax", userScores.getScores() - 200).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -798,7 +797,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 700 && noSat == null) {
+                } else if (scores >= 700 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibSatWeightMin", 0)
                             .addQuery("ibSatWeightMax", userScores.getScores() - 250).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -808,7 +807,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (noSat != null && scores > 270) {
+                } else if (noSat.equals("0") && scores > 270) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(139);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(142);
@@ -831,7 +830,7 @@ public class UserScoresImpl implements UserScoreService {
             }
             if (ib_ap.equals("AP")) {//sat ap
                 //梦想学校 求具体分数 得出三个学校
-                if (noSat != null && scores > 194) {
+                if (noSat.equals("0") && scores > 194) {
                     // 如果没有选择sat成绩 并且粉数大于194 则选择固定的学校
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(76);
@@ -841,7 +840,7 @@ public class UserScoresImpl implements UserScoreService {
                     if (a != null) scoresList.add(a);
                     if (c != null) scoresList.add(c);
                     dreamSchool(scoresList, reportFileDTOS, userScores, schoolProfileVo);
-                } else if (scores >= 620 && noSat == null) {
+                } else if (scores >= 620 && !noSat.equals("0")) {
                     //如果ap成绩大于620 则选择前三名学校
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(1);
@@ -865,7 +864,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 }
                 //目标学校 Target School
-                if (scores >= 660 && noSat == null) {
+                if (scores >= 660 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 220)
                             .addQuery("apSatWeightMax", userScores.getScores() - 130).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -876,7 +875,7 @@ public class UserScoresImpl implements UserScoreService {
                         //目标学校
                         targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 580 && scores <= 559 && noSat == null) {
+                } else if (scores >= 580 && scores <= 559 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", userScores.getScores() - 160)
                             .addQuery("apSatWeightMax", userScores.getScores() - 80).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -887,7 +886,7 @@ public class UserScoresImpl implements UserScoreService {
                         //目标学校
                         targetSchool(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (noSat != null && scores >= 280) {
+                } else if (noSat.equals("0") && scores >= 280) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(91);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(92);
@@ -909,7 +908,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 }
                 //保底学校 Safety colleges
-                if (scores >= 500 && scores <= 600 && noSat == null) {
+                if (scores >= 500 && scores <= 600 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
                             .addQuery("apSatWeightMax", userScores.getScores() - 120).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -919,7 +918,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 600 && scores <= 650 && noSat == null) {
+                } else if (scores >= 600 && scores <= 650 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
                             .addQuery("apSatWeightMax", userScores.getScores() - 160).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -929,7 +928,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (scores >= 650 && noSat == null) {
+                } else if (scores >= 650 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("apSatWeightMin", 0)
                             .addQuery("apSatWeightMax", userScores.getScores() - 200).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
                     if (schoolAdmissionScores.size() > 0) {//如果大于0
@@ -939,7 +938,7 @@ public class UserScoresImpl implements UserScoreService {
                         }
                         safetyColleges(schoolAdmissionScores, reportFileDTOS, userScores, schoolProfileVo);
                     }
-                } else if (noSat != null && scores >= 270) {
+                } else if (noSat.equals("0") && scores >= 270) {
                     List<SchoolAdmissionScores> scoresList = new ArrayList<>();
                     SchoolAdmissionScores s = schoolAdmissionScoresMapper.selectId(106);
                     SchoolAdmissionScores a = schoolAdmissionScoresMapper.selectId(114);

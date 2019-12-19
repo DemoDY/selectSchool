@@ -61,7 +61,7 @@
         p.skip_up
         from d_problem p
         where 1=1
-        <if test="title!=''">
+        <if test="title!='' and test != null">
               and  p.title like CONCAT('%', #{title, jdbcType=VARCHAR}, '%')
         </if>
         order by  p.number asc

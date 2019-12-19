@@ -40,24 +40,59 @@
         ds.public_private
         from d_school_profile ds
         where 1=1
-        <if test="schoolName!=''">
+        <if test="schoolName!='' and schoolName != null">
             and  ds.school_name like CONCAT('%', #{schoolName, jdbcType=VARCHAR}, '%') or ds.ch_name like CONCAT('%', #{schoolName, jdbcType=VARCHAR}, '%')
         </if>
         order by ds.id asc
+        <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
         <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>
+
+    <update id="update" parameterType="com.select.school.model.entity.SchoolProfile">
+        update d_school_profile
+        <set>
+            <if test="schoolName!=null and schoolName !=''">
+                school_name = #{schoolName}
+            </if>
+            <if test="chName!=null and chName !=''">
+                ch_name = #{chName}
+            </if>
+            <if test="schoolProfile!=null and schoolProfile !=''">
+                school_profile = #{schoolProfile}
+            </if>
+            <if test="crest!=null and crest !=''">
+                crest = #{crest}
+            </if>
+            <if test="state!=null and state !=''">
+                state = #{state}
+            </if>
+            <if test="theArea!=null and theArea !=''">
+                the_area = #{theArea}
+            </if>
+            <if test="publicPrivate!=null and publicPrivate !=''">
+                public_private = #{publicPrivate}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
 
     <select id="selectSchool" resultMap="schoolProfile">
         select  ds.id,
         ds.school_name,
         ds.ch_name,
         ds.school_profile,
-        ds.crest,state,
+        ds.crest,
+        ds.state,
         ds.school_rank,
         ds.the_area,
         ds.public_private
         from d_school_profile ds
     </select>
+
+    <insert id="insertSchool" useGeneratedKeys="true" keyProperty="id"  keyColumn="id" parameterType="com.select.school.model.entity.SchoolProfile">
+        insert into d_school_profile (school_name, ch_name, school_profile, crest,state ,school_rank, the_area,public_private)
+        values (#{schoolName}, #{chName},  #{schoolProfile}, #{crest},#{state},#{schoolRank}, #{theArea},#{publicPrivate})
+    </insert>
 
     <select id="count" parameterType="map" resultType="int">
         select count(id) from d_school_profile
