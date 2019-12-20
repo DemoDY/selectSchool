@@ -62,33 +62,13 @@ public class WebSchoolImpl implements WebSchoolService {
             SchoolProfile schoolProfile = new SchoolProfile();
             SchoolAdmissionScores admissionScores = new SchoolAdmissionScores();
             BeanCopierEx.copy(schoolDTO, schoolProfile);
-            schoolProfileMapper.insertSchool(schoolProfile);
+           int p =  schoolProfileMapper.insertSchool(schoolProfile);
+           if (p==0){
+               return 0;
+           }
             int id = schoolProfile.getId();
             admissionScores.setSchoolId(id);
-            int welfareWeight = schoolDTO.getWelfareWeight();//公益权重
-            int competitionWeight = schoolDTO.getCompetitionWeight();//竞赛权重
-            int activitiesWeight = schoolDTO.getActivitiesWeight();//课外活动权重
-            int topWeight = schoolDTO.getTopWeight();//top权重
-            int satWeight = schoolDTO.getSatWeight();//sat权重
-            int actWeight = schoolDTO.getActWeight();//act权重
-            int ibWeight = schoolDTO.getIbWeight();//ib权重
-            int apWeight = schoolDTO.getApWeight();//ap权重
-            int chGpaWeightStu = Integer.parseInt(schoolDTO.getChGpaWeightStu());//中国学生gpa权重
-            int chStuWeightRank = Integer.parseInt(schoolDTO.getChStuWeightRank());//中国学生排名权重
-            int weight = welfareWeight + competitionWeight + activitiesWeight + topWeight + chGpaWeightStu + chStuWeightRank;
-            //sat_ap sat_ib act_ap act_ib 计算法
-            //sat_ap: 公益权重+竞赛权重+课外活动权重+top权重+sat权重+ap权重+中国学生gpa权重+中国学生排名权重
-            int sat_ap = weight + satWeight + apWeight;
-            //act_ap: 公益权重+竞赛权重+课外活动权重+top权重+act权重+ap权重+中国学生gpa权重+中国学生排名权重
-            int act_ap = weight + actWeight + apWeight;
-            //sat_ib：公益权重+竞赛权重+课外活动权重+top权重+ib权重+sat权重+中国学生gpa权重+中国学生排名权重
-            int sat_ib = weight + satWeight + ibWeight;
-            //act_ib：公益权重+竞赛权重+课外活动权重+top权重+ib权重+act权重+中国学生gpa权重+中国学生排名权重
-            int act_ib = weight + actWeight + ibWeight;
-            admissionScores.setApAct(act_ap);
-            admissionScores.setIbSat(sat_ib);
-            admissionScores.setApSat(sat_ap);
-            admissionScores.setIbAct(act_ib);
+            satAcp(schoolDTO,admissionScores);
             BeanCopierEx.copy(schoolDTO, admissionScores);
            s = schoolAdmissionScoresMapper.insertSchoolDate(admissionScores);
         }else {
@@ -97,6 +77,33 @@ public class WebSchoolImpl implements WebSchoolService {
         return s;
     }
 
+
+    private void satAcp(SchoolDTO schoolDTO,SchoolAdmissionScores admissionScores){
+        int welfareWeight = schoolDTO.getWelfareWeight();//公益权重
+        int competitionWeight = schoolDTO.getCompetitionWeight();//竞赛权重
+        int activitiesWeight = schoolDTO.getActivitiesWeight();//课外活动权重
+        int topWeight = schoolDTO.getTopWeight();//top权重
+        int satWeight = schoolDTO.getSatWeight();//sat权重
+        int actWeight = schoolDTO.getActWeight();//act权重
+        int ibWeight = schoolDTO.getIbWeight();//ib权重
+        int apWeight = schoolDTO.getApWeight();//ap权重
+        int chGpaWeightStu = Integer.parseInt(schoolDTO.getChGpaWeightStu());//中国学生gpa权重
+        int chStuWeightRank = Integer.parseInt(schoolDTO.getChStuWeightRank());//中国学生排名权重
+        int weight = welfareWeight + competitionWeight + activitiesWeight + topWeight + chGpaWeightStu + chStuWeightRank;
+        //sat_ap sat_ib act_ap act_ib 计算法
+        //sat_ap: 公益权重+竞赛权重+课外活动权重+top权重+sat权重+ap权重+中国学生gpa权重+中国学生排名权重
+        int sat_ap = weight + satWeight + apWeight;
+        //act_ap: 公益权重+竞赛权重+课外活动权重+top权重+act权重+ap权重+中国学生gpa权重+中国学生排名权重
+        int act_ap = weight + actWeight + apWeight;
+        //sat_ib：公益权重+竞赛权重+课外活动权重+top权重+ib权重+sat权重+中国学生gpa权重+中国学生排名权重
+        int sat_ib = weight + satWeight + ibWeight;
+        //act_ib：公益权重+竞赛权重+课外活动权重+top权重+ib权重+act权重+中国学生gpa权重+中国学生排名权重
+        int act_ib = weight + actWeight + ibWeight;
+        admissionScores.setApAct(act_ap);
+        admissionScores.setIbSat(sat_ib);
+        admissionScores.setApSat(sat_ap);
+        admissionScores.setIbAct(act_ib);
+    }
     /**
      * 获取学校所有信息
      * @param schoolId
@@ -110,16 +117,28 @@ public class WebSchoolImpl implements WebSchoolService {
         SchoolAdmissionScores schoolAdmissionScores = schoolAdmissionScoresMapper.selectById(schoolId);
         BeanCopierEx.copy(schoolAdmissionScores, schoolDTO);
         return schoolDTO;
-
     }
 
+    /**
+     * 修改学校数据的信息
+     * @param schoolDTO
+     * @return
+     */
     public int updateSchool(SchoolDTO schoolDTO){
         int schoolId = schoolDTO.getSchoolId();
-        int schoolProfile = schoolProfileMapper.update(schoolId);
+        //保存学校详情
+        int schoolProfile = schoolProfileMapper.update(schoolDTO);
         if (schoolProfile == 0){
             return 0;
         }
-        int adminScores = schoolAdmissionScoresMapper.update(schoolId);
+        //根据id查询出要修改的数据
+        SchoolAdmissionScores admissionScores = schoolAdmissionScoresMapper.selectById(schoolId);
+        satAcp(schoolDTO,admissionScores);//计算出成绩
+        BeanCopierEx.copy(schoolDTO, admissionScores);//把修改的成绩跟原来的成绩交换
+        int adminScores = schoolAdmissionScoresMapper.update(admissionScores);//修改成绩 保存到数据库
+        if (adminScores == 0){
+            return 0;
+        }
         return 1;
     }
 }

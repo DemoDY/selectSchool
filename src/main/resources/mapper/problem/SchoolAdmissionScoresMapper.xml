@@ -107,9 +107,51 @@
             num_national_freshmen,ch_stu_high_rank,ch_stu_weight_rank,ch_gpa_avg_stu,ch_gpa_weight_stu,ch_sat_avg_low_stu,
             ch_sat_avg_high_stu,no_sat,sat_weight,act_avg_results,act_weight,exam_ap,ap_weight,ib_avg_results,ib_weight,
             toeft_low_req,ielts_low_req,ap_sat,ap_act,ib_sat,ib_act,top_weight,activities_weight,competition_weight,welfare_weight)
+
         values (#{schoolId},#{nineteen},#{twenty},#{firstStudentsNum},#{comAdmissionRate},#{numberFreshmen},#{nationalStuAccep},#{tuitionFees},
+
         #{numNationalFreshmen},#{chStuHighRank},#{chStuWeightRank},#{chGpaAvgStu},#{chGpaWeightStu},#{chSatAvgLowStu},#{chSatAvgHighStu},
+
         #{noSat},#{satWeight},#{actAvgResults},#{actWeight},#{examAp},#{apWeight},#{ibAvgResults},#{ibWeight},#{toeflLowReq},#{ieltsLowReq},
+
         #{apSat},#{apAct},#{ibSat},#{ibAct},#{topWeight},#{activitiesWeight},#{competitionWeight},#{welfareWeight})
     </insert>
+    <update id="update" parameterType="com.select.school.model.entity.SchoolAdmissionScores">
+        update d_school_admission_scores
+        <set>
+            nineteen = #{nineteen},
+            twenty = #{twenty},
+            first_students_num = #{firstStudentsNum},
+            com_admission_rate = #{comAdmissionRate},
+            number_freshmen = #{numberFreshmen},
+            national_stu_accep = #{nationalStuAccep},
+            tuition_fees = #{tuitionFees},
+            num_national_freshmen = #{numNationalFreshmen},
+            ch_stu_high_rank = #{chStuHighRank},
+            ch_stu_weight_rank = #{chStuWeightRank},
+            ch_gpa_avg_stu = #{chGpaAvgStu},
+            ch_gpa_weight_stu = #{chGpaWeightStu},
+            ch_sat_avg_low_stu = #{chSatAvgLowStu},
+            ch_sat_avg_high_stu = #{chSatAvgHighStu},
+            no_sat = #{noSat},
+            sat_weight = #{satWeight},
+            act_avg_results = #{actAvgResults},
+            act_weight = #{actWeight},
+            exam_ap = #{examAp},
+            ap_weight = #{apWeight},
+            ib_avg_results = #{ibAvgResults},
+            ib_weight = #{ibWeight},
+            toeft_low_req = #{toeflLowReq},
+            ielts_low_req = #{ieltsLowReq},
+            ap_sat = #{apSat},
+            ap_act = #{apAct},
+            ib_sat = #{ibSat},
+            ib_act = #{ibAct},
+            top_weight = #{topWeight},
+            activities_weight = #{activitiesWeight},
+            competition_weight = #{competitionWeight},
+            welfare_weight = #{welfareWeight}
+        </set>
+        where school_id = #{schoolId}
+    </update>
 </mapper>

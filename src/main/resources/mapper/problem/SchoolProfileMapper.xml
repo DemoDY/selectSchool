@@ -52,28 +52,28 @@
         update d_school_profile
         <set>
             <if test="schoolName!=null and schoolName !=''">
-                school_name = #{schoolName}
+                school_name = #{schoolName},
             </if>
             <if test="chName!=null and chName !=''">
-                ch_name = #{chName}
+                ch_name = #{chName},
             </if>
             <if test="schoolProfile!=null and schoolProfile !=''">
-                school_profile = #{schoolProfile}
+                school_profile = #{schoolProfile},
             </if>
             <if test="crest!=null and crest !=''">
-                crest = #{crest}
+                crest = #{crest},
             </if>
             <if test="state!=null and state !=''">
-                state = #{state}
+                state = #{state},
             </if>
             <if test="theArea!=null and theArea !=''">
-                the_area = #{theArea}
+                the_area = #{theArea},
             </if>
             <if test="publicPrivate!=null and publicPrivate !=''">
                 public_private = #{publicPrivate}
             </if>
         </set>
-        where id = #{id}
+        where id = #{schoolId}
     </update>
 
     <select id="selectSchool" resultMap="schoolProfile">

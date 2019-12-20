@@ -83,6 +83,12 @@ public class SchoolController {
         return schoolDTO;
     }
 
+    /**
+     * 修改学校数据信息
+     *
+     * @param schoolDTO
+     * @return
+     */
     @RequestMapping(method = {RequestMethod.POST, RequestMethod.GET}, value = "/updateSchool")
     public AjaxResult updateSchool(@RequestBody SchoolDTO schoolDTO) {
         int i = webSchoolService.updateSchool(schoolDTO);

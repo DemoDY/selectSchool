@@ -1,5 +1,6 @@
 package com.select.school.mapper;
 
+import com.select.school.model.dto.SchoolDTO;
 import com.select.school.model.entity.SchoolAdmissionScores;
 
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.Map;
 public interface SchoolAdmissionScoresMapper {
     SchoolAdmissionScores selectById(int schoolId);
     SchoolAdmissionScores selectId(int id);
-    int update(int schoolId);
+    int update(SchoolAdmissionScores schoolDTO);
 
     int insertSchoolDate(SchoolAdmissionScores admissionScores);
     /**
