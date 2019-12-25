@@ -27,21 +27,22 @@
         <include refid="UpdateCriteria"/>
     </update>
     <select id="selectAll" resultMap="order">
-        select id,order_number,user_id,state,creatTime,updateTime from d_order
+        select id, order_number, user_id,total_fee, state, create_time, openid,update_time from d_order
+        <include refid="FindCriteria"/>
         <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
         <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>
 
     <select id="count" parameterType="map" resultType="int">
-        select count(id)
-        from d_user
-    </select>
-
-    <select id="detail" parameterType="map" resultType="com.select.school.model.entity.Order">
-        select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time from d_user
+        select count(*)
+        from d_order
         <include refid="FindCriteria"/>
     </select>
 
+    <select id="detail" parameterType="map" resultType="com.select.school.model.entity.Order">
+        select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time from d_order
+        <include refid="FindCriteria"/>
+    </select>
 
     <sql id="UpdateCriteria">
         <set>
@@ -49,12 +50,17 @@
             <if test="1 == 1">update_time = now(),</if>
         </set>
     </sql>
-
-
     <sql id="FindCriteria">
         <where>
-            <if test="orderNumber != null">and order_number = #{orderNumber}</if>
-            <if test="openid != null">and openid = #{openid}</if>
+            <if test="orderNumber != null and orderNumber != ''">and order_number like CONCAT('%', #{orderNumber, jdbcType=VARCHAR}, '%')</if>
+            <if test="useId != null and userId != ''">and user_id like CONCAT('%', #{userId, jdbcType=VARCHAR}, '%')</if>
+            <if test="openid != null and openid != ''">and openid like CONCAT('%', #{openid, jdbcType=VARCHAR}, '%')</if>
+            <if test="start != null and start != ''">
+                AND create_time >= #{start,jdbcType=TIMESTAMP}
+            </if>
+            <if test="end != null and end != ''">
+                AND create_time &lt;= #{end,jdbcType=TIMESTAMP}
+            </if>
         </where>
     </sql>
 </mapper>

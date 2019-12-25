@@ -7,21 +7,18 @@
  */
 package com.select.school.timer;
 
-import org.springframework.scheduling.annotation.Scheduled;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
- * @version: V1.0
- * @author: DongXiaoMing
- * @className: ReconciliationService
- * @packageName: com.select.school.timer
- * @description: 对账定时器
- * @data: 2019-11-14
- **/
+ * 定时器
+ */
 public class ReconciliationService {
 
-
-    @Scheduled(cron = "0/5 * * * * *")
+//*/5 * * * * ?  每五秒执行一次
+//    @Scheduled(cron = "*/5 * * * * ?")
     public void scheduled(){
-//        log.info("=====>>>>>使用cron  {}",System.currentTimeMillis());
+        String strTime = new SimpleDateFormat("HH-mm-ss").format(new Date());
+        System.out.println("测试" + strTime);
     }
 }

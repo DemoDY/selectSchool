@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
 
-@SpringBootApplication
 @ImportResource(locations = "classpath*:/datasource.xml")
+@SpringBootApplication
 public class App {
 
     public static void main(String[] args) {

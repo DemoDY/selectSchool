@@ -38,23 +38,48 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <property name="dataSource" ref="dataSource"/>
     <property name="configLocation" value="classpath:mybatis-config.xml"/>
   </bean>
-    
-  <!-- ===================== DAO定义: MyBATIS ===================== -->
-  <!-- 查询DAO -->
-<!-- <bean id="queryDAO"
-      class="com.select.school.mapper.impl.QueryDaoImpl">
-    <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-  </bean>-->
-  
-  <!-- 更新DAO（包括insert,update,delete） -->
- <!-- <bean id="updateDAO"
-      class="com.select.school.mapper.impl.UpdateDaoImpl">
-    <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-  </bean>
--->
+
     <!-- DAO接口所在的包名，spring会自动查找其下的类，！注意这句 value="sqlSessionFactory"，不是ref而是value -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.select.school.mapper" />
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+    <bean id="quarFirstJob" class="com.select.school.timer.ReconciliationService" />
+
+    <bean id="jobDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="group" value="quartzGroup1" />
+        <property name="name" value="quartzJob1" />
+        <!--false表示等上一个任务执行完后再开启新的任务 -->
+        <property name="concurrent" value="false" />
+        <property name="targetObject">
+            <ref bean="quarFirstJob" />
+        </property>
+        <property name="targetMethod">
+            <value>scheduled</value>
+        </property>
+    </bean>
+
+    <!-- 调度触发器 -->
+    <bean id="myTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="name" value="trigger1" />
+        <property name="group" value="group1" />
+        <property name="jobDetail">
+            <ref bean="jobDetail" />
+        </property>
+        <property name="cronExpression">
+            <value>*/5 * * * * ?</value>
+        </property>
+    </bean>
+
+    <!-- 调度工厂 -->
+    <bean id="scheduler"
+          class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="myTrigger" />
+            </list>
+        </property>
     </bean>
 </beans>

@@ -89,7 +89,6 @@ public class WeChatUtils {
         parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));// 随机字符串 nonce_str
         parameter.put("bill_date", billDate);        // 下载对账单的日期，格式：20140603
 
-
         // 签名 sign(MD5)
         String sign = WeChatAssistantUtils.createSign(WeChatAPIParams.KEY, parameter);
         // 把数据转为xml

@@ -30,8 +30,8 @@ public class ProblemController {
      * @return
      */
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/problemList")
-    public String problemList(@RequestBody PagedataDto pagedata,String title) {
-        String ajaxResult = webProblemService.selectAll(pagedata,title);
+    public String problemList(@RequestBody PagedataDto pagedata) {
+        String ajaxResult = webProblemService.selectAll(pagedata);
         return ajaxResult;
     }
 

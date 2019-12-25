@@ -7,7 +7,7 @@ import com.select.school.model.entity.SchoolAdmissionScores;
 
 public interface WebSchoolService {
 
-    String selectAll(PagedataDto pagedata,String title);
+    String selectAll(PagedataDto pagedata);
 
     SchoolAdmissionScores selectSchool(int id);
 

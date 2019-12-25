@@ -51,7 +51,7 @@ public class SchoolDTO {
     private String chGpaWeightStu;//中国学生GPA权重
     private String chSatAvgLowStu;//中国学生SAT平均低位成绩
     private String chSatAvgHighStu;//中国学生SAT平均高位成绩
-    private String noSat;//哪些学校不需要sat
+    private String noSat;//哪些学校不需要sat   0 不需要sat成绩的学校  1 需要sat成绩的学校
     private int satWeight;//SAT权重
     private int actAvgResults;//ACT平均成绩
     private int actWeight;//ACT权重

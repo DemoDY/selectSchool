@@ -29,11 +29,12 @@ public class WebSchoolImpl implements WebSchoolService {
     private SchoolAdmissionScoresMapper schoolAdmissionScoresMapper;
 
     @Override
-    public String selectAll(PagedataDto pagedata,String title){
+    public String selectAll(PagedataDto pagedata){
         ResponseResult result = new ResponseResult();
         PagedataDto pagedataDto = new PagedataDto();
-        List<SchoolProfile> schoolProfiles = schoolProfileMapper.selectAll(SqlParameter.getParameter().addLimit(pagedata.getPageNum(), pagedata.getPageSize()).addQuery("schoolName",title).getMap());
-        int count = schoolProfileMapper.count(SqlParameter.getParameter().getMap());
+        List<SchoolProfile> schoolProfiles = schoolProfileMapper.selectAll(SqlParameter.getParameter().addLimit(pagedata.getPageNum(),
+                pagedata.getPageSize()).addQuery("schoolName",pagedata.getTitle()).getMap());
+        int count = schoolProfileMapper.count(SqlParameter.getParameter().addQuery("schoolName",pagedata.getTitle()).getMap());//总数
         if (schoolProfiles == null || schoolProfiles.size() == 0) {
             result.setCodeMsg(ResponseCode.QUERY_NO_DATAS);
         } else {
@@ -42,7 +43,7 @@ public class WebSchoolImpl implements WebSchoolService {
             pagedataDto.setRecords(schoolProfiles);
             pagedataDto.setPageNum(pagedata.getPageNum());
             pagedataDto.setPageSize(pagedata.getPageSize());
-            pagedataDto.setPages((int)Math.ceil(count/pagedata.getPageSize()));
+            pagedataDto.setPages((int)Math.ceil(count/pagedata.getPageSize()+1));//页数加一 加上第一页
             pagedataDto.setTotal(count);
             result.setCodeMsg(ResponseCode.SUCCESS);
             result.setData(pagedataDto);
@@ -61,13 +62,14 @@ public class WebSchoolImpl implements WebSchoolService {
         if (schoolDTO!=null){
             SchoolProfile schoolProfile = new SchoolProfile();
             SchoolAdmissionScores admissionScores = new SchoolAdmissionScores();
+            schoolProfile.setSchoolRank(String.valueOf(schoolDTO.getTwenty()));
             BeanCopierEx.copy(schoolDTO, schoolProfile);
            int p =  schoolProfileMapper.insertSchool(schoolProfile);
            if (p==0){
                return 0;
            }
             int id = schoolProfile.getId();
-            admissionScores.setSchoolId(id);
+            schoolDTO.setSchoolId(id);
             satAcp(schoolDTO,admissionScores);
             BeanCopierEx.copy(schoolDTO, admissionScores);
            s = schoolAdmissionScoresMapper.insertSchoolDate(admissionScores);

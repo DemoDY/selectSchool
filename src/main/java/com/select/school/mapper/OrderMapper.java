@@ -1,7 +1,6 @@
 package com.select.school.mapper;
 
 import com.select.school.model.entity.Order;
-import com.select.school.model.entity.User;
 
 import java.util.List;
 import java.util.Map;
@@ -20,5 +19,5 @@ public interface OrderMapper {
 
     public int count(Map<String, Object> paramMap);
 
-    public List<User> selectAll(Map<String, Object> paramMap);
+    public List<Order> selectAll(Map<String, Object> paramMap);
 }

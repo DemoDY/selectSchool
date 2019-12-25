@@ -3,13 +3,14 @@ package com.select.school.controller.web;
 import com.select.school.model.dto.PagedataDto;
 import com.select.school.model.dto.SchoolDTO;
 import com.select.school.model.entity.SchoolAdmissionScores;
-import com.select.school.model.entity.SchoolProfile;
 import com.select.school.service.web.WebSchoolService;
+import com.select.school.utils.FileUploadUtils;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseUtil;
 import com.select.school.utils.result.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,8 +32,8 @@ public class SchoolController {
      * @return
      */
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/schoolList")
-    public String schoolList(@RequestBody PagedataDto pagedata, String title) {
-        String schoolList = webSchoolService.selectAll(pagedata, title);
+    public String schoolList(@RequestBody PagedataDto pagedata) {
+        String schoolList = webSchoolService.selectAll(pagedata);
         return schoolList;
     }
 
@@ -76,11 +77,11 @@ public class SchoolController {
      * @return
      */
     @RequestMapping(method = {RequestMethod.POST, RequestMethod.GET}, value = "/editSchool")
-    public SchoolDTO editSchoolDate(HttpServletRequest request) {
+    public String editSchoolDate(HttpServletRequest request) {
         String id = request.getParameter("schoolId");
         int schoolId = Integer.parseInt(id);
         SchoolDTO schoolDTO = webSchoolService.findById(schoolId);
-        return schoolDTO;
+        return ResponseUtil.setResult(ResponseCode.SUCCESS, schoolDTO);
     }
 
     /**
@@ -99,4 +100,24 @@ public class SchoolController {
         }
     }
 
+    /**
+     * 上传图片
+     */
+    @PostMapping("/upload")
+    @ResponseBody
+    public AjaxResult updateAvatar(@RequestParam("file") MultipartFile file) {
+        try {
+            if (!file.isEmpty()) {
+                //文件上传获取文件名字
+                String files = FileUploadUtils.upload(file);
+                System.out.println("===fileName==="+files);
+                if (files != null && files!="") {
+                    return AjaxResult.successData(AjaxResult.CODE_SUCCESS, files);
+                }
+            }
+            return error();
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
+    }
 }

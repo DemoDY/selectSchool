@@ -122,7 +122,6 @@ public class WeCharPayServiceImpl implements WeCharPayService {
         resultMap.put("return_code", "SUCCESS");
         resultMap.put("return_msg", "OK");
         Object param = WeChatAssistantUtils.parseString2Xml(resultMap, null);
-
         //解析微信返回通知的xml数据
         try {
             Map<String, Object> map = WeChatUtils.getXML(request);
@@ -139,8 +138,8 @@ public class WeCharPayServiceImpl implements WeCharPayService {
                     System.out.println("======>>>重复订单--不做插入");
                 } else {
                     //修改订单状态
-                    orderMapper.update(SqlParameter.getParameter().addQuery("updateState", 3).addQuery("updateTime",df.format(new Date()))
-                            .addQuery("orderNumber",re).getMap());
+                    orderMapper.update(SqlParameter.getParameter().addQuery("updateState", 3).addQuery("updateTime", df.format(new Date()))
+                            .addQuery("orderNumber", re).getMap());
                     //插入回调记录
                     WxAffirm wxAffirm = new WxAffirm();
                     wxAffirm.setOutTradeNo(result.getString("out_trade_no"));
@@ -163,6 +162,5 @@ public class WeCharPayServiceImpl implements WeCharPayService {
         }
         return param;
     }
-
 
 }

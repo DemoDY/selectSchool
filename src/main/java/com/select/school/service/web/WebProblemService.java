@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface WebProblemService {
     List<Option> findByOption(int id);
-    String selectAll(PagedataDto pagedata,String title);
+    String selectAll(PagedataDto pagedata);
 }

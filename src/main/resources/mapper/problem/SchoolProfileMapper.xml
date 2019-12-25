@@ -95,6 +95,11 @@
     </insert>
 
     <select id="count" parameterType="map" resultType="int">
-        select count(id) from d_school_profile
+        select count(*) from d_school_profile
+        <where>
+            <if test="schoolName!='' and schoolName != null">
+                and  school_name like CONCAT('%', #{schoolName, jdbcType=VARCHAR}, '%') or ch_name like CONCAT('%', #{schoolName, jdbcType=VARCHAR}, '%')
+            </if>
+        </where>
     </select>
 </mapper>

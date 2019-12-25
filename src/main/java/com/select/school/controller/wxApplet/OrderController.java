@@ -7,14 +7,14 @@
  */
 package com.select.school.controller.wxApplet;
 
+import com.select.school.model.dto.PagedataDto;
 import com.select.school.model.entity.Order;
+import com.select.school.service.web.OrderService;
 import com.select.school.service.wxApplet.WeCharPayService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseResult;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -26,14 +26,25 @@ import javax.annotation.Resource;
  * @description: 订单记录
  * @data: 2019-11-13
  **/
-
+@CrossOrigin
 @RestController
-@RequestMapping(value = "/Order")
+@RequestMapping(value = "/order")
 public class OrderController {
 
-    @Resource
-    private WeCharPayService weCharPayService;
+    @Autowired
+    private OrderService orderService;
 
+    /**
+     * 订单列表查询接口
+     *
+     * @param pagedata
+     * @return
+     */
+        @RequestMapping(method = { RequestMethod.POST}, value = "/orderList")
+    public String schoolList(@RequestBody PagedataDto pagedata) {
+        String schoolList = orderService.selectAll(pagedata);
+        return schoolList;
+    }
 
     // 微信支付统一下单
     @RequestMapping(value = "/create", method = {RequestMethod.POST})
@@ -45,7 +56,5 @@ public class OrderController {
         }
         return "";
     }
-
-
 
 }

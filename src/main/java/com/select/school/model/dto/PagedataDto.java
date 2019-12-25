@@ -29,6 +29,11 @@ public class PagedataDto {
     private Integer pages;      //总页数
     private Integer total;      //总数据数
     private Object records; //数据
+    private String orderNumber;//订单号
+    private String userId;//用户id
+    private  String title;//学校名称，问题名称
+    private String startTime;
+    private String endTime;
 
     @Override
     public String toString() {
@@ -38,6 +43,11 @@ public class PagedataDto {
                 ", pages=" + pages +
                 ", total=" + total +
                 ", records=" + records +
+                ", orderNumber=" + orderNumber +
+                ", userId=" + userId +
+                ", title=" + title +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
                 '}';
     }
 
@@ -79,5 +89,45 @@ public class PagedataDto {
 
     public void setRecords(Object records) {
         this.records = records;
+    }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 }

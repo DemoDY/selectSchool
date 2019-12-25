@@ -34,7 +34,7 @@ public class UserImpl implements UserService {
             pagedataDto.setRecords(userList);
             pagedataDto.setPageNum(pagedata.getPageNum());
             pagedataDto.setPageSize(pagedata.getPageSize());
-            pagedataDto.setPages((int)Math.ceil(count/pagedata.getPageSize()));
+            pagedataDto.setPages((int)Math.ceil(count/pagedata.getPageSize()+1));
             pagedataDto.setTotal(count);
             result.setCodeMsg(ResponseCode.SUCCESS);
             result.setData(pagedataDto);

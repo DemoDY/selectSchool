@@ -30,11 +30,12 @@ public class WebProblemImpl implements WebProblemService {
      * @return
      */
     @Override
-    public String selectAll(PagedataDto pagedata,String title){
+    public String   selectAll(PagedataDto pagedata){
         ResponseResult result = new ResponseResult();
         PagedataDto pagedataDto = new PagedataDto();
-        List<Problem> problemList = problemMapper.selectAll(SqlParameter.getParameter().addLimit(pagedata.getPageNum(), pagedata.getPageSize()).addQuery("title",title).getMap());
-        int count = problemMapper.count(SqlParameter.getParameter().getMap());
+        List<Problem> problemList = problemMapper.selectAll(SqlParameter.getParameter().addLimit(pagedata.getPageNum(),
+                pagedata.getPageSize()).addQuery("title",pagedata.getTitle()).getMap());
+        int count = problemMapper.count(SqlParameter.getParameter().addQuery("title",pagedata.getTitle()).getMap());
         if (problemList == null || problemList.size() == 0) {
             result.setCodeMsg(ResponseCode.QUERY_NO_DATAS);
         } else {
@@ -43,7 +44,7 @@ public class WebProblemImpl implements WebProblemService {
             pagedataDto.setRecords(problemList);
             pagedataDto.setPageNum(pagedata.getPageNum());
             pagedataDto.setPageSize(pagedata.getPageSize());
-            pagedataDto.setPages((int)Math.ceil(count/pagedata.getPageSize()));
+            pagedataDto.setPages((int)Math.ceil(count/pagedata.getPageSize()+1));
             pagedataDto.setTotal(count);
             result.setCodeMsg(ResponseCode.SUCCESS);
             result.setData(pagedataDto);

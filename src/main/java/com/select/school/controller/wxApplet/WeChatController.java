@@ -43,5 +43,4 @@ public class WeChatController {
         return response;
     }
 
-
 }

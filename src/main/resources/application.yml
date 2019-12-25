@@ -1,61 +1,72 @@
-server:
-    port: 8983
-    tomcat:
-        remote-ip-header: x-forwarded-for
-        protocol-header: x-forwarded-proto
-        port-header: X-Forwarded-Port
-    use-forward-headers: true
-    compression:
-        enabled: true
-        mime-types: text/plain,application/javascript,application/x-javascript,text/css,application/xml,text/javascript,application/x-httpd-php,image/jpeg,image/gif,image/png
-spring:
-    profiles:
-        active: dev
-    application:
-        name: selectSchool-service
+fuce:
+  #名称
+   name: selectSchool
+  #版本
+   version: 1.0
+  #版权年份
+   copyrightYear: 2019
+  #图片路径
+#   profile: E:/schoolLogo/
+  #服务器
+   profile: E:/apache-tomcat-desmartNew/webapps/schoolLogo/
 
-# 日志
-jhipster:
+server:
+  port: 8983
+  tomcat:
+    remote-ip-header: x-forwarded-for
+    protocol-header: x-forwarded-proto
+    port-header: X-Forwarded-Port
+  use-forward-headers: true
+  compression:
+    enabled: true
+    mime-types: text/plain,application/javascript,application/x-javascript,text/css,application/xml,text/javascript,application/x-httpd-php,image/jpeg,image/gif,image/png
+spring:
+  profiles:
+    active: dev
+    application:
+      name: selectSchool-service
+  http:
+    multipart:
+      enable: true
+
+  jhipster:
     async:
-        core-pool-size: 2
-        max-pool-size: 50
-        queue-capacity: 10000
+      core-pool-size: 2
+      max-pool-size: 50
+      queue-capacity: 10000
     # By default CORS is disabled. Uncomment to enable.
     cors:
-        allowed-origins: "*"
-        allowed-methods: GET, PUT, POST, DELETE, OPTIONS
-        allowed-headers: "*"
-        exposed-headers:
-        allow-credentials: true
-        max-age: 1800
+      allowed-origins: "*"
+      allowed-methods: GET, PUT, POST, DELETE, OPTIONS
+      allowed-headers: "*"
+      exposed-headers:
+      allow-credentials: true
+      max-age: 1800
     swagger:
-        default-include-pattern: /api/.*
-        title: springboot API documentation
-        description: springboot API documentation
-        version: 0.0.1
-        terms-of-service-url:
-        contact-name:
-        contact-url:
-        contact-email:
-        license:
-        license-url:
-
+      default-include-pattern: /api/.*
+      title: springboot API documentation
+      description: springboot API documentation
+      version: 0.0.1
+      terms-of-service-url:
+      contact-name:
+      contact-url:
+      contact-email:
+      license:
+      license-url:
 mybatis:
-    mapperLocations: classpath:mapper/*Mapper.xml
-    config-location: classpath:datasource.xml
-
+  mapperLocations: classpath:mapper/*Mapper.xml
+  config-location: classpath:datasource.xml
 # 微信配置
 wechat:
-    appid: wx1330df3ec7f2cac0
-    appscrect: 0ddba9f0f9ef6eb42c2e8b6e37b78fc3
-    key: 123
+  appid: wx1330df3ec7f2cac0
+  appscrect: 0ddba9f0f9ef6eb42c2e8b6e37b78fc3
+  key: 123
 logging:
 #    path: /school/log
-
 # 微信支付配置参数 按顺序注释：appID/商户号/API密钥/操作密码
 business:
-    enterpriseWeChat:
-        appID: wx1330df3ec7f2cac0
-        mchID: 1567863911
-        key: 4a9f2c433adcc2698ba7704faedeaf82
+  enterpriseWeChat:
+    appID: wx1330df3ec7f2cac0
+    mchID: 1567863911
+    key: 4a9f2c433adcc2698ba7704faedeaf82
 #        secret：Liuxue2019@@

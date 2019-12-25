@@ -17,7 +17,6 @@ public class UserController {
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/userList")
     @ResponseBody
     public String selectAll(@RequestBody PagedataDto pagedata){
-        System.out.println(pagedata.toString());
         String result = userService.selectAll(pagedata);
         return result;
     }

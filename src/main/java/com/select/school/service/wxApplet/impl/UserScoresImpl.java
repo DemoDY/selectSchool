@@ -11,6 +11,7 @@ import com.select.school.model.dto.*;
 import com.select.school.model.entity.*;
 import com.select.school.model.vo.*;
 import com.select.school.utils.DateUtil;
+import com.select.school.utils.FileUploadUtils;
 import com.select.school.utils.dxm.sqlUtils.SqlParameter;
 import com.select.school.utils.dxm.wechat.WeChatAssistantUtils;
 import com.select.school.utils.result.AjaxResult;
@@ -353,6 +354,7 @@ public class UserScoresImpl implements UserScoreService {
             return AjaxResult.error(400, "此功能未开通，请稍后再试");
         }
     }
+
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private void payDate(AjaxResult ajaxResult,String openid){
@@ -961,19 +963,20 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         ajaxResult.put("school", reportFileDTOS);
-     /*   try {
-            templetTicket(reportFileDTOS);
+       /* try {
+            templetTicket(reportFileDTOS,id);
         }catch (Exception e){
             e.printStackTrace();
         }*/
         return ajaxResult;
     }
 
+
     //pdf文件生成
-    public void templetTicket(ReportFileDTO reportFileDTO) throws Exception {
+    public void templetTicket(ReportFileDTO reportFileDTO,int id) throws Exception {
         //创建一个pdf读取对象
-        PdfReader reader = new PdfReader("E:/reporttemplate.pdf");
-        File file = new File("E:/newReporttemplate.pdf");
+        PdfReader reader = new PdfReader(FileUploadUtils.getDefaultBaseDir()+"/reporttemplate.pdf");
+        File file = new File(FileUploadUtils.getDefaultBaseDir()+"/"+id+".pdf");//新的地址
         //创建文件
         file.createNewFile();
         //创建一个输出流
@@ -1002,21 +1005,21 @@ public class UserScoresImpl implements UserScoreService {
 //        image.setAbsolutePosition(x, y);
 //        under.addImage(image);
         // 获取操作的页面
-            PdfContentByte under = null;
-            Image pd1 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest());
-            ps.getOverContent(s.getFieldPositions("pd1").get(0).page);
-            under.addImage(pd1);
+//            PdfContentByte under = null;
+//            Image pd1 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest());
+//            ps.getOverContent(s.getFieldPositions("pd1").get(0).page);
+//            under.addImage(pd1);
 
 //        s.setField("pd1",);
-            Image pd2 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
-            ps.getOverContent(s.getFieldPositions("pd2").get(0).page);
-            under.addImage(pd2);
+//            Image pd2 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
+//            ps.getOverContent(s.getFieldPositions("pd2").get(0).page);
+//            under.addImage(pd2);
 
-            Image pd3 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
-            ps.getOverContent(s.getFieldPositions("pd3").get(0).page);
-            under.addImage(pd3);
-//        s.setField("pd2",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
-//        s.setField("pd3",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
+//            Image pd3 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
+//            ps.getOverContent(s.getFieldPositions("pd3").get(0).page);
+//            under.addImage(pd3);
+        s.setField("pd2",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
+        s.setField("pd3",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
 
         s.setField("dSchoolProfileO", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolProfile());
         s.setField("dChNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getChName());

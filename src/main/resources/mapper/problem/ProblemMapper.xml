@@ -61,7 +61,7 @@
         p.skip_up
         from d_problem p
         where 1=1
-        <if test="title!='' and test != null">
+        <if test="title!='' and title != null">
               and  p.title like CONCAT('%', #{title, jdbcType=VARCHAR}, '%')
         </if>
         order by  p.number asc
@@ -69,7 +69,12 @@
     </select>
 
     <select id="count" parameterType="map" resultType="int">
-        select count(id) from d_problem
+        select count(*) from d_problem
+        <where>
+            <if test="title!='' and title != null">
+                and  title like CONCAT('%', #{title, jdbcType=VARCHAR}, '%')
+            </if>
+        </where>
     </select>
 
 </mapper>
