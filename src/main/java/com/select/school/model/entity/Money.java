@@ -7,10 +7,12 @@
  */
 package com.select.school.model.entity;
 
+import java.math.BigDecimal;
+
 public class Money {
 
     private int state; // 1  管理员测试用 ， 0  用户体验
-    private double money;
+    private BigDecimal moneyFree;
 
     public int getState() {
         return state;
@@ -20,11 +22,11 @@ public class Money {
         this.state = state;
     }
 
-    public double getMoney() {
-        return money;
+    public BigDecimal getMoneyFree() {
+        return moneyFree;
     }
 
-    public void setMoney(double money) {
-        this.money = money;
+    public void setMoneyFree(BigDecimal moneyFree) {
+        this.moneyFree = moneyFree;
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -367,12 +368,11 @@ public class UserScoresImpl implements UserScoreService {
     private void payDate(AjaxResult ajaxResult,String openid){
         User user = userMapper.detail(SqlParameter.getParameter().addQuery("openid",openid).getMap());
         int i = user.getState();
-        System.out.println(i);
         Money money = moneyMapper.findByState(i);
-        System.out.println("zhifujine==="+money.getMoney());
+        BigDecimal a = money.getMoneyFree();
         WxPayVo wxPayVo = new WxPayVo();
         wxPayVo.setProductId(RandomStringUtils.randomAlphanumeric(10));
-        wxPayVo.setTotalFee(money.getMoney());//支付金额
+        wxPayVo.setTotalFee(a.doubleValue());//支付金额
         wxPayVo.setOpenid(openid);
         wxPayVo.setTradeType("JSAPI");//类型
         wxPayVo.setBody("支付查看详细学校详情");//详情

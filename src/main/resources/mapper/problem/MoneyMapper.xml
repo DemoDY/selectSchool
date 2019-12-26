@@ -3,12 +3,12 @@
 <mapper namespace="com.select.school.mapper.MoneyMapper">
     <resultMap id="money" type="com.select.school.model.entity.Money">
         <result column="state" property="state"/>
-        <result column="money" property="money"/>
+        <result column="money_free" property="moneyFree"/>
     </resultMap>
 
-    <select id="selectAll" parameterType="com.select.school.model.entity.Money">
-        select state,money from d_money
-        where state = #{state}
+    <select id="findByState" parameterType="com.select.school.model.entity.Money" resultType = "com.select.school.model.entity.Money">
+        select m.state as state,m.money_free as moneyFree from d_money m
+        where m.state = #{state}
     </select>
 
 </mapper>
