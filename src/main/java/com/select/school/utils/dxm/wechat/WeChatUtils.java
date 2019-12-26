@@ -7,6 +7,7 @@ import com.select.school.utils.DateUtil;
 import com.select.school.utils.dxm.sqlUtils.SqlParameter;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.RandomStringUtils;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -73,7 +74,6 @@ public class WeChatUtils {
         }
         return null;
     }
-
 
     /**
      * 下载对账单
@@ -152,7 +152,7 @@ public class WeChatUtils {
                 }
             }
             for (WxTradeDetail wxTradeDetail:wxTradeDetailList){
-
+                System.out.println("wxTradeDetail===" + wxTradeDetail.toString());
             }
         } else {
             System.out.println("###########获取对账数据有误#################");
