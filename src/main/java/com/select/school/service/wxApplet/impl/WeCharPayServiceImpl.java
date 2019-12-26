@@ -163,4 +163,15 @@ public class WeCharPayServiceImpl implements WeCharPayService {
         return param;
     }
 
+    /**
+     * 对账接口
+     */
+    public Boolean account(){
+        try {
+           Boolean b = WeChatUtils.downloadFile();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return true;
+    }
 }

@@ -4,6 +4,7 @@ import com.select.school.model.vo.WxPayVo;
 import com.select.school.model.vo.WxTradeDetail;
 import com.select.school.model.vo.WxTradeSummary;
 import com.select.school.utils.DateUtil;
+import com.select.school.utils.dxm.sqlUtils.SqlParameter;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
@@ -81,12 +82,16 @@ public class WeChatUtils {
      * @throws Exception
      */
     public static Boolean downloadFile() throws Exception {
-        String billDate = DateUtil.getYesterday("yyyyMMdd");
+        String billDate = "20191217";
+//        String billDate = DateUtil.getYesterday("yyyyMMdd");
         //签名
         SortedMap<String, Object> parameter = new TreeMap<String, Object>();
         parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                    // 商户号 app_id
         parameter.put("mch_id", WeChatAPIParams.WECHAR_PAY_MCH_ID);                    // 应用ID mch_id
         parameter.put("nonce_str", RandomStringUtils.randomAlphanumeric(16));// 随机字符串 nonce_str
+        parameter.put("tar_type", "GZIP");//非必传参数，固定值：GZIP，返回格式为.gzip的压缩包账单。不传则默认为数据流形式。
+        // ALL（默认值）  SUCCESS，返回当日成功支付的订单（不含充值退款订单） REFUND，返回当日退款订单（不含充值退款订单） RECHARGE_REFUND，返回当日充值退款订单
+        parameter.put("bill_type", "ALL");
         parameter.put("bill_date", billDate);        // 下载对账单的日期，格式：20140603
 
         // 签名 sign(MD5)
@@ -96,13 +101,15 @@ public class WeChatUtils {
         String billUrl = WeChatAPIParams.DOWNLOAD_BILL_URL;
         // 获取下载信息
         String result = HttpUtils.doPost(billUrl, param);
-
+        System.out.println("result====="+ result);
         if (StringUtils.hasText(result) && !result.contains("error_code")) {
             List<WxTradeDetail> wxTradeDetailList = new ArrayList<WxTradeDetail>();
             String[] str = result.split("\n");//按行读取数据（*这个尤为重要*）
             int len = str.length;
+            System.out.println("len====" + len);
             for (int i = 0; i < len; i++) {
                 String[] tradeDetailArray = str[i].replace("`", "").split(",");
+                System.out.println("tradeDetailArray" + tradeDetailArray.toString());
                 if (i > 0 && i < (len - 2)) {
                     // 明细行数据[交易时间,公众账号ID,商户号,特约商户号,设备号,微信订单号,商户订单号,用户标识,交易类型,交易状态,付款银行,货币种类,应结订单金额,代金券金额,商品名称,商户数据包,手续费,费率,订单金额,费率备注]
                     WxTradeDetail entity = new WxTradeDetail();
@@ -131,7 +138,7 @@ public class WeChatUtils {
                 }
 
                 // 汇总行数据 [总交易单数,应结订单总金额,退款总金额,充值券退款总金额,手续费总金额,订单总金额,申请退款总金额]
-                if (i > (len - 2)) {
+             if (i > (len - 2)) {
                     WxTradeSummary wxTradeSummary = new WxTradeSummary();
                     wxTradeSummary.setBillDate(billDate);
                     wxTradeSummary.setTradeCount(getArrayValue(tradeDetailArray, 0));// 总交易单数
@@ -144,7 +151,9 @@ public class WeChatUtils {
                     //save(wxTradeSummary);
                 }
             }
-            //batchSave(wxTradeDetailList);
+            for (WxTradeDetail wxTradeDetail:wxTradeDetailList){
+
+            }
         } else {
             System.out.println("###########获取对账数据有误#################");
             System.out.println("返回对账数据为:" + result);

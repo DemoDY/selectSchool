@@ -24,10 +24,10 @@ public class Order implements Serializable {
     private String orderNumber;//订单编号
     private String userId;//用户id
     private double totalFee;//金额
-    private Integer state;//状态 1:待支付，2：已支付，3：已完成，4：已对账，5：已取消
-    private String createTime;
+    private Integer state;//状态 1:待支付，2：已支付，3：已完成，4：已对账，5：已取消，6：未到账(微信未到账，本地有记录)
+    private String createTime;//
     private String openid;
-    private String updateTime;
+    private String updateTime;//
 
     public String getOpenid() {
         return openid;

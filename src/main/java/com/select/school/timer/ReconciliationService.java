@@ -7,18 +7,30 @@
  */
 package com.select.school.timer;
 
+import com.select.school.utils.dxm.wechat.WeChatUtils;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * 定时器
  */
+
+@Component
+@EnableScheduling
 public class ReconciliationService {
 
 //*/5 * * * * ?  每五秒执行一次
 //    @Scheduled(cron = "*/5 * * * * ?")
     public void scheduled(){
-        String strTime = new SimpleDateFormat("HH-mm-ss").format(new Date());
-        System.out.println("测试" + strTime);
+        try {
+            Boolean b = WeChatUtils.downloadFile();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+//        String strTime = new SimpleDateFormat("HH-mm-ss").format(new Date());
+//        System.out.println("测试" + strTime);
     }
 }

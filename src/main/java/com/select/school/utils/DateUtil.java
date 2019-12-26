@@ -77,7 +77,22 @@ public class DateUtil {
         return simpleDateFormat.format(getYesterday());
     }
 
-
+    /**
+     * 获取当前日期的前三个月
+     */
+    public static String getThreeManthDay(Date pattern){
+        Date dBefore = new Date();
+        Calendar calendar = Calendar.getInstance(); //得到日历
+        calendar.setTime(pattern);//把当前时间赋给日历
+        calendar.add(Calendar.MONTH, -3);  //设置为前3月
+        dBefore = calendar.getTime();   //得到前3月的时间
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //设置时间格式
+        String defaultStartDate = sdf.format(dBefore);    //格式化前3月的时间
+//        String defaultEndDate = sdf.format(pattern); //格式化当前时间
+//        System.out.println("三个月之前时间======="+defaultStartDate);
+//        System.out.println("当前时间==========="+defaultEndDate);
+        return defaultStartDate;
+    }
 
 
 

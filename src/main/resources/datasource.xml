@@ -60,7 +60,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         </property>
     </bean>
 
-    <!-- 调度触发器 -->
+    <!-- 调度触发器 0 */5 * * * ? 每五分钟执行一次   */5 * * * * ?每五秒执行一次 -->
     <bean id="myTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="name" value="trigger1" />
@@ -69,7 +69,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
             <ref bean="jobDetail" />
         </property>
         <property name="cronExpression">
-            <value>*/5 * * * * ?</value>
+            <value>0 */5 * * * ?</value>
         </property>
     </bean>
 
