@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.select.school.mapper.MoneyMapper">
+    <resultMap id="money" type="com.select.school.model.entity.Money">
+        <result column="state" property="state"/>
+        <result column="money" property="money"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="com.select.school.model.entity.Money">
+        select state,money from d_money
+        where state = #{state}
+    </select>
+
+</mapper>

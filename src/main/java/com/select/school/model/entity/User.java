@@ -18,7 +18,6 @@ public class User implements Serializable {
     private String openid;
     private String unionid;
     private String avatarUrl;   //头像
-
     private String nickName;    //昵称
     private String realName;    //真实姓名
     private String mobile;      //手机号
@@ -26,8 +25,8 @@ public class User implements Serializable {
     private String password;
     private Date createTime;    //创建时间
     private Date updateTime;    //修改时间
-
     private String createTimeStr;
+    private int state;
 
     public String getId() {
         return id;
@@ -115,6 +114,14 @@ public class User implements Serializable {
 
     public void setRealName(String realName) {
         this.realName = realName;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 
     public String getCreateTimeStr() {

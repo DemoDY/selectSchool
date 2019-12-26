@@ -44,42 +44,5 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="basePackage" value="com.select.school.mapper" />
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
     </bean>
-    <bean id="quarFirstJob" class="com.select.school.timer.ReconciliationService" />
 
-    <bean id="jobDetail"
-          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="group" value="quartzGroup1" />
-        <property name="name" value="quartzJob1" />
-        <!--false表示等上一个任务执行完后再开启新的任务 -->
-        <property name="concurrent" value="false" />
-        <property name="targetObject">
-            <ref bean="quarFirstJob" />
-        </property>
-        <property name="targetMethod">
-            <value>scheduled</value>
-        </property>
-    </bean>
-
-    <!-- 调度触发器 0 */5 * * * ? 每五分钟执行一次   */5 * * * * ?每五秒执行一次 -->
-    <bean id="myTrigger"
-          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="name" value="trigger1" />
-        <property name="group" value="group1" />
-        <property name="jobDetail">
-            <ref bean="jobDetail" />
-        </property>
-        <property name="cronExpression">
-            <value>0 */5 * * * ?</value>
-        </property>
-    </bean>
-
-    <!-- 调度工厂 -->
-    <bean id="scheduler"
-          class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-        <property name="triggers">
-            <list>
-                <ref bean="myTrigger" />
-            </list>
-        </property>
-    </bean>
 </beans>

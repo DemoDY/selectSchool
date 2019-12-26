@@ -59,6 +59,7 @@ public class WeChatServiceImpl implements WeChatService {
                 user.setNickName(login.getNickName());
                 user.setOpenid(wexinResult.get("openid").toString());
                 user.setMobile(login.getMoblie());
+                user.setState(0);//默认0
                 user.setAvatarUrl(login.getAvatarUrl());
                 int i = userMapper.create(user);
                 System.out.println("创建："+i);

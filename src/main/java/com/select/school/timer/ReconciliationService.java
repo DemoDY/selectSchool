@@ -18,19 +18,9 @@ import java.util.Date;
  * 定时器
  */
 
-@Component
-@EnableScheduling
 public class ReconciliationService {
 
-//*/5 * * * * ?  每五秒执行一次
-//    @Scheduled(cron = "*/5 * * * * ?")
-    public void scheduled(){
-        try {
-            Boolean b = WeChatUtils.downloadFile();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-//        String strTime = new SimpleDateFormat("HH-mm-ss").format(new Date());
-//        System.out.println("测试" + strTime);
+    public void scheduled() {
+
     }
 }

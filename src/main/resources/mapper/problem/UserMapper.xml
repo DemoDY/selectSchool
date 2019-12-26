@@ -11,19 +11,20 @@
         <result column="openid" property="openid" />
         <result column="unionid" property="unionid" />
         <result column="email" property="email" />
+        <result column="state" property="state" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
     </resultMap>
 
     <insert id="create" parameterType="com.select.school.model.entity.User">
         insert into d_user
-        (nick_name,avatar_url,mobile,openid,unionid,create_time,update_time)
+        (nick_name,avatar_url,mobile,openid,unionid,create_time,update_time,state)
         values
-        (#{nickName},#{avatarUrl},#{mobile},#{openid},#{unionid},now(),#{updateTime})
+        (#{nickName},#{avatarUrl},#{mobile},#{openid},#{unionid},now(),#{updateTime},#{state})
     </insert>
 
     <select id="selectAll" resultMap="user">
-        select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time from d_user
+        select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time ,state from d_user
         <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
         <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>
@@ -33,20 +34,20 @@
     </select>
 
     <select id="detail" parameterType="map" resultType="com.select.school.model.entity.User">
-        select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time  from d_user
-            where
-            <if test="openid != null">
-                openid = #{openid}
-            </if>
+        select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time,state
+        from d_user
+        <include refid="TreasureCouponFindCriteria"/>
     </select>
+
     <sql id="TreasureCouponUpdateCriteria">
         <set>
-            <if test="openid != null"> openid = #{openid}, </if>
+            <if test="openid != null and openid != ''"> openid = #{openid}, </if>
         </set>
     </sql>
+
     <sql id="TreasureCouponFindCriteria">
         <where>
-            <if test="openid != null">and openid = #{openid}</if>
+            <if test="openid != null and openid != ''">and openid = #{openid}</if>
         </where>
     </sql>
 

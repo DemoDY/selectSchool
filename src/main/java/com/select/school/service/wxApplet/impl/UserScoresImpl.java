@@ -1,9 +1,6 @@
 package com.select.school.service.wxApplet.impl;
 
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.AcroFields;
-import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.select.school.mapper.*;
@@ -41,6 +38,11 @@ public class UserScoresImpl implements UserScoreService {
     private SchoolAdmissionScoresMapper schoolAdmissionScoresMapper;
     @Autowired
     private ScoresMapper scoresMapper;
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private MoneyMapper moneyMapper;
+
 
     /**
      * 微信学生选择之后返回数据
@@ -357,13 +359,23 @@ public class UserScoresImpl implements UserScoreService {
 
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    /**
+     *支付传给小程序的参数
+     * @param ajaxResult
+     * @param openid
+     */
     private void payDate(AjaxResult ajaxResult,String openid){
+        User user = userMapper.detail(SqlParameter.getParameter().addQuery("openid",openid).getMap());
+        int i = user.getState();
+        System.out.println(i);
+        Money money = moneyMapper.findByState(i);
+        System.out.println("zhifujine==="+money.getMoney());
         WxPayVo wxPayVo = new WxPayVo();
         wxPayVo.setProductId(RandomStringUtils.randomAlphanumeric(10));
-        wxPayVo.setTotalFee(0.01);
+        wxPayVo.setTotalFee(money.getMoney());//支付金额
         wxPayVo.setOpenid(openid);
-        wxPayVo.setTradeType("JSAPI");
-        wxPayVo.setBody("查看详细学校详情");
+        wxPayVo.setTradeType("JSAPI");//类型
+        wxPayVo.setBody("支付查看详细学校详情");//详情
         wxPayVo.setTimeStart(df.format(new Date()));
         wxPayVo.setOrderNumber(WeChatAssistantUtils.getOrderIdByTime());
         ajaxResult.put("wxPayVo",wxPayVo);
@@ -377,6 +389,7 @@ public class UserScoresImpl implements UserScoreService {
      * @
      */
     public AjaxResult selectSchool(int id) {
+        SqlParameter sql = SqlParameter.getParameter();
         AjaxResult ajaxResult = new AjaxResult();
         //根据id 查询成绩
         UserScores userScores = userScoresMapper.selectOpenId(id);
@@ -394,7 +407,6 @@ public class UserScoresImpl implements UserScoreService {
         ReportFileDTO reportFileDTOS = new ReportFileDTO();
         SchoolProfileVo schoolProfileVo = new SchoolProfileVo();//学校详情
         List<SchoolAdmissionScores> schoolAdmissionScores = null;
-        SqlParameter sql = SqlParameter.getParameter();
         reportFileDTOS.setPreface("前言：\n" +
                 "\t\t美国大学的录取标准分为“与生俱来，不可改变”的指标和“后天努力，可提高”的标化指标/成绩和非标化成绩，“与生俱来，不可改变”" +
                 "的指标包括国籍，家庭总收入，父母是否是你想申请的大学的毕业，父母教育程度，居住城市，等等。而“后天努力，可提高”的标化指标和" +
