@@ -214,4 +214,32 @@ public class WxTradeDetail {
     public void setOrderAmount(String orderAmount) {
         this.orderAmount = orderAmount;
     }
+
+    @Override
+    public String toString() {
+        return "WxTradeDetail{" +
+                "id=" + id +
+                ", billDate='" + billDate + '\'' +
+                ", transDate='" + transDate + '\'' +
+                ", commonId='" + commonId + '\'' +
+                ", businessNo='" + businessNo + '\'' +
+                ", childBusinessNo='" + childBusinessNo + '\'' +
+                ", equipmentNo='" + equipmentNo + '\'' +
+                ", wxOrderNo='" + wxOrderNo + '\'' +
+                ", businessOrderNo='" + businessOrderNo + '\'' +
+                ", userIdentity='" + userIdentity + '\'' +
+                ", transType='" + transType + '\'' +
+                ", transStatus='" + transStatus + '\'' +
+                ", paymentBank='" + paymentBank + '\'' +
+                ", currency='" + currency + '\'' +
+                ", settleAccounts='" + settleAccounts + '\'' +
+                ", coupon='" + coupon + '\'' +
+                ", businessName='" + businessName + '\'' +
+                ", businessData='" + businessData + '\'' +
+                ", fee='" + fee + '\'' +
+                ", rate='" + rate + '\'' +
+                ", rateRemark='" + rateRemark + '\'' +
+                ", orderAmount='" + orderAmount + '\'' +
+                '}';
+    }
 }

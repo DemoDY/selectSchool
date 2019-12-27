@@ -1,6 +1,7 @@
 package com.select.school.mapper;
 
 import com.select.school.model.entity.Order;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ public interface OrderMapper {
     public int delete(Map<String, Object> paramMap);
 
     public int update(Map<String, Object> paramMap);
+
+//    public int update(Map<String, Object> paramMap, @Param("orderList") List<String> orderList );
 
     public List<Order> query(Map<String, Object> paramMap);
 

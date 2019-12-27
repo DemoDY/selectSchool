@@ -10,6 +10,7 @@
         <result column="create_time" property="createTime"/>
         <result column="openid" property="openid"/>
         <result column="update_time" property="updateTime"/>
+        <result column="check_state" property="checkState"/>
     </resultMap>
 
     <insert id="create" parameterType="com.select.school.model.entity.Order">
@@ -17,7 +18,7 @@
             (order_number, user_id,total_fee, state, create_time, openid,update_time)
         values (#{orderNumber}, #{userId},#{totalFee}, #{state}, #{createTime},#{openid} ,#{updateTime})
     </insert>
-    <update id="update" parameterType="com.select.school.model.entity.Order">
+    <update id="update" parameterType="map">
         update d_order
         <include refid="UpdateCriteria"/>
         <include refid="FindCriteria"/>
@@ -46,7 +47,8 @@
 
     <sql id="UpdateCriteria">
         <set>
-            <if test="updateState != 0">state = #{updateState},</if>
+            <if test="updateState != null and updateState != 0">state = #{updateState},</if>
+            <if test="updateCheckState != null and updateCheckState != 0">check_state = #{updateCheckState},</if>
             <if test="1 == 1">update_time = now(),</if>
         </set>
     </sql>
@@ -55,11 +57,18 @@
             <if test="orderNumber != null and orderNumber != ''">and order_number like CONCAT('%', #{orderNumber, jdbcType=VARCHAR}, '%')</if>
             <if test="useId != null and userId != ''">and user_id like CONCAT('%', #{userId, jdbcType=VARCHAR}, '%')</if>
             <if test="openid != null and openid != ''">and openid like CONCAT('%', #{openid, jdbcType=VARCHAR}, '%')</if>
+            <if test="stateList != null and stateList != ''">and state in (2,3)</if>
+            <if test="orderList != null ">and order_number in
+                <foreach collection="orderList" item = 'orderNumber' index="index" open="(" close=")" separator=",">
+                    #{orderNumber}
+                </foreach>
+            </if>
+            <if test="checkState != null ">and check_state = #{checkState}</if>
             <if test="start != null and start != ''">
                 AND create_time >= #{start,jdbcType=TIMESTAMP}
             </if>
             <if test="end != null and end != ''">
-                AND create_time &lt;= #{end,jdbcType=TIMESTAMP}
+                AND create_time &lt; #{end,jdbcType=TIMESTAMP}
             </if>
         </where>
     </sql>
