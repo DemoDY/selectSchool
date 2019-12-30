@@ -4,7 +4,6 @@ import com.select.school.model.vo.WxPayVo;
 import com.select.school.model.vo.WxTradeDetail;
 import com.select.school.model.vo.WxTradeSummary;
 import com.select.school.utils.DateUtil;
-import com.select.school.utils.dxm.sqlUtils.SqlParameter;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
+ *
  * @version: V1.0
  * @author: DongXiaoMing
  * @className: WeChatUtils
