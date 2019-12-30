@@ -6,9 +6,9 @@ fuce:
   #版权年份
    copyrightYear: 2019
   #图片路径
-#   profile: E:/schoolLogo/
+#   profile: E:/schoolLogo
   #服务器
-   profile: E:/apache-tomcat-desmartNew/webapps/schoolLogo/
+   profile: E:/apache-tomcat-desmartNew/webapps/schoolLogo
 
 server:
   port: 8983
