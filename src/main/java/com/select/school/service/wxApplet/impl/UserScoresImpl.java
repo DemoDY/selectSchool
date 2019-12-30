@@ -435,6 +435,7 @@ public class UserScoresImpl implements UserScoreService {
                 if (tlScore.equals("68----61")) score = 68;
                 if (tlScore.equals("小于61")) score = 60;
             }
+
         }
         if (tl == 1) {//雅思成绩
             if (scores >= 500) {
