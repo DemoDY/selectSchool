@@ -21,15 +21,6 @@ public class ReportFileDTO {
     private String question;
 
     private String explain;
-    private String fileName;
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
 
     public String getPreface() {
         return preface;

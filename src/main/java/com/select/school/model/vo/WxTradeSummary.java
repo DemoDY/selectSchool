@@ -97,4 +97,19 @@ public class WxTradeSummary {
     public void setApplyRefundAmount(String applyRefundAmount) {
         this.applyRefundAmount = applyRefundAmount;
     }
+
+    @Override
+    public String toString() {
+        return "WxTradeSummary{" +
+                "id=" + id +
+                ", billDate='" + billDate + '\'' +
+                ", tradeCount='" + tradeCount + '\'' +
+                ", shouldSettleAmount='" + shouldSettleAmount + '\'' +
+                ", refundAmount='" + refundAmount + '\'' +
+                ", rechargeVoucherAmount='" + rechargeVoucherAmount + '\'' +
+                ", ServiceCharge='" + ServiceCharge + '\'' +
+                ", totalOrderAmount='" + totalOrderAmount + '\'' +
+                ", applyRefundAmount='" + applyRefundAmount + '\'' +
+                '}';
+    }
 }

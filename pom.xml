@@ -212,11 +212,17 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
+            <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
 
+        <!-- 引入org.json所需依赖 -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20160810</version>
+        </dependency>
 
     </dependencies>
     <build>
