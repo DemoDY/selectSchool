@@ -31,17 +31,10 @@ public class OrderImpl implements OrderService {
     public String selectAll(PagedataDto pagedata) {
         ResponseResult result = new ResponseResult();
         PagedataDto pagedataDto = new PagedataDto();
-        List<Order> orderList = orderMapper.selectAll(SqlParameter.getParameter()
-                .addLimit(pagedata.getPageNum(), pagedata.getPageSize())
-                .addQuery("orderNumber",pagedata.getOrderNumber())
-                .addQuery("userId",pagedata.getUserId())
-                .addQuery("start",pagedata.getStartTime())
-                .addQuery("end",pagedata.getEndTime())
-                .getMap());
-        int count = orderMapper.count(SqlParameter.getParameter()
-                .addQuery("orderNumber",pagedata.getOrderNumber())
-                .addQuery("userId",pagedata.getUserId())
-                .addQuery("start",pagedata.getStartTime())
+        List<Order> orderList = orderMapper.selectAll(SqlParameter.getParameter().addLimit(pagedata.getPageNum(), pagedata.getPageSize())
+                .addQuery("orderNumber",pagedata.getOrderNumber()).addQuery("userId",pagedata.getUserId()).addQuery("start",pagedata.getStartTime())
+                .addQuery("end",pagedata.getEndTime()).getMap());
+        int count = orderMapper.count(SqlParameter.getParameter().addQuery("orderNumber",pagedata.getOrderNumber()).addQuery("userId",pagedata.getUserId()).addQuery("start",pagedata.getStartTime())
                 .addQuery("end",pagedata.getEndTime()).getMap());
         if (orderList == null || orderList.size() == 0) {
             result.setCodeMsg(ResponseCode.QUERY_NO_DATAS);

@@ -28,15 +28,6 @@ public class Order implements Serializable {
     private String createTime;//
     private String openid;
     private String updateTime;//
-    private Integer checkState;//
-
-    public Integer getCheckState() {
-        return checkState;
-    }
-
-    public void setCheckState(Integer checkState) {
-        this.checkState = checkState;
-    }
 
     public String getOpenid() {
         return openid;

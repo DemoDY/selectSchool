@@ -76,14 +76,6 @@ public class DateUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         return simpleDateFormat.format(getYesterday());
     }
-    /**
-     * 获取当前日期的指定格式字符串
-     *
-     */
-    public static String getToDay(String pattern) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-        return simpleDateFormat.format(new Date());
-    }
 
     /**
      * 获取当前日期的前三个月
