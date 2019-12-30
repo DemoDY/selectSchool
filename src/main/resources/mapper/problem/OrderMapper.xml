@@ -5,7 +5,7 @@
         <id column="id" property="id"/>
         <result column="order_number" property="orderNumber"/>
         <result column="user_id" property="userId"/>
-        <result column="total_fee" property="totalFee"/>
+        <result column="total_fee" property="totalFee" jdbcType="DOUBLE"/>
         <result column="state" property="state"/>
         <result column="create_time" property="createTime"/>
         <result column="openid" property="openid"/>
@@ -15,8 +15,8 @@
 
     <insert id="create" parameterType="com.select.school.model.entity.Order">
         insert into d_order
-            (order_number, user_id,total_fee, state, create_time, openid,update_time)
-        values (#{orderNumber}, #{userId},#{totalFee}, #{state}, #{createTime},#{openid} ,#{updateTime})
+            (order_number, user_id,total_fee, state, create_time, openid,update_time,check_state)
+        values (#{orderNumber}, #{userId},#{totalFee}, #{state}, #{createTime},#{openid} ,#{updateTime},0)
     </insert>
     <update id="update" parameterType="map">
         update d_order

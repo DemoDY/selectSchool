@@ -83,8 +83,8 @@ public class WeChatUtils {
      */
     public static List<String> downloadFile() throws Exception {
         ArrayList<String> outList = new ArrayList<>();
-        String billDate = "20191217";
-//        String billDate = DateUtil.getYesterday("yyyyMMdd");
+//        String billDate = "20191217";
+        String billDate = DateUtil.getYesterday("yyyyMMdd");
         //签名
         SortedMap<String, Object> parameter = new TreeMap<String, Object>();
         parameter.put("appid", WeChatAPIParams.WECHAR_PAY_APPID);                    // 商户号 app_id
