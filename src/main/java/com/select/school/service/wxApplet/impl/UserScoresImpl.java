@@ -974,21 +974,24 @@ public class UserScoresImpl implements UserScoreService {
                 }
             }
         }
-        ajaxResult.put("school", reportFileDTOS);
-       /* try {
-            templetTicket(reportFileDTOS,id);
+        String  fileName = null;
+        try {
+            fileName = templetTicket(reportFileDTOS,id);
         }catch (Exception e){
             e.printStackTrace();
-        }*/
+        }
+        ajaxResult.put("school", reportFileDTOS);
+        ajaxResult.put("fileName", fileName);
         return ajaxResult;
     }
 
 
     //pdf文件生成
-    public void templetTicket(ReportFileDTO reportFileDTO,int id) throws Exception {
+    public String templetTicket(ReportFileDTO reportFileDTO,int id) throws Exception {
         //创建一个pdf读取对象
         PdfReader reader = new PdfReader(FileUploadUtils.getDefaultBaseDir()+"/reporttemplate.pdf");
-        File file = new File(FileUploadUtils.getDefaultBaseDir()+"/"+id+".pdf");//新的地址
+        String fileName = "优肯留美择校详情"+id+".pdf";
+        File file = new File(FileUploadUtils.getDefaultBaseDir()+"/"+fileName);//新的地址
         //创建文件
         file.createNewFile();
         //创建一个输出流
@@ -1131,6 +1134,7 @@ public class UserScoresImpl implements UserScoreService {
         FileOutputStream fos = new FileOutputStream(file);//创建文件输出流
         fos.write(bos.toByteArray());//写入数据
         fos.close();//关闭输出流
+        return fileName;
     }
     //保底学校
     private void safetyColleges(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO
