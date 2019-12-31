@@ -1009,7 +1009,7 @@ public class UserScoresImpl implements UserScoreService {
         s.setField("preface", reportFileDTO.getPreface());
         s.setField("dataModel", reportFileDTO.getDataModel());
 
-        //添加图片
+        //添加图片 1
         int pageNo = s.getFieldPositions("pd1").get(0).page;
         Rectangle signRect = s.getFieldPositions("pd1").get(0).position;
         float x = signRect.getLeft();
@@ -1017,7 +1017,7 @@ public class UserScoresImpl implements UserScoreService {
         // 图片路径
         String imagePath = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest();
         // 读图片
-        Image image = Image.getInstance(imagePath);
+        Image image = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath);
         // 获取操作的页面
         PdfContentByte under = ps.getOverContent(pageNo);
         // 根据域的大小缩放图片
@@ -1026,7 +1026,7 @@ public class UserScoresImpl implements UserScoreService {
         image.setAbsolutePosition(x, y);
         under.addImage(image);
 
-        //添加图片
+        //添加图片 2
         int pageNo2 = s.getFieldPositions("pd2").get(0).page;
         Rectangle signRect2 = s.getFieldPositions("pd2").get(0).position;
         float x2 = signRect2.getLeft();
@@ -1034,7 +1034,7 @@ public class UserScoresImpl implements UserScoreService {
         // 图片路径
         String imagePath2 = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest();
         // 读图片
-        Image image2 = Image.getInstance(imagePath2);
+        Image image2 = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath2);
         // 获取操作的页面
         PdfContentByte under2 = ps.getOverContent(pageNo2);
         // 根据域的大小缩放图片
@@ -1043,15 +1043,15 @@ public class UserScoresImpl implements UserScoreService {
         image2.setAbsolutePosition(x2, y2);
         under2.addImage(image2);
                 
-        //添加图片
+        //添加图片 3
         int pageNo3 = s.getFieldPositions("pd3").get(0).page;
         Rectangle signRect3 = s.getFieldPositions("pd3").get(0).position;
         float x3 = signRect3.getLeft();
         float y3 = signRect3.getBottom();
         // 图片路径
-        String imagePath3 = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest();
+        String imagePath3 = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest();
         // 读图片
-        Image image3 = Image.getInstance(imagePath3);
+        Image image3 = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath3);
         // 获取操作的页面
         PdfContentByte under3 = ps.getOverContent(pageNo3);
         // 根据域的大小缩放图片
