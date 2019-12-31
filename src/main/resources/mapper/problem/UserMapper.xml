@@ -25,6 +25,8 @@
 
     <select id="selectAll" resultMap="user">
         select id,nick_name,real_name,avatar_url,mobile,openid,unionid,email,create_time,update_time ,state from d_user
+        <include refid="TreasureCouponFindCriteria"/>
+        order by  create_time desc
         <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
         <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>
@@ -47,7 +49,14 @@
 
     <sql id="TreasureCouponFindCriteria">
         <where>
-            <if test="openid != null and openid != ''">and openid = #{openid}</if>
+            <if test="openid != null and openid != ''">and openid like CONCAT('%', #{openid, jdbcType=VARCHAR}, '%')</if>
+            <if test="nickName != null and nickName != ''">and nick_name like CONCAT('%', #{nickName, jdbcType=VARCHAR}, '%')</if>
+            <if test="startTime != null and startTime != ''">
+                AND create_time >= #{startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null and endTime  != ''">
+                AND create_time &lt; #{endTime,jdbcType=TIMESTAMP}
+            </if>
         </where>
     </sql>
 

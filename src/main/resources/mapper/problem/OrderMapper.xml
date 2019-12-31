@@ -30,6 +30,7 @@
     <select id="selectAll" resultMap="order">
         select id, order_number, user_id,total_fee, state, create_time, openid,update_time from d_order
         <include refid="FindCriteria"/>
+        order by create_time desc
         <if test="order_by_column!=null and order_by_column!=''">order by ${order_by_column} ${order_by}</if>
         <if test="offset!=null and rows!=null">limit ${offset},${rows}</if>
     </select>

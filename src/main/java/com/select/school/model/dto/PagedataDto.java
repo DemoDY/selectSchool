@@ -34,6 +34,8 @@ public class PagedataDto {
     private  String title;//学校名称，问题名称
     private String startTime;
     private String endTime;
+    private String nickName;    //昵称
+    private String openid;
 
     @Override
     public String toString() {
@@ -48,7 +50,25 @@ public class PagedataDto {
                 ", title=" + title +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
+                ", nickName=" + nickName +
+                ", openid=" + openid +
                 '}';
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
     }
 
     public Integer getPageNum() {
