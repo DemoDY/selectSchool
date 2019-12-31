@@ -4,7 +4,6 @@ import com.select.school.model.vo.WxPayVo;
 import com.select.school.service.wxApplet.WeCharPayService;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseResult;
-import com.select.school.utils.dxm.wechat.WeChatUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

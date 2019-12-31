@@ -1,6 +1,9 @@
 package com.select.school.service.wxApplet.impl;
 
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.select.school.mapper.*;
@@ -990,7 +993,8 @@ public class UserScoresImpl implements UserScoreService {
     //pdf文件生成
     public String templetTicket(ReportFileDTO reportFileDTO,int id) throws Exception {
         //创建一个pdf读取对象
-        PdfReader reader = new PdfReader(FileUploadUtils.getDefaultBaseDir()+"/reporttemplate.pdf");
+//        PdfReader reader = new PdfReader(FileUploadUtils.getDefaultBaseDir()+"/reporttemplate.pdf");
+        PdfReader reader = new PdfReader("static/reporttemplate.pdf");
         String fileName = "优肯留美择校详情"+id+".pdf";
         File file = new File(FileUploadUtils.getDefaultBaseDir()+"/"+fileName);//新的地址
         //创建文件
@@ -1004,38 +1008,58 @@ public class UserScoresImpl implements UserScoreService {
         AcroFields s = ps.getAcroFields();
         s.setField("preface", reportFileDTO.getPreface());
         s.setField("dataModel", reportFileDTO.getDataModel());
+
         //添加图片
-//        String imgpath="E:/导出PDF/美女.png";
-//        int pageNo = s.getFieldPositions("pd1").get(0).page;
-//        Rectangle signRect = s.getFieldPositions("img").get(0).position;
-//        float x = signRect.getLeft();
-//        float y = signRect.getBottom();
+        int pageNo = s.getFieldPositions("pd1").get(0).page;
+        Rectangle signRect = s.getFieldPositions("pd1").get(0).position;
+        float x = signRect.getLeft();
+        float y = signRect.getBottom();
+        // 图片路径
+        String imagePath = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest();
         // 读图片
-//        Image image = Image.getInstance(imgpath);
-        //若图片路径不是本地，而是从服务器上获取的，此时new image对象的方式为如下：
-//            Image image = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest());
-
-        // 根据域的大小缩放图片
-//        image.scaleToFit(signRect.getWidth(), signRect.getHeight());
-        // 添加图片
-//        image.setAbsolutePosition(x, y);
-//        under.addImage(image);
+        Image image = Image.getInstance(imagePath);
         // 获取操作的页面
-//            PdfContentByte under = null;
-//            Image pd1 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getCrest());
-//            ps.getOverContent(s.getFieldPositions("pd1").get(0).page);
-//            under.addImage(pd1);
+        PdfContentByte under = ps.getOverContent(pageNo);
+        // 根据域的大小缩放图片
+        image.scaleToFit(signRect.getWidth(), signRect.getHeight());
+        // 添加图片
+        image.setAbsolutePosition(x, y);
+        under.addImage(image);
 
-//        s.setField("pd1",);
-//            Image pd2 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
-//            ps.getOverContent(s.getFieldPositions("pd2").get(0).page);
-//            under.addImage(pd2);
-
-//            Image pd3 = Image.getInstance(reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
-//            ps.getOverContent(s.getFieldPositions("pd3").get(0).page);
-//            under.addImage(pd3);
-        s.setField("pd2",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest());
-        s.setField("pd3",reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getCrest());
+        //添加图片
+        int pageNo2 = s.getFieldPositions("pd2").get(0).page;
+        Rectangle signRect2 = s.getFieldPositions("pd2").get(0).position;
+        float x2 = signRect.getLeft();
+        float y2 = signRect.getBottom();
+        // 图片路径
+        String imagePath2 = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest();
+        // 读图片
+        Image image2 = Image.getInstance(imagePath2);
+        // 获取操作的页面
+        PdfContentByte under2 = ps.getOverContent(pageNo2);
+        // 根据域的大小缩放图片
+        image2.scaleToFit(signRect.getWidth(), signRect.getHeight());
+        // 添加图片
+        image2.setAbsolutePosition(x2, y2);
+        under2.addImage(image2);
+                
+        //添加图片
+        int pageNo3 = s.getFieldPositions("pd3").get(0).page;
+        Rectangle signRect3 = s.getFieldPositions("pd3").get(0).position;
+        float x3 = signRect.getLeft();
+        float y3 = signRect.getBottom();
+        // 图片路径
+        String imagePath3 = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest();
+        // 读图片
+        Image image3 = Image.getInstance(imagePath3);
+        // 获取操作的页面
+        PdfContentByte under3 = ps.getOverContent(pageNo3);
+        // 根据域的大小缩放图片
+        image3.scaleToFit(signRect.getWidth(), signRect.getHeight());
+        // 添加图片
+        image3.setAbsolutePosition(x3, y3);
+        under3.addImage(image3);
+        
 
         s.setField("dSchoolProfileO", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolProfile());
         s.setField("dChNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getChName());
@@ -2672,5 +2696,6 @@ public class UserScoresImpl implements UserScoreService {
         }
         return tf_detail + low_detail + high_detail + same_detail;
     }
+    
 }
 
