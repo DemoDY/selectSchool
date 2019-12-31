@@ -992,11 +992,9 @@ public class UserScoresImpl implements UserScoreService {
 
     //pdf文件生成
     public String templetTicket(ReportFileDTO reportFileDTO,int id) throws Exception {
-        //创建一个pdf读取对象
-//        PdfReader reader = new PdfReader(FileUploadUtils.getDefaultBaseDir()+"/reporttemplate.pdf");
-        PdfReader reader = new PdfReader("static/reporttemplate.pdf");
+        PdfReader reader = new PdfReader("E://reporttemplate12.pdf");
         String fileName = "优肯留美择校详情"+id+".pdf";
-        File file = new File(FileUploadUtils.getDefaultBaseDir()+"/"+fileName);//新的地址
+        File file = new File(FileUploadUtils.getCrestBaseDir()+"/"+fileName);//新的地址
         //创建文件
         file.createNewFile();
         //创建一个输出流
@@ -1063,6 +1061,7 @@ public class UserScoresImpl implements UserScoreService {
 
         s.setField("dSchoolProfileO", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolProfile());
         s.setField("dChNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getChName());
+        s.setField("pdOne",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getChName());
         s.setField("dSchoolNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolName());
         s.setField("dNineteenO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getNineteen());
         s.setField("dTwentyO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getTwenty());
@@ -1072,6 +1071,7 @@ public class UserScoresImpl implements UserScoreService {
 
         s.setField("dSchoolProfileT", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getSchoolProfile());
         s.setField("dChNameT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getChName());
+        s.setField("pdTwo",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getChName());
         s.setField("dSchoolNameT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getSchoolName());
         s.setField("dNineteenT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getNineteen());
         s.setField("dTwentyT",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getTwenty());
@@ -1081,6 +1081,7 @@ public class UserScoresImpl implements UserScoreService {
 
         s.setField("dSchoolProfileS", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getSchoolProfile());
         s.setField("dChNameS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getChName());
+        s.setField("pdThree",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getChName());
         s.setField("dSchoolNameS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getSchoolName());
         s.setField("dNineteenS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getNineteen());
         s.setField("dTwentyS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getTwenty());
@@ -1088,12 +1089,62 @@ public class UserScoresImpl implements UserScoreService {
         s.setField("dNationalStuAccepS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getNationalStuAccep());
         s.setField("dDetailsS",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(2).getDetails());
 
-        s.setField("pd4",reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getCrest());
-        s.setField("pd5",reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getCrest());
-        s.setField("pd6",reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getCrest());
+//        s.setField("pd4",reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getCrest());
+        //添加图片 4
+        int pageNo4 = s.getFieldPositions("pd4").get(0).page;
+        Rectangle signRect4 = s.getFieldPositions("pd4").get(0).position;
+        float x4 = signRect4.getLeft();
+        float y4 = signRect4.getBottom();
+        // 图片路径
+        String imagePath4 = reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getCrest();
+        // 读图片
+        Image image4 = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath4);
+        // 获取操作的页面
+        PdfContentByte under4 = ps.getOverContent(pageNo4);
+        // 根据域的大小缩放图片
+        image4.scaleToFit(signRect4.getWidth(), signRect4.getHeight());
+        // 添加图片
+        image4.setAbsolutePosition(x4, y4);
+        under4.addImage(image4);
+
+
+        //添加图片 5
+        int pageNo5 = s.getFieldPositions("pd5").get(0).page;
+        Rectangle signRect5 = s.getFieldPositions("pd5").get(0).position;
+        float x5 = signRect5.getLeft();
+        float y5 = signRect5.getBottom();
+        // 图片路径
+        String imagePath5 = reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getCrest();
+        // 读图片
+        Image image5 = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath5);
+        // 获取操作的页面
+        PdfContentByte under5 = ps.getOverContent(pageNo5);
+        // 根据域的大小缩放图片
+        image5.scaleToFit(signRect5.getWidth(), signRect5.getHeight());
+        // 添加图片
+        image5.setAbsolutePosition(x5, y5);
+        under5.addImage(image5);
+
+        //添加图片 6
+        int pageNo6 = s.getFieldPositions("pd6").get(0).page;
+        Rectangle signRect6 = s.getFieldPositions("pd6").get(0).position;
+        float x6 = signRect6.getLeft();
+        float y6 = signRect6.getBottom();
+        // 图片路径
+        String imagePath6 = reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getCrest();
+        // 读图片
+        Image image6 = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath6);
+        // 获取操作的页面
+        PdfContentByte under6 = ps.getOverContent(pageNo6);
+        // 根据域的大小缩放图片
+        image6.scaleToFit(signRect6.getWidth(), signRect6.getHeight());
+        // 添加图片
+        image6.setAbsolutePosition(x6, y6);
+        under6.addImage(image6);
 
         s.setField("dSchoolProfileFo", reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getSchoolProfile());
         s.setField("dChNameFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getChName());
+        s.setField("pdFour",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getChName());
         s.setField("dSchoolNameFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getSchoolName());
         s.setField("dNineteenFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getNineteen());
         s.setField("dTwentyFo",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(0).getTwenty());
@@ -1103,6 +1154,7 @@ public class UserScoresImpl implements UserScoreService {
 
         s.setField("dSchoolProfileFi", reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getSchoolProfile());
         s.setField("dChNameFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getChName());
+        s.setField("pdFive",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getChName());
         s.setField("dSchoolNameFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getSchoolName());
         s.setField("dNineteenFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getNineteen());
         s.setField("dTwentyFi",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(1).getTwenty());
@@ -1112,6 +1164,7 @@ public class UserScoresImpl implements UserScoreService {
 
         s.setField("dSchoolProfileSix", reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getSchoolProfile());
         s.setField("dChNameSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getChName());
+        s.setField("pdSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getChName());
         s.setField("dSchoolNameSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getSchoolName());
         s.setField("dNineteenSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getNineteen());
         s.setField("dTwentySix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getTwenty());
@@ -1119,12 +1172,59 @@ public class UserScoresImpl implements UserScoreService {
         s.setField("dNationalStuAccepSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getNationalStuAccep());
         s.setField("dDetailsSix",  reportFileDTO.getSchoolProfileVos().getTargetSchoolDTOS().get(2).getDetails());
 
-        s.setField("pd7",reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getCrest());
-        s.setField("pd8",reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getCrest());
-        s.setField("pd9",reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getCrest());
+        //添加图片 7
+        int pageNo7 = s.getFieldPositions("pd7").get(0).page;
+        Rectangle signRect7 = s.getFieldPositions("pd7").get(0).position;
+        float x7 = signRect7.getLeft();
+        float y7 = signRect7.getBottom();
+        // 图片路径
+        String imagePath7 = reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getCrest();
+        // 读图片
+        Image image7 = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath7);
+        // 获取操作的页面
+        PdfContentByte under7 = ps.getOverContent(pageNo7);
+        // 根据域的大小缩放图片
+        image7.scaleToFit(signRect7.getWidth(), signRect7.getHeight());
+        // 添加图片
+        image7.setAbsolutePosition(x7, y7);
+        under7.addImage(image7);
 
+        //添加图片 8
+        int pageNo8 = s.getFieldPositions("pd8").get(0).page;
+        Rectangle signRect8 = s.getFieldPositions("pd8").get(0).position;
+        float x8 = signRect8.getLeft();
+        float y8 = signRect8.getBottom();
+        // 图片路径
+        String imagePath8 = reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getCrest();
+        // 读图片
+        Image image8 = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath8);
+        // 获取操作的页面
+        PdfContentByte under8 = ps.getOverContent(pageNo8);
+        // 根据域的大小缩放图片
+        image8.scaleToFit(signRect8.getWidth(), signRect8.getHeight());
+        // 添加图片
+        image8.setAbsolutePosition(x8, y8);
+        under8.addImage(image8);
+
+        //添加图片 9
+        int pageNo9 = s.getFieldPositions("pd9").get(0).page;
+        Rectangle signRect9 = s.getFieldPositions("pd9").get(0).position;
+        float x9 = signRect9.getLeft();
+        float y9 = signRect9.getBottom();
+        // 图片路径
+        String imagePath9 = reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getCrest();
+        // 读图片
+        Image image9 = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/"+imagePath9);
+        // 获取操作的页面
+        PdfContentByte under9 = ps.getOverContent(pageNo9);
+        // 根据域的大小缩放图片
+        image9.scaleToFit(signRect9.getWidth(), signRect9.getHeight());
+        // 添加图片
+        image9.setAbsolutePosition(x9, y9);
+        under9.addImage(image9);
         s.setField("dSchoolProfileSe", reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getSchoolProfile());
         s.setField("dChNameSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getChName());
+        s.setField("pdSeven",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getChName());
         s.setField("dSchoolNameSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getSchoolName());
         s.setField("dNineteenSe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getNineteen());
         s.setField("dTwentySe",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(0).getTwenty());
@@ -1134,6 +1234,7 @@ public class UserScoresImpl implements UserScoreService {
 
         s.setField("dSchoolProfileE", reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getSchoolProfile());
         s.setField("dChNameE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getChName());
+        s.setField("pdEight",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getChName());
         s.setField("dSchoolNameE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getSchoolName());
         s.setField("dNineteenE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getNineteen());
         s.setField("dTwentyE",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(1).getTwenty());
@@ -1143,6 +1244,7 @@ public class UserScoresImpl implements UserScoreService {
 
         s.setField("dSchoolProfileN", reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getSchoolProfile());
         s.setField("dChNameN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getChName());
+        s.setField("pdNine",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getChName());
         s.setField("dSchoolNameN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getSchoolName());
         s.setField("dNineteenN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getNineteen());
         s.setField("dTwentyN",  reportFileDTO.getSchoolProfileVos().getSafetySchoolDTOS().get(2).getTwenty());
@@ -1152,7 +1254,21 @@ public class UserScoresImpl implements UserScoreService {
 
         s.setField("question", reportFileDTO.getQuestion());
         s.setField("explain",  reportFileDTO.getExplain());
-        s.setField("weChat",  "http://www.desmart.com.cn/schoolLogo/ererima.png");
+
+        //添加微信图片
+        int wchart = s.getFieldPositions("weChat").get(0).page;
+        Rectangle signRectWchart = s.getFieldPositions("weChat").get(0).position;
+        float xw = signRectWchart.getLeft();
+        float yw = signRectWchart.getBottom();
+        // 读图片
+        Image imageWchart = Image.getInstance(FileUploadUtils.getDefaultBaseDir()+"/ererima.png");
+        // 获取操作的页面
+        PdfContentByte underwchart = ps.getOverContent(wchart);
+        // 根据域的大小缩放图片
+        imageWchart.scaleToFit(signRectWchart.getWidth(), signRectWchart.getHeight());
+        // 添加图片
+        imageWchart.setAbsolutePosition(xw, yw);
+        underwchart.addImage(imageWchart);
 
         ps.setFormFlattening(true);//这里true表示pdf可编辑
         ps.close();//关闭PdfStamper

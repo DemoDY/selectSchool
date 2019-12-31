@@ -20,6 +20,7 @@ public class V2Config
     private String copyrightYear;
     /** 上传路径 */
     private static String profile;
+    private static String crest;
 
     public String getName()
     {
@@ -61,4 +62,11 @@ public class V2Config
     	V2Config.profile = profile;
     }
 
+    public static String getCrest() {
+        return crest;
+    }
+
+    public  void setCrest(String crest) {
+        V2Config.crest = crest;
+    }
 }

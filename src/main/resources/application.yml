@@ -9,6 +9,9 @@ fuce:
 #   profile: E:/schoolLogo
   #服务器
    profile: E:/apache-tomcat-desmartNew/webapps/schoolLogo
+   # pdf文件存放路径
+   crest: E:/apache-tomcat-desmartNew/webapps/schoolLogo/crest
+#   crest: E:/schoolLogo/crest
 
 server:
   port: 8983

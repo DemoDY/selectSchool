@@ -34,6 +34,7 @@ public class FileUploadUtils {
      * 默认上传的地址
      */
     private static String defaultBaseDir = V2Config.getProfile();
+    private static String crestBaseDir = V2Config.getCrest();
 
     /**
      * 默认的文件名最大长度
@@ -49,6 +50,10 @@ public class FileUploadUtils {
 
     public static String getDefaultBaseDir( ) {
         return defaultBaseDir;
+    }
+
+    public static String getCrestBaseDir(){
+        return crestBaseDir;
     }
 
     /**
