@@ -30,8 +30,8 @@ public class ReconciliationService {
     @Resource
     private OrderMapper orderMapper;
 
-    @Scheduled(cron = "0 * * * * ?")
-//    @Scheduled(cron = "0 0 10 * * ?")
+//    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 10 * * ?")
     public void scheduled(){
             String yesterday = DateUtil.getYesterday("yyyyMMdd");
             String today = DateUtil.getToDay("yyyyMMdd");

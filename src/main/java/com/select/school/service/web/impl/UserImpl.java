@@ -24,7 +24,11 @@ public class UserImpl implements UserService {
     public String selectAll(PagedataDto pagedata) {
         ResponseResult result = new ResponseResult();
         PagedataDto pagedataDto = new PagedataDto();
-        List<User> userList = userMapper.selectAll(SqlParameter.getParameter().addLimit(pagedata.getPageNum(), pagedata.getPageSize()).getMap());
+        List<User> userList = userMapper.selectAll(SqlParameter.getParameter().addLimit(pagedata.getPageNum(),
+                pagedata.getPageSize()).addQuery("nickName",pagedata.getNickName())
+                .addQuery("openid",pagedata.getOpenid())
+                .addQuery("startTime",pagedata.getStartTime())
+                .addQuery("endTime",pagedata.getEndTime()).getMap());
         int count = userMapper.count(SqlParameter.getParameter().getMap());
         if (userList == null || userList.size() == 0) {
             result.setCodeMsg(ResponseCode.QUERY_NO_DATAS);
