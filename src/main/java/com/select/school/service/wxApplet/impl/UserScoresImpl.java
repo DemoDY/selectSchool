@@ -1029,8 +1029,8 @@ public class UserScoresImpl implements UserScoreService {
         //添加图片
         int pageNo2 = s.getFieldPositions("pd2").get(0).page;
         Rectangle signRect2 = s.getFieldPositions("pd2").get(0).position;
-        float x2 = signRect.getLeft();
-        float y2 = signRect.getBottom();
+        float x2 = signRect2.getLeft();
+        float y2 = signRect2.getBottom();
         // 图片路径
         String imagePath2 = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest();
         // 读图片
@@ -1038,7 +1038,7 @@ public class UserScoresImpl implements UserScoreService {
         // 获取操作的页面
         PdfContentByte under2 = ps.getOverContent(pageNo2);
         // 根据域的大小缩放图片
-        image2.scaleToFit(signRect.getWidth(), signRect.getHeight());
+        image2.scaleToFit(signRect2.getWidth(), signRect2.getHeight());
         // 添加图片
         image2.setAbsolutePosition(x2, y2);
         under2.addImage(image2);
@@ -1046,8 +1046,8 @@ public class UserScoresImpl implements UserScoreService {
         //添加图片
         int pageNo3 = s.getFieldPositions("pd3").get(0).page;
         Rectangle signRect3 = s.getFieldPositions("pd3").get(0).position;
-        float x3 = signRect.getLeft();
-        float y3 = signRect.getBottom();
+        float x3 = signRect3.getLeft();
+        float y3 = signRect3.getBottom();
         // 图片路径
         String imagePath3 = reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(1).getCrest();
         // 读图片
@@ -1055,7 +1055,7 @@ public class UserScoresImpl implements UserScoreService {
         // 获取操作的页面
         PdfContentByte under3 = ps.getOverContent(pageNo3);
         // 根据域的大小缩放图片
-        image3.scaleToFit(signRect.getWidth(), signRect.getHeight());
+        image3.scaleToFit(signRect3.getWidth(), signRect3.getHeight());
         // 添加图片
         image3.setAbsolutePosition(x3, y3);
         under3.addImage(image3);
