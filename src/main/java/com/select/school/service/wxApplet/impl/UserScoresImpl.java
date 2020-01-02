@@ -992,7 +992,8 @@ public class UserScoresImpl implements UserScoreService {
 
     //pdf文件生成
     public String templetTicket(ReportFileDTO reportFileDTO,int id) throws Exception {
-        PdfReader reader = new PdfReader("E://reporttemplate12.pdf");
+        PdfReader reader = new PdfReader("static/reporttemplate.pdf");
+//        PdfReader reader = new PdfReader("E://reporttemplate12.pdf");
         String fileName = "优肯留美择校详情"+id+".pdf";
         File file = new File(FileUploadUtils.getCrestBaseDir()+"/"+fileName);//新的地址
         //创建文件
