@@ -30,6 +30,15 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * @version: V1.0
+ * @author: 栾冰
+ * @className: WeChatController
+ * @packageName: com.select.school.controller
+ * @description: 小程序相关接口
+ * @data:
+ **/
+
 @Service
 public class UserScoresImpl implements UserScoreService {
 
@@ -87,15 +96,16 @@ public class UserScoresImpl implements UserScoreService {
             //判断问题分数不等于 并且分数不等于0 并且第一题不算入分数中
             String number = option.getNumber();
             if (number != null && !number.equals("0") && !number.equals("")) {
-                // 13 题
+                // 判断的数据皆问题题号 不可更改
+                // 14 题
                 if (problemId.equals("14")) {
                     act_sat = "SAT";
                     sat = option.getNumber();
-                } else if (problemId.equals("15")) { //13 题
+                } else if (problemId.equals("15")) { //15 题
                     act_sat = "ACT";
                     act = option.getNumber();
                 }
-                //15 题
+                //17 题
                 if (problemId.equals("17")) {
                     ib_ap = "AP";
                     ap = option.getNumber();
@@ -106,8 +116,8 @@ public class UserScoresImpl implements UserScoreService {
                 int i = Integer.parseInt(number);
                 num += i; //总分数
             }
+            //如果第15题选了第三题 则保存ap成绩
             if (problemId.equals("16")) {
-                //如果第15题选了第三题 则保存ap成绩
                 int seq = option.getSeq();
                 if (seq == 3) {
                     ib_ap = "AP";
@@ -179,14 +189,13 @@ public class UserScoresImpl implements UserScoreService {
             if (ielts == 4) ys = "6";
             if (ielts == 5) ys = "5.5";
             if (ielts == 6) ys = "5";
-            if (ielts == 8) {
-                ys = "0";
-            }
+            if (ielts == 8) ys = "0";
+
             // TODO 判断的数据都是绝对数值  禁止数据库有其他字 或者符号空格一类
             if (toefl == 1 || toefl == 7) {
                 // 1 如果 托福 是大于100分 以托福为主。不管雅思多少分
                 if (ielts == 1 || ielts == 2 || ielts == 3 || ielts == 4 || ielts == 5 || ielts == 6 || ielts == 7 || ielts == 8) {
-                    userScores.setTl(2); //雅思是1  托福 是2
+                    userScores.setTl(2); // 如果选择雅思 数据库存储状态是1  若托福则存储 2
                     userScores.setTlScore(tf);
                     tf = "100";
                     ys = "0";
@@ -276,31 +285,31 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         if (sex.equals("女")) {
-            //如果女生ap总成绩大于等于490 加10分
+            //如果女生ap总成绩大于等于490 则总成绩加10分
             if (ib_ap.equals("AP") && num >= 490) {
                 num = num + 10;
             }
-            //如果女生IB总成绩大于等于480 加10分
+            //如果女生IB总成绩大于等于480 总成绩加10分
             if (ib_ap.equals("IB") && num >= 480) {
                 num = num + 10;
             }
         }
-        // 第六题 如果选择1 加20
+        // 第六题 如果选择第一题 加20分
         if (StringUtils.isNotBlank(one)) {
             num = num + 20;
             userScores.setScores(num);
             userScores.setSixQuestion(one);
-            //如果选择1和2 加25
+            //如果选择第一题和第二题 加25分
         } else if (StringUtils.isNotBlank(one) && StringUtils.isNotBlank(two)) {
             num = num + 25;
             userScores.setScores(num);
             userScores.setSixQuestion("4");
-            //如果选择2 加10
+            //如果选择第二题 加10分
         } else if (StringUtils.isBlank(one) && StringUtils.isNotBlank(two)) {
             num = num + 10;
             userScores.setScores(num);
             userScores.setSixQuestion(two);
-            //如果两个都没选择
+            //如果选择第三题 不加不减
         } else if (StringUtils.isBlank(one) && StringUtils.isBlank(two) && StringUtils.isNotBlank(three)) {
             userScores.setScores(num);
             userScores.setSixQuestion("美国大学招生时比对您所在学校以往的录取记录，由于您的高中上两届毕业生中没有顶尖名校的录取记录，您得加倍努力。");
@@ -317,14 +326,14 @@ public class UserScoresImpl implements UserScoreService {
         if (toefl == 6 && ielts == 6) {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
-        //nosat不为null则没有选择sat成绩
+        //nosat不为null则表示没有选择sat成绩
         if (nosat.equals("0") && ib_ap.equals("IB") && num < 85) {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
         if (nosat.equals("0") && ib_ap.equals("AP") && num < 65) {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
-        //nosat为null则选择了sat成绩
+        //nosat为null则表示选择了sat成绩
         if (!nosat.equals("0") && ib_ap.equals("IB") && num < 5) {
             return AjaxResult.error(400, "在全美前300的综合性大学中，没有学校匹配您的输入条件。");
         }
@@ -340,7 +349,7 @@ public class UserScoresImpl implements UserScoreService {
         userScores.setRequired(twenty);
         userScores.setOpenId(openid);
         userScoresMapper.insertList(userScores);
-        //根据id 查询数据库 返回一个id 给小程序
+        //根据id 查询数据库 返回一个id 给微信小程序
         UserScoreVo userScores1 = userScoresMapper.selectId(userScores.getId());
         scores.setUserScoreId(userScores1.getId());
         scores.setActAvg(act);//act 平均
@@ -353,7 +362,7 @@ public class UserScoresImpl implements UserScoreService {
         scores.setIeltsLow(ys);
         scoresMapper.insertScores(scores);
         ajaxResult.put("userScores", userScores1);
-        if (version!=null) {
+        if (version!=null) { // version参数是微信小程序传输数据 不需要改
             payDate(ajaxResult,openid);
             return AjaxResult.successData(200, ajaxResult);
         }else {
@@ -364,11 +373,12 @@ public class UserScoresImpl implements UserScoreService {
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
-     *支付传给小程序的参数
+     * 微信支付传给小程序的参数
      * @param ajaxResult
      * @param openid
      */
     private void payDate(AjaxResult ajaxResult,String openid){
+        // 根据openid查询用户
         User user = userMapper.detail(SqlParameter.getParameter().addQuery("openid",openid).getMap());
         int i = user.getState();
         Money money = moneyMapper.findByState(i);
@@ -440,6 +450,7 @@ public class UserScoresImpl implements UserScoreService {
             }
 
         }
+        // 如果托福和雅思成绩很低 但是 考试成绩很高 则根据成绩来算
         if (tl == 1) {//雅思成绩
             if (scores >= 500) {
                 score = 7.5;
@@ -532,7 +543,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 }
                 //保底学校 Safety colleges
-                //因为ib成绩和ap成绩不一样  说一区间分数也不同（ib成绩比ap成绩高些）
+                //因为ib成绩和ap成绩不一样  所以区间分数也不同（ib成绩比ap成绩高些）
                 if (scores >= 500 && scores <= 600 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
                             .addQuery("ibActWeightMax", userScores.getScores() - 150).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
@@ -1058,7 +1069,6 @@ public class UserScoresImpl implements UserScoreService {
         // 添加图片
         image3.setAbsolutePosition(x3, y3);
         under3.addImage(image3);
-        
 
         s.setField("dSchoolProfileO", reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getSchoolProfile());
         s.setField("dChNameO",  reportFileDTO.getSchoolProfileVos().getDreamSchoolDTOS().get(0).getChName());
