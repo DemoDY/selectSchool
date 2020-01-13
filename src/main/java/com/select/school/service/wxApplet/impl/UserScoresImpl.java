@@ -392,6 +392,9 @@ public class UserScoresImpl implements UserScoreService {
      * @
      */
     public AjaxResult selectSchool(int id) {
+        ArrayList<String> list = new ArrayList<>();
+//            list.addAll();
+
         SqlParameter sql = SqlParameter.getParameter();
         AjaxResult ajaxResult = new AjaxResult();
         //根据id 查询成绩
@@ -980,7 +983,7 @@ public class UserScoresImpl implements UserScoreService {
         }
         String  fileName = null;
         try {
-            fileName = templetTicket(reportFileDTOS,id);
+            fileName = templetTicket(reportFileDTOS,id,list);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -991,7 +994,7 @@ public class UserScoresImpl implements UserScoreService {
 
 
     //pdf文件生成
-    public String templetTicket(ReportFileDTO reportFileDTO,int id) throws Exception {
+    public String templetTicket(ReportFileDTO reportFileDTO,int id,List<String> list) throws Exception {
         PdfReader reader = new PdfReader("E://reporttemplate12.pdf");
         String fileName = "优肯留美择校详情"+id+".pdf";
         File file = new File(FileUploadUtils.getCrestBaseDir()+"/"+fileName);//新的地址
@@ -1277,6 +1280,7 @@ public class UserScoresImpl implements UserScoreService {
         fos.close();//关闭输出流
         return fileName;
     }
+
     //保底学校
     private void safetyColleges(List<SchoolAdmissionScores> schoolAdmissionScores, ReportFileDTO
             reportFileDTO, UserScores userScores, SchoolProfileVo schoolVo) {
@@ -1287,6 +1291,11 @@ public class UserScoresImpl implements UserScoreService {
             SafetySchoolDTO safetySchoolDTO = new SafetySchoolDTO();
             //雷达图数据 radarMapVo
             List<RadarMapVo> radarMapVo = radarMap(scores, userScores);
+            // TODO 根据radarMapVo 生成String格式的 Option --->
+            String option = createOption(radarMapVo);
+            // TODO 生成的Option调 生成图片工具类 返回文件名 String
+
+//            list.add()
             List<SchoolDetails> schoolDetailsList = schoolDetails(scores,schoolProfile);
             //学校详情数据
             String detail = selectDetailsSafety(scores, userScores, schoolProfile);
@@ -1371,7 +1380,9 @@ public class UserScoresImpl implements UserScoreService {
     }
 
 
-    //获取学校详情数据信息
+    /**
+     * 获取学校详情数据信息
+     */
     private List<SchoolDetails> schoolDetails(SchoolAdmissionScores admissionScores,SchoolProfile schoolProfile) {
         List<SchoolDetails> schoolDetailsList = new ArrayList<>();
 
@@ -2811,6 +2822,119 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         return tf_detail + low_detail + high_detail + same_detail;
+    }
+
+
+
+    public String createOption(List<RadarMapVo> list){
+        String d = "{\n" +
+                "    \"backgroundColor\": \"#ffffff\",\n" +
+                "    \"color\": [\n" +
+                "        \"#37A2DA\",\n" +
+                "        \"#FF9F7F\"\n" +
+                "    ],\n" +
+                "    \"tooltip\": {\n" +
+                "        \"show\": false\n" +
+                "    },\n" +
+                "    \"legend\": {\n" +
+                "        \"data\": [\n" +
+                "            \"个人\",\n" +
+                "            \"学校\"\n" +
+                "        ],\n" +
+                "        \"orient\": \"vertical\",\n" +
+                "        \"left\": \"center\",\n" +
+                "        \"bottom\": \"bottom\"\n" +
+                "    },\n" +
+                "    \"xAxis\": {\n" +
+                "        \"show\": false\n" +
+                "    },\n" +
+                "    \"yAxis\": {\n" +
+                "        \"show\": false\n" +
+                "    },\n" +
+                "    \"radar\": {\n" +
+                "        \"indicator\": [\n" +
+                "            {\n" +
+                "                \"name\": \"GPA\",\n" +
+                "                \"max\": 100\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\": \"IB\",\n" +
+                "                \"max\": 100\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\": \"排名\",\n" +
+                "                \"max\": 100\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\": \"TOLFL\",\n" +
+                "                \"max\": 100\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\": \"SAT\",\n" +
+                "                \"max\": 100\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    },\n" +
+                "    \"series\": [\n" +
+                "        {\n" +
+                "            \"name\": \"\",\n" +
+                "            \"type\": \"radar\",\n" +
+                "            \"data\": [\n" +
+                "                {\n" +
+                "                    \"value\": [\n" +
+                "                        \"100\",\n" +
+                "                        \"76\",\n" +
+                "                        \"80\",\n" +
+                "                        \"79\",\n" +
+                "                        \"45\"\n" +
+                "                    ],\n" +
+                "                    \"name\": \"个人\",\n" +
+                "                    \"itemStyle\": {\n" +
+                "                        \"normal\": {\n" +
+                "                            \"color\": \"rgba(255,225,0,.9)\",\n" +
+                "                            \"lineStyle\": {\n" +
+                "                                \"color\": \"rgba(255,225,0,.9)\"\n" +
+                "                            }\n" +
+                "                        }\n" +
+                "                    },\n" +
+                "                    \"label\": {\n" +
+                "                        \"normal\": {\n" +
+                "                            \"show\": false\n" +
+                "                        }\n" +
+                "                    }\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"value\": [\n" +
+                "                        \"80\",\n" +
+                "                        \"41\",\n" +
+                "                        \"60\",\n" +
+                "                        \"100\",\n" +
+                "                        \"45\"\n" +
+                "                    ],\n" +
+                "                    \"name\": \"学校\",\n" +
+                "                    \"itemStyle\": {\n" +
+                "                        \"normal\": {\n" +
+                "                            \"color\": \"rgba(60,135,213,.9)\",\n" +
+                "                            \"lineStyle\": {\n" +
+                "                                \"color\": \"rgba(60,135,213,.9)\"\n" +
+                "                            }\n" +
+                "                        }\n" +
+                "                    },\n" +
+                "                    \"label\": {\n" +
+                "                        \"normal\": {\n" +
+                "                            \"show\": false\n" +
+                "                        }\n" +
+                "                    }\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"animation\": true,\n" +
+                "    \"animationDuration\": 2000\n" +
+                "}";
+
+        return d;
+//        radarMap();
     }
     
 }
