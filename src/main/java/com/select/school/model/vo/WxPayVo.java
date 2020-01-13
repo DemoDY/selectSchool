@@ -18,14 +18,14 @@ package com.select.school.model.vo;
 
 public class WxPayVo {
 
-    private String productId;       // 商品ID1
-    private String body;            // 商品描述1
+    private String productId;       // 商品ID (必传参数)
+    private String body;            // 商品描述  (必传参数)
     private String deviceInfo;      // 设备号
     private String openid;          // 用户标识
-    private double totalFee;        // 标价金额1
+    private double totalFee;        // 标价金额  (必传参数)
     private String spbillCreateIp;  // 终端IP
-    private String timeStart;       // 交易起始时间1
-    private String tradeType;       // 交易类型 	JSAPI
+    private String timeStart;       // 交易起始时间  (必传参数)
+    private String tradeType;       // 交易类型 	默认JSAPI
     private String orderNumber;     //订单号
 
     public String getOrderNumber() {

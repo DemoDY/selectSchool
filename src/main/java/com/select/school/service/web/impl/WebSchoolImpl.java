@@ -11,7 +11,6 @@ import com.select.school.utils.BeanCopierEx;
 import com.select.school.utils.dxm.result.ResponseCode;
 import com.select.school.utils.dxm.result.ResponseResult;
 import com.select.school.utils.dxm.sqlUtils.SqlParameter;
-import com.select.school.utils.result.AjaxResult;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
