@@ -137,18 +137,6 @@ public class EchartsUtils {
         System.out.println(picPath);
     }
 
-    /**
-     *
-     * @param
-     * @return
-     */
-    public String createImg(){
-//        String picPath = generateEChart(options);
-        return "";
-    }
-
-
-
     /*
      * 主程序
      */
