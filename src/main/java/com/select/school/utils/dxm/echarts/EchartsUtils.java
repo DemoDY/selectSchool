@@ -134,8 +134,20 @@ public class EchartsUtils {
                 "}";
 //        String options = "{\"backgroundColor\":\"#ffffff\",\"color\":[\"#37A2DA\",\"#FF9F7F\"],\"tooltip\":{\"show\":false},\"legend\":{\"data\":[\"个人\",\"学校\"],\"orient\":\"vertical\",\"left\":\"center\",\"bottom\":\"bottom\"},\"xAxis\":{\"show\":false},\"yAxis\":{\"show\":false},\"radar\":{\"indicator\":[{\"name\":\"GPA\",\"max\":100},{\"name\":\"IB\",\"max\":100},{\"name\":\"排名\",\"max\":100},{\"name\":\"TOLFL\",\"max\":100},{\"name\":\"SAT\",\"max\":100}]},\"series\":[{\"name\":\"\",\"type\":\"radar\",\"data\":[{\"value\":[\"100\",\"76\",\"80\",\"79\",\"45\"],\"name\":\"个人\",\"itemStyle\":{\"normal\":{\"color\":\"rgba(255,225,0,.9)\",\"lineStyle\":{\"color\":\"rgba(255,225,0,.9)\"}}},\"label\":{\"normal\":{\"show\":false}}},{\"value\":[\"80\",\"41\",\"60\",\"100\",\"45\"],\"name\":\"学校\",\"itemStyle\":{\"normal\":{\"color\":\"rgba(60,135,213,.9)\",\"lineStyle\":{\"color\":\"rgba(60,135,213,.9)\"}}},\"label\":{\"normal\":{\"show\":false}}}]}],\"animation\":true,\"animationDuration\":2000}";
         String picPath = generateEChart(options);
-
+        System.out.println(picPath);
     }
+
+    /**
+     *
+     * @param
+     * @return
+     */
+    public String createImg(){
+//        String picPath = generateEChart(options);
+        return "";
+    }
+
+
 
     /*
      * 主程序

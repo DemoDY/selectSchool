@@ -285,11 +285,11 @@ public class UserScoresImpl implements UserScoreService {
             }
         }
         if (sex.equals("女")) {
-            //如果女生ap总成绩大于等于490 则总成绩加10分
+            //如果女生ap总成绩大于等于490 加10分
             if (ib_ap.equals("AP") && num >= 490) {
                 num = num + 10;
             }
-            //如果女生IB总成绩大于等于480 总成绩加10分
+            //如果女生IB总成绩大于等于480 加10分
             if (ib_ap.equals("IB") && num >= 480) {
                 num = num + 10;
             }
@@ -546,7 +546,7 @@ public class UserScoresImpl implements UserScoreService {
                     }
                 }
                 //保底学校 Safety colleges
-                //因为ib成绩和ap成绩不一样  所以区间分数也不同（ib成绩比ap成绩高些）
+                //因为ib成绩和ap成绩不一样  说一区间分数也不同（ib成绩比ap成绩高些）
                 if (scores >= 500 && scores <= 600 && !noSat.equals("0")) {
                     schoolAdmissionScores = schoolAdmissionScoresMapper.selectIbActWeightDream(sql.addQuery("ibActWeightMin", 0)
                             .addQuery("ibActWeightMax", userScores.getScores() - 150).addQuery("toeflHigh", score).addQuery("toeflLow", 0).addQuery("tl", tl).addQuery("noSat", noSat).getMap());
@@ -994,7 +994,7 @@ public class UserScoresImpl implements UserScoreService {
         }
         String  fileName = null;
         try {
-            fileName = templetTicket(reportFileDTOS,id,list);
+            fileName = templetTicket(reportFileDTOS,id);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -1006,8 +1006,7 @@ public class UserScoresImpl implements UserScoreService {
 
     //pdf文件生成
     public String templetTicket(ReportFileDTO reportFileDTO,int id) throws Exception {
-        PdfReader reader = new PdfReader("static/reporttemplate.pdf");
-//        PdfReader reader = new PdfReader("E://reporttemplate12.pdf");
+        PdfReader reader = new PdfReader("E://reporttemplate12.pdf");
         String fileName = "优肯留美择校详情"+id+".pdf";
         File file = new File(FileUploadUtils.getCrestBaseDir()+"/"+fileName);//新的地址
         //创建文件
@@ -1302,11 +1301,6 @@ public class UserScoresImpl implements UserScoreService {
             SafetySchoolDTO safetySchoolDTO = new SafetySchoolDTO();
             //雷达图数据 radarMapVo
             List<RadarMapVo> radarMapVo = radarMap(scores, userScores);
-            // TODO 根据radarMapVo 生成String格式的 Option --->
-            String option = createOption(radarMapVo);
-            // TODO 生成的Option调 生成图片工具类 返回文件名 String
-
-//            list.add()
             List<SchoolDetails> schoolDetailsList = schoolDetails(scores,schoolProfile);
             //学校详情数据
             String detail = selectDetailsSafety(scores, userScores, schoolProfile);
