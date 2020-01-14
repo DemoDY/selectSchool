@@ -223,18 +223,18 @@
             <artifactId>json</artifactId>
             <version>20160810</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jfree/jfreechart -->
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.5.0</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jfree/jcommon -->
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jcommon</artifactId>
-            <version>1.0.24</version>
-        </dependency>
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.jfree/jfreechart &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.jfree</groupId>-->
+<!--            <artifactId>jfreechart</artifactId>-->
+<!--            <version>1.5.0</version>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.jfree/jcommon &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.jfree</groupId>-->
+<!--            <artifactId>jcommon</artifactId>-->
+<!--            <version>1.0.24</version>-->
+<!--        </dependency>-->
 
     </dependencies>
     <build>
